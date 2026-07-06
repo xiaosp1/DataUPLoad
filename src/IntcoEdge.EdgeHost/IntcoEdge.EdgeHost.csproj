@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>IntcoEdge.EdgeHost</RootNamespace>
+    <AssemblyName>IntcoEdge.EdgeHost</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\IntcoEdge.Common\IntcoEdge.Common.csproj" />
+    <ProjectReference Include="..\IntcoEdge.MesUpload\IntcoEdge.MesUpload.csproj" />
+    <ProjectReference Include="..\IntcoEdge.Storage\IntcoEdge.Storage.csproj" />
+  </ItemGroup>
+</Project>
