@@ -168,11 +168,12 @@ public class DtoSerializationTests
     }
 
     [Fact]
-    public void YkLoginRequest_FieldsPascalCase()
+    public void YkLoginRequest_WrapsStringInValueField()
     {
-        var dto = new YkLoginRequest { WorkShopCode = "WS01" };
+        var dto = YkLoginRequest.Wrap("HKSJSB");
         var json = JsonSerializer.Serialize(dto, Opt);
-        Assert.Contains("\"WorkShopCode\":", json);
+        // ★ PSM StringParamDTO 字段名 = Value
+        Assert.Contains("\"Value\":\"HKSJSB\"", json);
     }
 
     [Fact]
@@ -180,33 +181,155 @@ public class DtoSerializationTests
     {
         var dto = new YkLoginResponse
         {
-            UserId = "u001",
-            EmployeeId = "e001",
-            UserCode = "admin",
-            UserName = "管理员",
-            InvOrg = 100
+            UserId = 50001.0,
+            EmployeeId = 60002.0,
+            UserCode = "HKSJSB",
+            UserName = "海康视觉设备[HKSJSB]",
+            InvOrg = 1
         };
         var json = JsonSerializer.Serialize(dto, Opt);
         var back = JsonSerializer.Deserialize<YkLoginResponse>(json, Opt);
         Assert.NotNull(back);
-        Assert.Equal("u001", back!.UserId);
-        Assert.Equal(100, back.InvOrg);
+        Assert.Equal(50001.0, back!.UserId);
+        Assert.Equal(1, back.InvOrg);
     }
 
     [Fact]
-    public void YkRequestDto_OfLoginRequest_SerializesApiType()
+    public void YkListParam_WrapsListInValueField()
     {
-        var req = new YkRequestDto<YkLoginRequest>
+        var inner = new List<AlarmPushDto>
         {
-            ApiType = "inkey.user.login",
-            Method = "login",
-            Parameters = new List<YkLoginRequest> { new() { WorkShopCode = "WS01" } }
+            new() { WorkShop = "WS01", Line = "L01", Face = "A1" }
+        };
+        var wrapped = YkListParam<AlarmPushDto>.Wrap(inner);
+        var json = JsonSerializer.Serialize(wrapped, Opt);
+        // ★ PSM ListParamsDTO 字段名 = Value
+        Assert.Contains("\"Value\":[", json);
+        Assert.Contains("\"WorkShop\":\"WS01\"", json);
+    }
+
+    [Fact]
+    public void YkRequestDto_LoginFormat_MatchesAuthoritativeProtocol()
+    {
+        // 权威协议 3.1 的请求体：
+        // {
+        //   "ApiType": "AuthenticationController",
+        //   "Method": "Login",
+        //   "Parameters": [
+        //     { "Value": "HKSJSB" },
+        //     { "Value": "HKSJSB123" }
+        //   ],
+        //   "Context": {}
+        // }
+        var req = new YkRequestDto
+        {
+            ApiType = "AuthenticationController",
+            Method = "Login",
+            Parameters = new List<object>
+            {
+                YkLoginRequest.Wrap("HKSJSB"),
+                YkLoginRequest.Wrap("HKSJSB123"),
+            },
+            Context = null,
         };
         var json = JsonSerializer.Serialize(req, Opt);
-        Assert.Contains("\"ApiType\":\"inkey.user.login\"", json);
-        Assert.Contains("\"Method\":\"login\"", json);
-        Assert.Contains("\"Parameters\":", json);
-        Assert.Contains("\"WorkShopCode\":\"WS01\"", json);
+        Assert.Contains("\"ApiType\":\"AuthenticationController\"", json);
+        Assert.Contains("\"Method\":\"Login\"", json);
+        Assert.Contains("\"Parameters\":[", json);
+        Assert.Contains("{\"Value\":\"HKSJSB\"}", json);
+        Assert.Contains("{\"Value\":\"HKSJSB123\"}", json);
+        // Context=null 时不写入 JSON（避免英科网关拿到空对象而非缺失字段）
+        Assert.DoesNotContain("\"Context\":", json);
+    }
+
+    [Fact]
+    public void YkRequestDto_PushAlarmFormat_MatchesAuthoritativeProtocol()
+    {
+        // 权威协议 3.2 的请求体：
+        // {
+        //   "ApiType": "VisualInspectionController",
+        //   "Method": "HandleVisualInspectionAlarm",
+        //   "Parameters": [
+        //     { "Value": [ { WorkShop, Line, Face, AlarmTime, ... } ] }
+        //   ],
+        //   "Context": { Ticket: "...", InvOrgId: 1 }
+        // }
+        var req = new YkRequestDto
+        {
+            ApiType = "VisualInspectionController",
+            Method = "HandleVisualInspectionAlarm",
+            Parameters = new List<object>
+            {
+                YkListParam<AlarmPushDto>.Wrap(new List<AlarmPushDto>
+                {
+                    new()
+                    {
+                        WorkShop = "QZN2",
+                        Line = "L01",
+                        Face = "A1",
+                        AlarmTime = "2026-07-20T14:30:00",
+                        AlarmType = "defect",
+                        AlarmLevel = "严重",
+                        AlarmDetails = "底面破损",
+                        AlarmResult = "已处理",
+                        AlarmCount = 1,
+                    }
+                }),
+            },
+            Context = new YkContextDto { Ticket = "test-ticket", InvOrgId = 1 },
+        };
+        var json = JsonSerializer.Serialize(req, Opt);
+        Assert.Contains("\"ApiType\":\"VisualInspectionController\"", json);
+        Assert.Contains("\"Method\":\"HandleVisualInspectionAlarm\"", json);
+        Assert.Contains("\"Parameters\":[{", json);
+        // ★ 关键：Parameters[0] = {Value: [...]}，列表里包含业务对象
+        Assert.Contains("\"Value\":[{", json);
+        Assert.Contains("\"WorkShop\":\"QZN2\"", json);
+        Assert.Contains("\"Line\":\"L01\"", json);
+        Assert.Contains("\"AlarmCount\":1", json);
+        Assert.Contains("\"Context\":{\"Ticket\":\"test-ticket\",\"InvOrgId\":1}", json);
+    }
+
+    [Fact]
+    public void YkContextDto_FieldNames_PascalCase()
+    {
+        var ctx = new YkContextDto { Ticket = "tk", InvOrgId = 1 };
+        var json = JsonSerializer.Serialize(ctx, Opt);
+        Assert.Contains("\"Ticket\":\"tk\"", json);
+        Assert.Contains("\"InvOrgId\":1", json);
+    }
+
+    [Fact]
+    public void YkResponseDto_DeserializesContextAndResult()
+    {
+        // 模拟英科登录响应：Result 是 LoginResult，Context.Ticket 才是凭证
+        var json = """
+        {
+          "Success": true,
+          "Message": null,
+          "Result": {
+            "UserId": "50001",
+            "EmployeeId": "60002",
+            "UserCode": "HKSJSB",
+            "UserName": "海康视觉设备[HKSJSB]",
+            "InvOrg": 1
+          },
+          "Context": {
+            "Ticket": "abc123-ticket-xxx",
+            "InvOrgId": 1
+          }
+        }
+        """;
+        var resp = JsonSerializer.Deserialize<YkResponseDto>(json, Opt);
+        Assert.NotNull(resp);
+        Assert.True(resp!.Success);
+        Assert.NotNull(resp.Context);
+        Assert.Equal("abc123-ticket-xxx", resp.Context!.Ticket);
+        Assert.Equal(1, resp.Context.InvOrgId);
+        var login = resp.DeserializeResult<YkLoginResponse>();
+        Assert.NotNull(login);
+        Assert.Equal("HKSJSB", login!.UserCode);
+        Assert.Equal(1, login.InvOrg);
     }
 
     [Fact]

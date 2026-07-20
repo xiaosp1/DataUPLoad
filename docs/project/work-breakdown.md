@@ -220,9 +220,9 @@ W10:   [C3 cont]            （部署 + 文档 + 上线观察）
 | A1 | 项目骨架 + HTTP 接收端 | **w-a1-skeleton** | ✅ DONE 16:28（6 项目 net8.0，5288 /health 200，sln 头 0D F0 09 00）| 老板批 |
 | A2 | 数据库 schema + 迁移 | **w-a2-db-schema** | ✅ DONE 16:29（22 表 = 20 user + sqlite_sequence + flyway_schema_history，19 Flyway 脚本 success=1）| 老板批 |
 | A3 | DTO 定义 + HTTP 客户端 | **w-a3-dto-httpclient** | ✅ DONE 17:02（16 DTO + 4 HTTP 客户端 + 3 控制器 + 27 单元测试 + 冒烟测试）| 16:47 派工 |
-| A4 | 视觉数据接收端 | **w-a4-receive-store** | 🟢 17:15 派工 | A3 完成 |
-| A5 | 字典 + 缺陷查询 | **w-a5-dict-query** | 🟢 17:15 派工 | A3 完成 |
-| A6 | 英科登录 + Ticket 管理 | **w-a6-yk-gateway** | 🟢 17:15 派工 | A3 完成 |
+| A4 | 视觉数据接收端 | **w-a4-receive-store** | ✅ DONE 17:25（3 Repository + 真存库） | 17:15 派工 |
+| A5 | 字典 + 缺陷查询 | **w-a5-dict-query** | ✅ DONE 17:42（5 API + 40 测试） | 17:15 派工 |
+| A6 | 英科登录 + Ticket 管理 | **w-a6-yk-gateway** | ✅ DONE 17:38（重写协议 + 真实登录） | 17:15 派工 |
 | A7 | 报警推送 | TBD | 🟡 待派工 | A4+A6 完成 |
 | B1 | Web 大屏 | **w-b1-webui** | ✅ DONE 16:55（Vue 3 + Element Plus + ECharts，20 文件，dotnet build 0 错）| 16:47 派工 |
 | B2 | Web 查询页（6 个）| TBD | 🟡 待派工 | A5 完成 |
@@ -231,13 +231,20 @@ W10:   [C3 cont]            （部署 + 文档 + 上线观察）
 | C2 | 看门狗服务化 | TBD | 🟡 待派工 | C1 完成 |
 | C3 | 部署 + 文档 | TBD | 🟡 待派工 | C1+C2 完成 |
 
-### 📊 进度（★ 17:15 更新）
+### 📊 进度（★ 18:00 更新）
 
 | 状态 | Task 数 | 占比 |
 |---|---|---|
-| ✅ 已完成 | **5**（A1, A2, A3, B1, B3）| **38%** |
-| 🟢 跑着 | **3**（A4, A5, A6 并行）| **23%** |
-| 🟡 待派工 | **5** | **38%** |
+| ✅ 已完成 | **8**（A1-A6, B1, B3）| **62%** |
+| 🟢 跑着 | **0** | **0%** |
+| 🟡 待派工 | **5**（A7, B2, C1, C2, C3）| **38%** |
+
+**PM 集成验收（18:00）**：build 0 错 / test 109/109 通过 / 端到端验证
+- POST /client/data/detect 写入 line_day_record + status_record ✅
+- POST /client/yk/login 真实英科网关登录拿 ticket (userId=36056) ✅
+- GET /api/line/statistic 返回产线统计 ✅
+- POST /api/defect/query 返回分页缺陷（fixture 3 行）✅
+- GET /health 返回 ok ✅
 
 ---
 

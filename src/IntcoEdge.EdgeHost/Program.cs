@@ -1,4 +1,6 @@
 using IntcoEdge.Common;
+using IntcoEdge.Db;
+using IntcoEdge.Db.Repository;
 using IntcoEdge.EdgeHost.Clients;
 using IntcoEdge.EdgeHost.Services;
 using Microsoft.Extensions.FileProviders;
@@ -33,12 +35,60 @@ builder.Services.AddHttpClient<VisionHttpClient>((sp, http) =>
 });
 
 // 业务客户端
+// W-A6：YkTicketCache 必须 Singleton（跨请求共享 ticket）
+builder.Services.AddSingleton(sp =>
+{
+    var opt = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<YingkeGatewayOptions>>().Value;
+    return new IntcoEdge.EdgeHost.Models.YkTicketCache(TimeSpan.FromMinutes(opt.TicketCacheMinutes));
+});
 builder.Services.AddSingleton<YingkeGatewayClient>();
+
+// SQLite 连接工厂：W-A5 字典 / 缺陷查询仓储共用。
+// 路径优先级：配置 > Constants 默认值 > "data/intco.db"。
+var dbPath = builder.Configuration["IntcoEdge:DbPath"]
+             ?? Constants.DefaultDbPath;
+// PM 17:58 修复 v4：固定用 IntcoEdge.Db 项目目录的 data/intco.db。
+// （不查 BaseDirectory/data，避免 EdgeHost 自己创建空 DB）
+string resolved;
+if (Path.IsPathRooted(dbPath))
+{
+    resolved = dbPath!;
+}
+else
+{
+    // 沿父目录向上找 src/IntcoEdge.Db/data/intco.db
+    string? found = null;
+    var dir = new DirectoryInfo(AppContext.BaseDirectory);
+    for (int i = 0; i < 6 && dir != null; i++)
+    {
+        var candidate = Path.Combine(dir.FullName, "src", "IntcoEdge.Db", "data", "intco.db");
+        if (File.Exists(candidate))
+        {
+            found = candidate;
+            break;
+        }
+        dir = dir.Parent;
+    }
+    resolved = found ?? Path.Combine(AppContext.BaseDirectory, dbPath ?? "data/intco.db");
+}
+builder.Services.AddSingleton(new SqliteConnectionFactory(resolved));
+
+// 仓储（W-A5）
+builder.Services.AddSingleton<IDictionaryRepository, DictionaryRepository>();
+  // PM 17:45 修复：W-A4 漏注册仓储
+  builder.Services.AddSingleton<ILineRecordRepository, LineRecordRepository>();
+  builder.Services.AddSingleton<IAlarmRecordRepository, AlarmRecordRepository>();
+  builder.Services.AddSingleton<IDefectRecordRepository, DefectRecordRepository>();
+builder.Services.AddSingleton<IDefectQueryRepository, DefectQueryRepository>();
 
 // 业务服务
 builder.Services.AddSingleton<ILineRecordService, LineRecordService>();
 builder.Services.AddSingleton<IAlarmService, AlarmService>();
 builder.Services.AddSingleton<IYingkeService, YingkeService>();
+
+// W-A5：字典查询 + 缺陷查询 + 产线统计
+builder.Services.AddSingleton<IDictionaryService, DictionaryService>();
+builder.Services.AddSingleton<IDefectQueryService, DefectQueryService>();
 
 // 控制器（用 W-A3 写的 DetectController / DefectController / YkController）
 builder.Services.AddControllers()
@@ -96,7 +146,12 @@ if (!webUiMounted)
         "  POST /client/yk/defect-records               -> DefectController\n" +
         "  POST /client/yk/login                        -> YkController\n" +
         "  GET  /client/yk/line-defect                  -> YkController\n" +
-        "  POST /client/yk/defect-query                 -> YkController\n",
+        "  POST /client/yk/defect-query                 -> YkController\n" +
+        "  GET  /api/dict/defect-type                   -> DefectController (W-A5)\n" +
+        "  GET  /api/dict/defect-group                  -> DefectController (W-A5)\n" +
+        "  GET  /api/dict/face-group                    -> DefectController (W-A5)\n" +
+        "  POST /api/defect/query                       -> DefectController (W-A5)\n" +
+        "  GET  /api/line/statistic?lineNo=...          -> DefectController (W-A5)\n",
         "text/plain; charset=utf-8"));
 }
 
@@ -120,7 +175,10 @@ app.Logger.LogInformation(
     5288,
     app.Environment.EnvironmentName,
     ykOpt.Url,
-    ykOpt.ApiType);
+    // W-A4 把 YingkeGatewayOptions.ApiType 移除了（YingkeOptions 重构）；
+    // 启动日志这行没跟上更新，暂时硬编码 "edge.dataTrans" 避免 build break。
+    // TODO(W-A4/W-A6): 重构完后从配置读回正确的 ApiType。
+    "edge.dataTrans");
 
 app.Run();
 

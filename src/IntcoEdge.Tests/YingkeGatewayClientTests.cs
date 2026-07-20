@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using IntcoEdge.Common;
 using IntcoEdge.EdgeHost.Clients;
 using IntcoEdge.EdgeHost.Models;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -9,136 +10,241 @@ using Xunit;
 namespace IntcoEdge.Tests;
 
 /// <summary>
-/// 英科网关客户端行为测试：登录 / ticket 缓存 / 缺陷查询 / 报警推送。
+/// 英科网关客户端行为测试：登录 / ticket 缓存 / 报警推送（按权威协议）。
+/// 反编译参考：`com.hikrobotics.solution.module.yingke.service.impl.YKServiceImpl`。
 /// </summary>
 public class YingkeGatewayClientTests
 {
-    private static (YingkeGatewayClient Client, FakeHttpMessageHandler Handler) Build(
+    private static (YingkeGatewayClient Client, FakeHttpMessageHandler Handler, YkTicketCache Cache) Build(
         string url = "http://yk-gw:10031/api/dataportal/invoke",
         int retryCount = 0,
-        int timeoutMs = 5000)
+        int timeoutMs = 5000,
+        int ticketCacheMinutes = 45,
+        bool enabled = true)
     {
         var handler = new FakeHttpMessageHandler();
         var http = new HttpClient(handler) { Timeout = TimeSpan.FromMilliseconds(timeoutMs) };
         var inner = new IntcoHttpClient(http, NullLogger<IntcoHttpClient>.Instance, retryCount);
-        var opts = Options.Create(new YingkeGatewayOptions { Url = url, ApiType = "inkey.edge.dataTrans" });
-        var client = new YingkeGatewayClient(inner, opts, NullLogger<YingkeGatewayClient>.Instance);
-        return (client, handler);
+        var opts = Options.Create(new YingkeGatewayOptions
+        {
+            Url = url,
+            Username = "HKSJSB",
+            Password = "HKSJSB123",
+            WorkshopCode = "QZN2",
+            InvOrgId = 1,
+            TicketCacheMinutes = ticketCacheMinutes,
+            Enabled = enabled,
+        });
+        var cache = new YkTicketCache(TimeSpan.FromMinutes(ticketCacheMinutes));
+        var client = new YingkeGatewayClient(inner, opts, cache, NullLogger<YingkeGatewayClient>.Instance);
+        return (client, handler, cache);
     }
 
-    [Fact]
-    public async Task LoginAsync_ReturnsLoginResponse()
+    // ★ 测试用 fixture：英科登录响应模板
+    private const string LoginResponseJson = """
     {
-        var (client, handler) = Build();
-        // PSM 端 Result 是 Object，Jackson 默认序列化内嵌对象（不是 JSON 字符串）
-        var respJson = "{\"Success\":true,\"Message\":\"ok\",\"Result\":{\"UserId\":\"u-001\",\"UserCode\":\"admin\",\"UserName\":\"管理员\",\"InvOrg\":100}}";
-        handler.Enqueue(HttpStatusCode.OK, respJson);
+      "Success": true,
+      "Message": null,
+      "Result": {
+        "UserId": "50001",
+        "EmployeeId": "60002",
+        "UserCode": "HKSJSB",
+        "UserName": "海康视觉设备[HKSJSB]",
+        "InvOrg": 1
+      },
+      "Context": {
+        "Ticket": "ABC-TICKET-XXX-YYY",
+        "InvOrgId": 1
+      }
+    }
+    """;
 
-        var resp = await client.LoginAsync("WS01");
+    [Fact]
+    public async Task LoginAsync_SendsAuthenticationControllerLoginRequest()
+    {
+        var (client, handler, _) = Build();
+        handler.Enqueue(HttpStatusCode.OK, LoginResponseJson);
+
+        var resp = await client.LoginAsync();
 
         Assert.NotNull(resp);
-        Assert.Equal("u-001", resp!.UserId);
-        Assert.Equal("admin", resp.UserCode);
-        Assert.Equal(100, resp.InvOrg);
+        Assert.Equal(50001.0, resp!.UserId);
+        Assert.Equal("HKSJSB", resp.UserCode);
+        Assert.Equal(1, resp.InvOrg);
 
-        // 验证请求体里 ApiType 是 inkey.user.login
-        Assert.Contains("\"ApiType\":\"inkey.user.login\"", handler.ReceivedBodies[0]);
-        Assert.Contains("\"WorkShopCode\":\"WS01\"", handler.ReceivedBodies[0]);
+        // ★ 关键断言（按权威协议 3.1）：
+        // ApiType = "AuthenticationController"，不是 "inkey.user.login"
+        // Method  = "Login"
+        // Parameters = [{Value: "HKSJSB"}, {Value: "HKSJSB123"}]
+        var body = handler.ReceivedBodies[0];
+        Assert.Contains("\"ApiType\":\"AuthenticationController\"", body);
+        Assert.Contains("\"Method\":\"Login\"", body);
+        Assert.Contains("{\"Value\":\"HKSJSB\"}", body);
+        Assert.Contains("{\"Value\":\"HKSJSB123\"}", body);
+        // Context = null 时不写入 JSON
+        Assert.DoesNotContain("\"Context\":", body);
     }
 
     [Fact]
     public async Task GetTicketAsync_CachesAcrossCalls()
     {
-        var (client, handler) = Build();
-        var respJson = "{\"Success\":true,\"Message\":\"ok\",\"Result\":{\"UserId\":\"u-ticket-001\",\"UserCode\":\"admin\",\"InvOrg\":100}}";
-        handler.Enqueue(HttpStatusCode.OK, respJson);
+        var (client, handler, cache) = Build();
+        handler.Enqueue(HttpStatusCode.OK, LoginResponseJson);
 
-        var t1 = await client.GetTicketAsync("WS01");
-        var t2 = await client.GetTicketAsync("WS01");
+        var (t1, org1) = await client.GetTicketAsync();
+        var (t2, org2) = await client.GetTicketAsync();
 
-        Assert.Equal("u-ticket-001", t1);
-        Assert.Equal("u-ticket-001", t2);
+        // ★ 关键：ticket 来自 Context.Ticket，不是 Result.UserId
+        Assert.Equal("ABC-TICKET-XXX-YYY", t1);
+        Assert.Equal("ABC-TICKET-XXX-YYY", t2);
+        Assert.Equal(1, org1);
+        Assert.Equal(1, org2);
         // 仅登录一次
         Assert.Single(handler.ReceivedRequests);
+        // 缓存命中
+        Assert.Equal("ABC-TICKET-XXX-YYY", cache.DebugState.Ticket);
     }
 
     [Fact]
-    public async Task GetTicketAsync_DifferentWorkshops_TriggersSeparateLogins()
+    public async Task GetTicketAsync_DisabledOptions_ReturnsNull()
     {
-        var (client, handler) = Build();
-        handler.Enqueue(HttpStatusCode.OK, "{\"Success\":true,\"Result\":{\"UserId\":\"t-WS01\"}}");
-        handler.Enqueue(HttpStatusCode.OK, "{\"Success\":true,\"Result\":{\"UserId\":\"t-WS02\"}}");
+        var (client, _, _) = Build(enabled: false);
 
-        var t1 = await client.GetTicketAsync("WS01");
-        var t2 = await client.GetTicketAsync("WS02");
+        var (t, org) = await client.GetTicketAsync();
 
-        Assert.Equal("t-WS01", t1);
-        Assert.Equal("t-WS02", t2);
-        Assert.Equal(2, handler.ReceivedRequests.Count);
+        Assert.Null(t);
+        Assert.Null(org);
     }
 
     [Fact]
-    public async Task QueryDefectAsync_PreservesLindGroupTypo()
+    public async Task GetTicketAsync_LoginFailure_ReturnsNullAndPreservesOldCache()
     {
-        var (client, handler) = Build();
-        handler.Enqueue(HttpStatusCode.OK,
-            "{\"Success\":true,\"Message\":\"\",\"Result\":\"[]\"}");
+        var (client, handler, cache) = Build();
 
-        var query = new SearchDefectRecordDto
+        // 首次登录成功（拿到 ticket）
+        handler.Enqueue(HttpStatusCode.OK, LoginResponseJson);
+        var (t1, _) = await client.GetTicketAsync();
+        Assert.Equal("ABC-TICKET-XXX-YYY", t1);
+
+        // 强制让缓存过期 + 让登录失败
+        cache.Invalidate();
+        handler.Enqueue(HttpStatusCode.InternalServerError, "{}");
+
+        var (t2, _) = await client.GetTicketAsync();
+        // 登录失败：返回 null（旧 ticket 也不保留）
+        Assert.Null(t2);
+    }
+
+    [Fact]
+    public async Task PushAlarmAsync_SendsVisualInspectionControllerRequest()
+    {
+        var (client, handler, _) = Build();
+        handler.Enqueue(HttpStatusCode.OK, LoginResponseJson); // 登录
+        handler.Enqueue(HttpStatusCode.OK, """
         {
-            StartTime = "2026-07-20 00:00:00",
-            EndTime = "2026-07-20 23:59:59",
-            LindGroup = new List<string> { "L01" },
-            DefectGroup = new List<string> { "001" },
-            FaceGroup = new List<string> { "A1" }
-        };
-
-        var resp = await client.QueryDefectAsync(new YkDefectQueryRequest
-        {
-            Parameters = new List<SearchDefectRecordDto> { query }
-        });
-
-        Assert.NotNull(resp);
-        Assert.True(resp!.Success);
-        // 关键断言：lindGroup typo 必须保留
-        Assert.Contains("\"lindGroup\":[\"L01\"]", handler.ReceivedBodies[0]);
-    }
-
-    [Fact]
-    public async Task PushAlarmAsync_PostsPascalCaseFields()
-    {
-        var (client, handler) = Build();
-        handler.Enqueue(HttpStatusCode.OK, "");
+          "Success": true,
+          "Message": null,
+          "Result": { "code": 200, "message": null },
+          "Context": { "Ticket": "abc", "InvOrgId": 1 }
+        }
+        """); // 推报警
 
         var alarm = new AlarmPushDto
         {
-            WorkShop = "WS01",
+            WorkShop = "QZN2",
             Line = "L01",
             Face = "A1",
-            AlarmTime = "2026-07-20 14:55:00",
-            AlarmType = "defect",
+            AlarmTime = "2026-07-20T14:30:00",
+            AlarmType = "缺陷报警",
             AlarmLevel = "严重",
             AlarmDetails = "底面破损",
-            AlarmCount = 1
+            AlarmResult = "已处理",
+            AlarmCount = 1,
         };
 
-        var status = await client.PushAlarmAsync(alarm);
+        var code = await client.PushAlarmAsync(new List<AlarmPushDto> { alarm });
 
-        Assert.Equal(HttpStatusCode.OK, status);
-        var body = handler.ReceivedBodies[0];
-        Assert.Contains("\"WorkShop\":\"WS01\"", body);
-        Assert.Contains("\"Line\":\"L01\"", body);
-        Assert.Contains("\"AlarmDetails\":\"底面破损\"", body);
-        Assert.Contains("\"AlarmCount\":1", body);
+        Assert.Equal(200, code);
+
+        // ★ 关键断言（按权威协议 3.2）：
+        // ApiType = "VisualInspectionController"
+        // Method  = "HandleVisualInspectionAlarm"
+        // Parameters[0] = {Value: [{AlarmPushDto...}]}
+        // Context.Ticket 必须从缓存里拿出来带上
+        var pushBody = handler.ReceivedBodies[1];
+        Assert.Contains("\"ApiType\":\"VisualInspectionController\"", pushBody);
+        Assert.Contains("\"Method\":\"HandleVisualInspectionAlarm\"", pushBody);
+        Assert.Contains("\"Value\":[{", pushBody);
+        Assert.Contains("\"WorkShop\":\"QZN2\"", pushBody);
+        Assert.Contains("\"Line\":\"L01\"", pushBody);
+        Assert.Contains("\"AlarmCount\":1", pushBody);
+        Assert.Contains("\"Context\":{\"Ticket\":\"ABC-TICKET-XXX-YYY\",\"InvOrgId\":1}", pushBody);
     }
 
     [Fact]
-    public async Task LoginAsync_NullResponse_ReturnsNull()
+    public async Task PushAlarmAsync_BusinessCode400_Returns400()
     {
-        var (client, handler) = Build();
+        var (client, handler, _) = Build();
+        handler.Enqueue(HttpStatusCode.OK, LoginResponseJson);
+        handler.Enqueue(HttpStatusCode.OK, """
+        {
+          "Success": true,
+          "Message": null,
+          "Result": { "code": 400, "message": "处理报警时出错 Object reference not set to an instance of an object." },
+          "Context": { "Ticket": "abc", "InvOrgId": 1 }
+        }
+        """);
+
+        var code = await client.PushAlarmAsync(new List<AlarmPushDto>
+        {
+            new() { WorkShop = "QZN2", Line = "L01", Face = "A1" }
+        });
+
+        Assert.Equal(400, code);
+    }
+
+    [Fact]
+    public async Task PushAlarmAsync_EmptyList_ReturnsNullWithoutHttpCall()
+    {
+        var (client, handler, _) = Build();
+
+        var code = await client.PushAlarmAsync(new List<AlarmPushDto>());
+
+        Assert.Null(code);
+        Assert.Empty(handler.ReceivedRequests); // 不发请求
+    }
+
+    [Fact]
+    public async Task PushAlarmAsync_DisabledOptions_ReturnsNull()
+    {
+        var (client, _, _) = Build(enabled: false);
+
+        var code = await client.PushAlarmAsync(new List<AlarmPushDto>
+        {
+            new() { WorkShop = "QZN2", Line = "L01", Face = "A1" }
+        });
+
+        Assert.Null(code);
+    }
+
+    [Fact]
+    public async Task LoginAsync_SuccessFalse_ReturnsNull()
+    {
+        var (client, handler, _) = Build();
+        handler.Enqueue(HttpStatusCode.OK, """{"Success":false,"Message":"bad creds"}""");
+
+        var resp = await client.LoginAsync();
+
+        Assert.Null(resp);
+    }
+
+    [Fact]
+    public async Task LoginAsync_Http500_ReturnsNull()
+    {
+        var (client, handler, _) = Build();
         handler.Enqueue(HttpStatusCode.InternalServerError, "{}");
 
-        var resp = await client.LoginAsync("WS01");
+        var resp = await client.LoginAsync();
 
         Assert.Null(resp);
     }

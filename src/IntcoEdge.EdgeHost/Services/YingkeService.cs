@@ -1,4 +1,3 @@
-using IntcoEdge.Common;
 using IntcoEdge.EdgeHost.Clients;
 using IntcoEdge.EdgeHost.Models;
 using Microsoft.Extensions.Logging;
@@ -6,18 +5,26 @@ using Microsoft.Extensions.Logging;
 namespace IntcoEdge.EdgeHost.Services;
 
 /// <summary>
-/// 英科网关业务服务：登录拿 ticket + 缺陷查询 + 字典拉取。
+/// 英科网关业务服务：
+///   - 登录拿 ticket（带缓存）
+///   - 推送报警
+///   - 产线-缺陷字典查询（占位：W-A5 完成后从 PSM 取）
+///
 /// Controllers 只调本服务，不直接动 YingkeGatewayClient，便于切实现 + 集中日志。
 /// </summary>
 public interface IYingkeService
 {
-    /// <summary>英科登录并缓存 ticket（首次会远程登录）。</summary>
-    Task<YkLoginResponse?> LoginAsync(string workshopCode, CancellationToken ct = default);
+    /// <summary>英科登录，返回用户信息（不返回 ticket，ticket 在内部缓存）。</summary>
+    Task<YkLoginResponse?> LoginAsync(CancellationToken ct = default);
 
-    /// <summary>查英科缺陷记录。</summary>
-    Task<YkDefectQueryResponse?> QueryDefectAsync(SearchDefectRecordDto query, CancellationToken ct = default);
+    /// <summary>取 ticket（懒加载 + 缓存）。</summary>
+    Task<(string? Ticket, int? InvOrgId)> GetTicketAsync(CancellationToken ct = default);
 
-    /// <summary>英科产线-缺陷字典（占位：PSM 端 `LineAndDefectDTO` 的 Get 接口待补）。</summary>
+    /// <summary>推送报警到英科网关（自动管 ticket + 批量）。</summary>
+    /// <returns>英科业务 code（200/400）。通道失败返回 null。</returns>
+    Task<int?> PushAlarmAsync(IReadOnlyList<AlarmPushDto> alarms, CancellationToken ct = default);
+
+    /// <summary>英科产线-缺陷字典（占位：PSM 端 `LineAndDefectDTO` 的查询接口细节待补）。</summary>
     Task<IReadOnlyList<string>> GetLineDefectDictionaryAsync(string workshopCode, CancellationToken ct = default);
 }
 
@@ -32,29 +39,35 @@ public class YingkeService : IYingkeService
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public async Task<YkLoginResponse?> LoginAsync(string workshopCode, CancellationToken ct = default)
+    public Task<YkLoginResponse?> LoginAsync(CancellationToken ct = default)
     {
-        _logger.LogInformation("YingkeService.LoginAsync workshopCode={Workshop}", workshopCode);
-        return await _ykClient.LoginAsync(workshopCode, ct).ConfigureAwait(false);
+        _logger.LogInformation("YingkeService.LoginAsync");
+        return _ykClient.LoginAsync(ct);
     }
 
-    public async Task<YkDefectQueryResponse?> QueryDefectAsync(SearchDefectRecordDto query, CancellationToken ct = default)
+    public Task<(string? Ticket, int? InvOrgId)> GetTicketAsync(CancellationToken ct = default)
+        => _ykClient.GetTicketAsync(ct);
+
+    public async Task<int?> PushAlarmAsync(IReadOnlyList<AlarmPushDto> alarms, CancellationToken ct = default)
     {
-        if (query == null)
+        if (alarms == null || alarms.Count == 0)
         {
-            throw new ArgumentNullException(nameof(query));
+            return null;
         }
 
-        _logger.LogInformation(
-            "YingkeService.QueryDefectAsync startTime={Start} endTime={End} lindGroup={LindCount} defectGroup={DefectCount} faceGroup={FaceCount}",
-            query.StartTime,
-            query.EndTime,
-            query.LindGroup?.Count ?? 0,
-            query.DefectGroup?.Count ?? 0,
-            query.FaceGroup?.Count ?? 0);
+        _logger.LogInformation("YingkeService.PushAlarmAsync count={Count}", alarms.Count);
+        var code = await _ykClient.PushAlarmAsync(alarms, ct).ConfigureAwait(false);
 
-        var request = new YkDefectQueryRequest { Parameters = new List<SearchDefectRecordDto> { query } };
-        return await _ykClient.QueryDefectAsync(request, ct).ConfigureAwait(false);
+        if (code == 200)
+        {
+            _logger.LogInformation("YingkeService.PushAlarmAsync 成功 count={Count}", alarms.Count);
+        }
+        else
+        {
+            _logger.LogWarning("YingkeService.PushAlarmAsync 业务失败 code={Code} count={Count}",
+                code, alarms.Count);
+        }
+        return code;
     }
 
     public Task<IReadOnlyList<string>> GetLineDefectDictionaryAsync(string workshopCode, CancellationToken ct = default)

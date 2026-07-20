@@ -42,12 +42,25 @@ public static class Constants
     /// <summary>英科网关查产线-缺陷字典端点。</summary>
     public const string YkLineDefectPath = "/client/yk/line-defect";
 
-    /// <summary>英科网关 ApiType：边缘数据上传。</summary>
-    public const string YkApiTypeEdgeData = "inkey.edge.dataTrans";
+    // ============ W-A6：英科网关 ApiType/Method 常量（按 PSM 反编译精确字符串） ============
+    // 反编译来源：`docs/domain/海康大屏逆向/PSM/server/decompiled/com/hikrobotics/solution/module/yingke/service/impl/YKServiceImpl.java`
+    //
+    // ⚠️ 这些 ApiType 是**控制器类名**，不是自定义的 `inkey.*` 路由键。
+    // PSM 调英科网关的所有 API 都按以下格式包装：
+    //   { ApiType: <控制器类名>, Method: <方法名>, Parameters: [...], Context: {Ticket, InvOrgId} }
 
-    /// <summary>英科网关 ApiType：登录获取 ticket。</summary>
-    public const string YkApiTypeLogin = "inkey.user.login";
+    /// <summary>英科网关 ApiType：登录控制器（取 ticket）。</summary>
+    public const string YkApiTypeAuth = "AuthenticationController";
 
-    /// <summary>英科网关 ApiType：产线缺陷字典查询。</summary>
-    public const string YkApiTypeLineDefect = "inkey.edge.lineDefect";
+    /// <summary>英科网关 ApiType：视觉检测报警控制器。</summary>
+    public const string YkApiTypeVisualInspection = "VisualInspectionController";
+
+    /// <summary>英科网关 Method：登录。</summary>
+    public const string YkMethodLogin = "Login";
+
+    /// <summary>英科网关 Method：上传视觉检测报警（支持批量）。</summary>
+    public const string YkMethodHandleVisualInspectionAlarm = "HandleVisualInspectionAlarm";
+
+    /// <summary>PSM 端 ticket 重登周期（分钟）。</summary>
+    public const int YkTicketLoginIntervalMinutes = 50;
 }
