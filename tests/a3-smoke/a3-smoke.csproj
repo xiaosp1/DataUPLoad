@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>A3Smoke</RootNamespace>
+    <AssemblyName>a3-smoke</AssemblyName>
+    <IsPackable>false</IsPackable>
+    <Description>IntcoEdge W-A3 冒烟测试：POST /client/data/detect 到 EdgeHost 5288</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\IntcoEdge.Common\IntcoEdge.Common.csproj" />
+  </ItemGroup>
+
+</Project>

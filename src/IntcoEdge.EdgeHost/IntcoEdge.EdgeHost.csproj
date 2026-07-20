@@ -15,4 +15,12 @@
     <ProjectReference Include="..\IntcoEdge.Common\IntcoEdge.Common.csproj" />
   </ItemGroup>
 
+  <!-- W-B1：集成 Web UI（Vue 3 大屏）。
+       - Microsoft.AspNetCore.StaticFiles 已在 Web SDK 内置，保留显式声明以便阅读
+       - SpaServices 备用，便于 v0.4 SPA fallback 改写（H5 history 模式） -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices" Version="3.0.0" />
+  </ItemGroup>
+
 </Project>

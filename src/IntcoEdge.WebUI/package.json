@@ -1,0 +1,32 @@
+{
+  "name": "intco-edge-webui",
+  "version": "0.3.0",
+  "description": "英科边缘数据中控大屏 (IntcoEdge Web UI) - Vue 3 + Element Plus + ECharts",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "vue": "^3.4.21",
+    "vue-router": "^4.3.0",
+    "pinia": "^2.1.7",
+    "element-plus": "^2.4.4",
+    "@element-plus/icons-vue": "^2.3.1",
+    "echarts": "^5.4.3",
+    "vue-echarts": "^6.6.9",
+    "axios": "^1.6.8",
+    "dayjs": "^1.11.10"
+  },
+  "devDependencies": {
+    "vite": "^5.2.6",
+    "@vitejs/plugin-vue": "^5.0.4",
+    "unplugin-auto-import": "^0.17.5",
+    "unplugin-vue-components": "^0.26.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
