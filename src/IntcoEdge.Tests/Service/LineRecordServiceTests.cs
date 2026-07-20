@@ -67,7 +67,9 @@ CREATE TABLE status_record (
     {
         var factory = new SqliteConnectionFactory(_dbPath, baseDirectory: Path.GetTempPath());
         var repo = new LineRecordRepository(factory);
-        return new LineRecordService(NullLogger<LineRecordService>.Instance, repo);
+        var defectRepo = new DefectRecordRepository(factory);
+        var defectConv = new DefectConversion(NullLogger<DefectConversion>.Instance);
+        return new LineRecordService(NullLogger<LineRecordService>.Instance, repo, defectRepo, defectConv);
     }
 
     [Fact]

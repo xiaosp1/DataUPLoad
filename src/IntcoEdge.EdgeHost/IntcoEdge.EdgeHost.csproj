@@ -25,4 +25,13 @@
     <PackageReference Include="Microsoft.AspNetCore.SpaServices" Version="3.0.0" />
   </ItemGroup>
 
+  <!-- W-B2：把 Vue 3 build 产物（前端 npm run build 输出）随 EdgeHost 一起发布。
+       - wwwroot 目录由 src/IntcoEdge.WebUI 的 vite build 直接写出（outDir = ../IntcoEdge.EdgeHost/wwwroot）
+       - PreserveNewest：仅在源文件较新时覆盖，避免每次 build 都全量复制 -->
+  <ItemGroup>
+    <None Include="wwwroot\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

@@ -111,13 +111,17 @@ public class W_A5_EndpointTests : IClassFixture<WebApplicationFactory<Program>>
     public async Task DefectQuery_EmptyDb_Returns200_WithZeroTotal()
     {
         using var client = _factory.CreateClient();
+        // 用一个独特的 lineNo 过滤，避免跟生产 DB 的真实数据冲突
+        // (PM 20:35 bug fix 后 defect_record 会被写入)
+        var uniqueLine = $"W-A5-EMPTY-{Guid.NewGuid():N}";
         var resp = await client.PostAsJsonAsync("/api/defect/query", new
         {
+            lineNo = uniqueLine,
             startTime = "2026-07-20 00:00:00",
             endTime = "2026-07-20 23:59:59"
         });
 
-        // 测试 DB 里没数据，但 controller 不应 5xx
+        // 独特 lineNo 下应该 0 行，controller 不应 5xx
         Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
         var body = await resp.Content.ReadFromJsonAsync<ApiResponse<DefectQueryResponse>>();
         Assert.NotNull(body);

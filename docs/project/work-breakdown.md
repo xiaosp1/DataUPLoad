@@ -231,7 +231,7 @@ W10:   [C3 cont]            （部署 + 文档 + 上线观察）
 | C2 | 看门狗服务化 | TBD | 🟡 待派工 | C1 完成 |
 | C3 | 部署 + 文档 | TBD | 🟡 待派工 | C1+C2 完成 |
 
-### 📊 进度（★ 18:00 更新）
+### 📊 进度（★ 19:59 更新）
 
 | 状态 | Task 数 | 占比 |
 |---|---|---|
@@ -312,3 +312,40 @@ W10:   [C3 cont]            （部署 + 文档 + 上线观察）
 **现场老 EdgeHost 进程已掉线，但备份在**——不影响今天工作。
 
 你说"开干"我就派 Worker。
+
+
+---
+
+## 📦 2026-07-20 19:59 派工（A7+B2 同时，4 Worker 并发）
+
+老板 19:59 命令：A7+B2 同时派，可多拍 worker。
+
+**任务拆解**：
+- **A7 报警入库** 拆 3 个 Worker：
+  - **W-A7-R**：Repository 层 — 加 `UpsertByAlarmId`（幂等）+ `UpdateSendStatus`
+  - **W-A7-M**：Service + AlarmController — 报警入库 → 调英科推送 → 更新 send_status
+  - **W-A7-S**：Webhook 接入 — 兼容老 PSM `/api/alarm/save` 格式
+- **B2 Web 大屏部署** 拆 1 个 Worker（W-B2-B + PM 自跑烟测）：
+  - **W-B2-B**：vite.config.js production 化 + EdgeHost csproj wwwroot 复制
+
+**派工 session keys**（已派出，PM 等完工事件）：
+| Worker | session_key | runId |
+|---|---|---|
+| W-A7-R | agent:industry:subagent:9a54379d-3cf8-4bba-8e4f-7545a6b7cc1d | 2e59223c |
+| W-A7-M | agent:industry:subagent:7333882f-d630-4f19-ac3c-2c621f6b9e2a | 4d9deedc |
+| W-A7-S | agent:industry:subagent:12c3f54e-0596-406d-8b1f-eb61f0461d64 | 0aec1e01 |
+| W-B2-B | agent:industry:subagent:61139b9d-8140-49d1-8e79-c9552d32158a | 2934baee |
+
+**目录树锁**（互相不能碰）：
+- W-A7-R: `src/IntcoEdge.Db/Repository/AlarmRecordRepository.cs` + tests
+- W-A7-M: `src/IntcoEdge.EdgeHost/Services/AlarmService.cs` + `Controllers/AlarmController.cs` + tests
+- W-A7-S: `src/IntcoEdge.EdgeHost/Controllers/WebhookController.cs` + `Models/AlarmWebhookDto.cs` + tests
+- W-B2-B: `src/IntcoEdge.WebUI/vite.config.js` + `package.json` + `src/IntcoEdge.EdgeHost/IntcoEdge.EdgeHost.csproj` + `wwwroot/**`
+
+**PM 集成验收清单**（4 个 Worker 完工后）：
+1. `dotnet build IntcoEdge.sln` 0 错 0 警告
+2. `dotnet test IntcoEdge.sln` 全过
+3. 真实英科网关 login + push-alarm 1 次（不超限）
+4. SQLite alarm_record 写入验证
+5. `npm run build` 成功
+6. EdgeHost 启动 GET / 返回 HTML

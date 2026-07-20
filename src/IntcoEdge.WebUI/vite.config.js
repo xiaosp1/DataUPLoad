@@ -9,9 +9,12 @@ import path from 'node:path'
 // Vite 5 + Vue 3 配置。
 // - 开发服务器跑在 5289（与 EdgeHost 5288 错开）
 // - /api/* 代理到 EdgeHost 5288，前端只需用相对路径
-// - build 产物输出到 dist/，可直接被 EdgeHost 静态托管
+// - build 产物直接输出到 EdgeHost 的 wwwroot/，随 .NET 项目一起 publish
+//   → 访问 EdgeHost 5288 根路径即可拿到大屏（无需 nginx）
+// - base: './' 让产物中 <script src="/assets/..."> 变成 <script src="./assets/...">
+//   以兼容 ASP.NET Core StaticFiles 中间件
 export default defineConfig({
-  base: '/',
+  base: './',
   plugins: [
     vue(),
     AutoImport({
@@ -43,8 +46,10 @@ export default defineConfig({
     }
   },
   build: {
-    outDir: 'dist',
+    // 产物输出到 EdgeHost 的 wwwroot/，让 ASP.NET Core StaticFiles 直接托管
+    outDir: '../IntcoEdge.EdgeHost/wwwroot',
     emptyOutDir: true,
+    assetsDir: 'assets',
     sourcemap: false,
     chunkSizeWarningLimit: 1500,
     rollupOptions: {

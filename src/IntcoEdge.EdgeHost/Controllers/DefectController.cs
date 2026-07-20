@@ -1,3 +1,4 @@
+using IntcoEdge.Db.Repository;
 using IntcoEdge.EdgeHost.Models;
 using IntcoEdge.EdgeHost.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -24,15 +25,18 @@ public class DefectController : ControllerBase
     private readonly ILogger<DefectController> _logger;
     private readonly IDictionaryService _dictService;
     private readonly IDefectQueryService _defectQueryService;
+    private readonly IDefectRecordRepository _defectRepo;  // PM 20:35: 修 W-A4 TODO
 
     public DefectController(
         ILogger<DefectController> logger,
         IDictionaryService dictService,
-        IDefectQueryService defectQueryService)
+        IDefectQueryService defectQueryService,
+        IDefectRecordRepository defectRepo)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _dictService = dictService ?? throw new ArgumentNullException(nameof(dictService));
         _defectQueryService = defectQueryService ?? throw new ArgumentNullException(nameof(defectQueryService));
+        _defectRepo = defectRepo ?? throw new ArgumentNullException(nameof(defectRepo));
     }
 
     // ===================================================================
@@ -53,11 +57,17 @@ public class DefectController : ControllerBase
             "DefectController.PushDefect lineNo={LineNo} faceNo={FaceNo} gloveNo={Glove} result={Result} type={Type}",
             data.LineNo, data.FaceNo, data.GloveNo, data.Result, data.DefectType);
 
-        // TODO(W-A4): 真正写入 SQLite defect_record 表。
-        // INSERT INTO defect_record (line_no, face_no, glove_no, result, defect_type, img_list, time)
-        //   VALUES (@lineNo, @faceNo, @gloveNo, @result, @defectType, @imgList, @time);
+        // PM 20:35 bug fix: 真正写入 SQLite defect_record 表（之前 W-A4 留 TODO）
+        var id = _defectRepo.Insert(new DefectRecordInput(
+            LineNo: data.LineNo ?? string.Empty,
+            FaceNo: data.FaceNo ?? string.Empty,
+            GloveNo: data.GloveNo ?? $"yk-{data.Id ?? 0}",
+            Result: data.Result ?? 2,
+            DefectType: data.DefectType ?? string.Empty,
+            ImgList: data.ImgList ?? string.Empty,
+            Time: data.Time ?? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")));
 
-        return Ok(new { code = 0, message = "ok", data = new { id = data.Id } });
+        return Ok(new { code = 0, message = "ok", data = new { id } });
     }
 
     /// <summary>英科网关批量推送缺陷记录。</summary>
@@ -71,9 +81,19 @@ public class DefectController : ControllerBase
 
         _logger.LogInformation("DefectController.PushDefects 收到 {Count} 条", records.Count);
 
-        // TODO(W-A4): 批量 INSERT，用事务。
+        // PM 20:35 bug fix: 真正批量写入 defect_record 表（之前 W-A4 留 TODO）
+        var inputs = records.Select(r => new DefectRecordInput(
+            LineNo: r.LineNo ?? string.Empty,
+            FaceNo: r.FaceNo ?? string.Empty,
+            GloveNo: r.GloveNo ?? $"yk-batch-{Guid.NewGuid():N}",
+            Result: r.Result ?? 2,
+            DefectType: r.DefectType ?? string.Empty,
+            ImgList: r.ImgList ?? string.Empty,
+            Time: r.Time ?? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"))).ToList();
 
-        return Ok(new { code = 0, message = "ok", data = new { count = records.Count } });
+        var count = _defectRepo.InsertBatch(inputs);
+
+        return Ok(new { code = 0, message = "ok", data = new { count } });
     }
 
     // ===================================================================

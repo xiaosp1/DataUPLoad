@@ -74,6 +74,24 @@ public class YkController : ControllerBase
     }
 
     /// <summary>
+    /// ★ 推报警到英科网关（PM 19:51 补）
+    /// </summary>
+    [HttpPost("push-alarm")]
+    public async Task<IActionResult> PushAlarm([FromBody] AlarmPushDto? alarm, CancellationToken ct)
+    {
+        if (alarm == null)
+        {
+            return BadRequest(new { code = 400, message = "body 不能为空" });
+        }
+        var code = await _ykService.PushAlarmAsync(new[] { alarm }, ct).ConfigureAwait(false);
+        if (code == null)
+        {
+            return StatusCode(502, new { code = 502, message = "英科网关通道失败" });
+        }
+        return Ok(new { code = 0, message = "ok", data = new { ykCode = code } });
+    }
+
+    /// <summary>
     /// 英科网关缺陷记录查询（POST，body = <see cref="SearchDefectRecordDto"/>）。
     /// ⚠️ 当前实现：Yingke 网关未提供缺陷查询 ApiType，本接口返回说明。
     /// 真正对接 PSM 由 W-A5 走 `/client/yk/defect-record`。

@@ -83,7 +83,9 @@ builder.Services.AddSingleton<IDefectQueryRepository, DefectQueryRepository>();
 
 // 业务服务
 builder.Services.AddSingleton<ILineRecordService, LineRecordService>();
+builder.Services.AddSingleton<IDefectConversion, DefectConversion>();  // PM 20:35 bug fix: defect 展开转换器 DI
 builder.Services.AddSingleton<IAlarmService, AlarmService>();
+builder.Services.AddSingleton<IAlarmConversion, AlarmConversion>();  // W-A7-M: 报警 DTO 转换器 DI 注册（铁则 7 防止漏注册）
 builder.Services.AddSingleton<IYingkeService, YingkeService>();
 
 // W-A5：字典查询 + 缺陷查询 + 产线统计
@@ -104,18 +106,53 @@ builder.Services.AddControllers()
 var app = builder.Build();
 
 // W-B1：Web UI 集成（Vue 3 大屏）。
+// W-B2：Web UI 集成（Vue 3 大屏）。
 // 读取 IntcoEdge:WebUi:Path 配置；若目录存在则 UseStaticFiles + MapFallbackToFile。
 // - 开发模式：另起 vite dev server 在 5289，EdgeHost 5288 只做 API（PM 推荐方案）
-// - 生产模式：npm run build 后 dist/ 出现，Path 指向它即可
+// - 生产模式：vite build 把产物输出到 src/IntcoEdge.EdgeHost/wwwroot/，并随 csproj
+//   的 <None Include="wwwroot\**\*"> 复制到 bin/Debug/net8.0/wwwroot/
 // - 若目录不存在则静默跳过，仅 info 日志一行
-var webUiPath = builder.Configuration["IntcoEdge:WebUi:Path"] ?? "wwwroot";
-// 路径相对于当前工作目录（dotnet run 时 = EdgeHost 项目目录）
-var webUiRoot = Path.IsPathRooted(webUiPath)
-    ? webUiPath
-    : Path.Combine(Directory.GetCurrentDirectory(), webUiPath);
+//
+// W-B2 修复：参考 DbPath v4（17:58）模式——sln 布局固定时硬编码到
+// src/IntcoEdge.EdgeHost/wwwroot，沿父目录向上探测，避免依赖 cwd 或 appsettings 错配。
+// 优先级：
+//   1) IntcoEdge:WebUi:Path 配置（绝对路径直接用）
+//   2) 当前 cwd/wwwroot（dotnet run 时的标准场景）
+//   3) 沿父目录向上找 src/IntcoEdge.EdgeHost/wwwroot（sln 根运行场景）
+//   4) 沿父目录向上找 bin/<cfg>/net8.0/wwwroot（dotnet publish 后）
+string? webUiRoot = null;
+var configuredPath = builder.Configuration["IntcoEdge:WebUi:Path"];
+if (!string.IsNullOrWhiteSpace(configuredPath) && Path.IsPathRooted(configuredPath) && Directory.Exists(configuredPath))
+{
+    webUiRoot = configuredPath;
+}
+else
+{
+    // 优先：cwd/wwwroot（dotnet run 标准场景 / dotnet publish 后 exe 同目录）
+    var cwdCandidate = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+    if (Directory.Exists(cwdCandidate))
+    {
+        webUiRoot = cwdCandidate;
+    }
+    else
+    {
+        // fallback：沿父目录向上探测（sln 根运行 / 异常 cwd 场景）
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        for (int i = 0; i < 6 && dir != null; i++)
+        {
+            var candidate = Path.Combine(dir.FullName, "src", "IntcoEdge.EdgeHost", "wwwroot");
+            if (Directory.Exists(candidate))
+            {
+                webUiRoot = candidate;
+                break;
+            }
+            dir = dir.Parent;
+        }
+    }
+}
 
 var webUiMounted = false;
-if (Directory.Exists(webUiRoot))
+if (webUiRoot != null)
 {
     var fp = new PhysicalFileProvider(webUiRoot);
     app.UseDefaultFiles(new DefaultFilesOptions { FileProvider = fp, RequestPath = "" });
@@ -126,8 +163,9 @@ if (Directory.Exists(webUiRoot))
 else
 {
     app.Logger.LogInformation(
-        "Web UI path '{Path}' not found, skipping static file serving (dev mode or pre-build)",
-        webUiRoot);
+        "Web UI 'wwwroot' not found (cwd={Cwd}, baseDir={BaseDir}); skipping static file serving (dev mode or pre-build)",
+        Directory.GetCurrentDirectory(),
+        AppContext.BaseDirectory);
 }
 
 // 极简健康检查：返回 200 + "ok"
@@ -141,7 +179,8 @@ if (!webUiMounted)
         "Endpoints:\n" +
         "  GET  /health                                 -> ok\n" +
         "  POST /client/data/detect                     -> DetectController\n" +
-        "  POST /client/data/alarm                      -> DetectController\n" +
+        "  POST /client/data/alarm                      -> DetectController (W-A4 老路径)\n" +
+        "  POST /api/alarm/push                         -> AlarmController (W-A7-M 入库+推英科)\n" +
         "  POST /client/yk/defect-record                -> DefectController\n" +
         "  POST /client/yk/defect-records               -> DefectController\n" +
         "  POST /client/yk/login                        -> YkController\n" +
@@ -160,7 +199,7 @@ app.MapControllers();
 
 // SPA fallback：仅在 Web UI 挂载后注册，排在 API 路由之后——
 // 确保 /health、/client/* 等后端路由优先匹配，vue-router 路径走 index.html
-if (webUiMounted)
+if (webUiMounted && !string.IsNullOrEmpty(webUiRoot))
 {
     app.MapFallbackToFile("index.html", new StaticFileOptions
     {

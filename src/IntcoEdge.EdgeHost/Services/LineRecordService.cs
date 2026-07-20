@@ -20,11 +20,19 @@ public class LineRecordService : ILineRecordService
 {
     private readonly ILogger<LineRecordService> _logger;
     private readonly ILineRecordRepository _repo;
+    private readonly IDefectRecordRepository _defectRepo;
+    private readonly IDefectConversion _defectConv;
 
-    public LineRecordService(ILogger<LineRecordService> logger, ILineRecordRepository repo)
+    public LineRecordService(
+        ILogger<LineRecordService> logger,
+        ILineRecordRepository repo,
+        IDefectRecordRepository defectRepo,
+        IDefectConversion defectConv)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _repo = repo ?? throw new ArgumentNullException(nameof(repo));
+        _defectRepo = defectRepo ?? throw new ArgumentNullException(nameof(defectRepo));
+        _defectConv = defectConv ?? throw new ArgumentNullException(nameof(defectConv));
     }
 
     public Task<int> HandleDetectDataAsync(DetectDataDto data, CancellationToken ct = default)
@@ -86,9 +94,47 @@ public class LineRecordService : ILineRecordService
 
         var rows = _repo.UpsertLineAndStatus(today, status);
         _logger.LogInformation(
-            "HandleDetectDataAsync 入库成功 lineNo={LineNo} faceNo={FaceNo} rows={Rows}",
+            "HandleDetectDataAsync line/status 入库成功 lineNo={LineNo} faceNo={FaceNo} rows={Rows}",
             data.LineNo, data.FaceNo, rows);
 
-        return Task.FromResult(rows);
+        // ★ W-A7-Bug 修复 (PM 20:35): 把 defects 展开写入 defect_record
+        // PSM 端 todayData.defects / realTimeData.defects 是按缺陷类型汇总的
+        // (DefectCountDto.count=N 表示该类 N 条缺陷)，需展开 N 条 defect_record
+        // 这样 /api/defect/query 才能返回真实数据给 MES。
+        var defectRows = 0;
+        try
+        {
+            var inputs = new List<DefectRecordInput>();
+            if (data.TodayData.Defects != null && data.TodayData.Defects.Count > 0)
+            {
+                inputs.AddRange(_defectConv.FromDetectData(
+                    data.LineNo!, data.FaceNo!,
+                    data.TodayData.StatisticTime ?? string.Empty,
+                    data.TodayData.Defects));
+            }
+            if (data.RealTimeData.Defects != null && data.RealTimeData.Defects.Count > 0)
+            {
+                inputs.AddRange(_defectConv.FromDetectData(
+                    data.LineNo!, data.FaceNo!,
+                    data.RealTimeData.StartTime ?? data.TodayData.StatisticTime ?? string.Empty,
+                    data.RealTimeData.Defects));
+            }
+            if (inputs.Count > 0)
+            {
+                defectRows = _defectRepo.InsertBatch(inputs);
+                _logger.LogInformation(
+                    "HandleDetectDataAsync defect 入库成功 lineNo={LineNo} faceNo={FaceNo} defectRows={Rows}",
+                    data.LineNo, data.FaceNo, defectRows);
+            }
+        }
+        catch (Exception ex)
+        {
+            // defect_record 写失败不影响 line/status 入库（主业务已落库）
+            _logger.LogWarning(ex,
+                "HandleDetectDataAsync defect_record 写入失败 lineNo={LineNo}（不影响 line/status 业务）",
+                data.LineNo);
+        }
+
+        return Task.FromResult(rows + defectRows);
     }
 }

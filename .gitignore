@@ -34,3 +34,25 @@ data/
 intco.db-journal
 intco.db-shm
 intco.db-wal
+
+
+# PM additions (20:42)
+node_modules/
+/wwwroot/
+.bak-edgehost/
+package-lock.json
+TestResults/
+memory/2026-*.md
+
+/SELECT 1
+
+# Reverse-engineering artifacts (very large, not for VCS)
+#   - PSM 整个目录：包括反编译 Java 源（万级文件）、PSM.rar、jar、postgres data
+#     仅 PSM/reverse-engineering/*.md 9 个文档需要入仓（PM 13:41 反编译分析）
+#   - 历史 PSM 配置/dump（早于新 EdgeHost 方案，不入仓）
+docs/domain/海康大屏逆向/PSM/*
+!docs/domain/海康大屏逆向/PSM/reverse-engineering/
+
+# PSM.rar (2.3GB) 在 海康大屏逆向/ 下，不在 PSM/ 下
+docs/domain/海康大屏逆向/PSM.rar
+docs/domain/海康大屏逆向/10-反编译产物/
