@@ -38,7 +38,7 @@
             <TabItem Header="🛡️ 看门狗">
                 <views:WatchdogView/>
             </TabItem>
-            <TabItem Header="🗄️ PG 客户端">
+            <TabItem Header="🗄️ SQLite 浏览器">
                 <views:PgClientView/>
             </TabItem>
             <TabItem Header="🧪 测试工具">

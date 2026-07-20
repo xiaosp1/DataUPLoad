@@ -135,9 +135,9 @@ public partial class TestToolView : UserControl
 
     private void OnCheckDbResult(object sender, RoutedEventArgs e)
     {
-        // 提示用户去 PG 客户端 Tab 查表
-        AppendResponse($"[{DateTime.Now:HH:mm:ss}] 💡 切到「PG 客户端」Tab，打开数据库查 today_count / defect_count 表验证入库结果。");
-        FooterText.Text = "请切到「PG 客户端」Tab 验证入库结果";
+        // 提示用户去 SQLite 浏览器 Tab 查表
+        AppendResponse($"[{DateTime.Now:HH:mm:ss}] 💡 切到「SQLite 浏览器」Tab，打开数据库查 today_count / defect_count 表验证入库结果。");
+        FooterText.Text = "请切到「SQLite 浏览器」Tab 验证入库结果";
     }
 
     // -------------------- ② GET /client/yk/line-defect --------------------
