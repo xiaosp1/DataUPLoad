@@ -26,8 +26,9 @@
 | ✅ DONE 16:28 | **A1 项目骨架** | git `d4f4450`，6 工程 net8.0，5288 /health 200，sln 头 0D F0 09 00 PM 已修 |
 | ✅ DONE 16:29 | **A2 DB schema** | git `d4f4450`（24 个迁移文件）+ `05ccdc0`（.gitignore 修补），22 表（20 user + sqlite_sequence + flyway_schema_history），19 Flyway 脚本 success=1 |
 | ✅ DONE 16:21 | **B3 桌面 UI** | git `9d3ac31`，18 文件，dotnet build 0 错，3 Tab（看门狗/SQLite 浏览器/测试工具）|
-| 🟡 待派工 | A3-A7, B1-B2, C1-C3 | **10 个** 等老板拍下一步 |
-| 🟢 跑着 | （无）| 等老板拍板下一步 |
+| 🟢 跑着 16:47 | **A3 DTO + HTTP 客户端** | session `b38a287a-...`，预计 2 天 |
+| 🟢 跑着 16:47 | **B1 Web 大屏** | session `d23ac74b-...`，预计 3 天 |
+| 🟡 待派工 | A4-A7, B2, C1-C3 | **8 个** 等下一步 |
 | 🟢 **集成验证** | EdgeHost /health 200 | DB 22 表 OK，6 工程 Debug+Release 都 0 错 |
 
 ## 🔑 老板 16:00 拍板的环境
@@ -55,6 +56,8 @@
 | **w-a1-skeleton** | .NET 8 工程骨架 | ✅ **DONE 16:28** | git d4f4450，6 工程 |
 | **w-a2-db-schema** | SQLite + Flyway | ✅ **DONE 16:29** | git 05ccdc0，22 表 |
 | **w-b3-desktop** | WPF 桌面 UI | ✅ **DONE 16:21** | git 9d3ac31，18 文件 |
+| **w-a3-dto-httpclient** | DTO + HTTP 客户端 | 🟢 **跑着 16:47** | session b38a287a-471c-45fd-8ee7-964e1a86313b |
+| **w-b1-webui** | Vue 3 Web 大屏 | 🟢 **跑着 16:47** | session d23ac74b-e255-4a9a-b28c-f22c8bbaee4c |
 
 ## 📂 workspace 结构（★ 16:42 已建）
 
