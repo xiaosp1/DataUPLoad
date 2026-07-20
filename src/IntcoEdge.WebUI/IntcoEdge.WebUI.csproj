@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>IntcoEdge.WebUI</RootNamespace>
+    <AssemblyName>IntcoEdge.WebUI</AssemblyName>
+    <Description>IntcoEdge v0.3 Web UI：Vue 3 + Element Plus 静态资产占位（Task B1 填充实际页面）</Description>
+    <!-- Web UI 当前是 Vue 3 静态资源占位；后续由 Task B1 接入真实前端构建产物。 -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- 让 dist/ 下的静态资产在 build 时拷贝到输出目录，方便 EdgeHost 直接 Serve -->
+    <None Include="wwwroot\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>IntcoEdge.Db</RootNamespace>
+    <AssemblyName>IntcoEdge.Db</AssemblyName>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <!-- Self-contained migration runner; output intentionally placed under bin/ so source tree stays clean. -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="8.0.10" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="migrations\**\*.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <!-- SmokeTest is a separate executable for DoD verification only; keep it out of the
+       shipping build so its own AssemblyInfo doesn't conflict with IntcoEdge.Db's. -->
+  <ItemGroup>
+    <Compile Remove="SmokeTest\**" />
+    <None   Remove="SmokeTest\**" />
+    <EmbeddedResource Remove="SmokeTest\**" />
+  </ItemGroup>
+
+</Project>
