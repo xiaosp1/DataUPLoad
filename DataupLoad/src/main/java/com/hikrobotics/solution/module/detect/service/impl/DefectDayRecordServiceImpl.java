@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.assertj.core.util.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -53,7 +52,7 @@ public class DefectDayRecordServiceImpl
 
     @Override
     public List<DefectDayRecord> listByStartTimeAndDefect(Set<String> defects, String time) {
-        List<DefectDayRecord> result = Lists.newArrayList();
+        List<DefectDayRecord> result = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(defects)) {
             result.addAll(this.list(
                 Wrappers.<DefectDayRecord>lambdaQuery()
@@ -129,7 +128,7 @@ public class DefectDayRecordServiceImpl
     @Override
     public List<DefectCountDTO> searchDefectCount(String time, String lineNo, String faceNo, List<String> defects) {
         if (CollectionUtils.isEmpty(defects)) {
-            return Lists.newArrayList();
+            return new ArrayList<>();
         }
         List<DefectDayRecord> rows = this.list(
             Wrappers.<DefectDayRecord>lambdaQuery()
@@ -144,7 +143,7 @@ public class DefectDayRecordServiceImpl
     public List<DefectCountDTO> searchDefectCount(LocalDateTime start, LocalDateTime end,
                                                   String lineNo, String faceNo, List<String> defects) {
         if (CollectionUtils.isEmpty(defects)) {
-            return Lists.newArrayList();
+            return new ArrayList<>();
         }
         List<DefectDayRecord> rows = this.list(
             Wrappers.<DefectDayRecord>lambdaQuery()
@@ -195,7 +194,7 @@ public class DefectDayRecordServiceImpl
      */
     private static List<DefectCountDTO> aggregateToDefectCountDTO(List<DefectDayRecord> rows) {
         if (CollectionUtils.isEmpty(rows)) {
-            return Lists.newArrayList();
+            return new ArrayList<>();
         }
         Map<String, DefectCountDTO> bucket = new HashMap<>();
         for (DefectDayRecord r : rows) {
