@@ -1,14 +1,3 @@
-/*
- * Decompiled with CFR 0.152.
- *
- * Could not load the following classes:
- *  com.hikrobotics.solution.module.alarm.entity.AlarmRecord
- *  com.hikrobotics.solution.module.screen.dto.ClientStatusDTO
- *  com.hikrobotics.solution.module.screen.dto.DefectNumberDTO
- *  com.hikrobotics.solution.module.screen.dto.ScreenDataDTO
- *  com.hikrobotics.solution.module.screen.dto.ScreenDataDTO$DetectDataDTO
- *  org.assertj.core.util.Lists
- */
 package com.hikrobotics.solution.module.screen.dto;
 
 import com.hikrobotics.solution.module.alarm.entity.AlarmRecord;
@@ -16,15 +5,15 @@ import com.hikrobotics.solution.module.line.dto.RealTimeDetectData;
 import com.hikrobotics.solution.module.screen.dto.ClientStatusDTO;
 import com.hikrobotics.solution.module.screen.dto.DefectNumberDTO;
 import com.hikrobotics.solution.module.screen.dto.ScreenDataDTO;
+import java.util.ArrayList;
 import java.util.List;
-import org.assertj.core.util.Lists;
 
 public class ScreenDataDTO {
-    private List<DetectDataDTO> detectData = Lists.newArrayList();
-    private List<DefectNumberDTO> defectSum = Lists.newArrayList();
+    private List<DetectDataDTO> detectData = new ArrayList<>();
+    private List<DefectNumberDTO> defectSum = new ArrayList<>();
     private int removeSum;
-    private List<ClientStatusDTO> clientStatusList = Lists.newArrayList();
-    private List<AlarmRecord> alarms = Lists.newArrayList();
+    private List<ClientStatusDTO> clientStatusList = new ArrayList<>();
+    private List<AlarmRecord> alarms = new ArrayList<>();
 
     public List<DetectDataDTO> getDetectData() {
         return this.detectData;
@@ -124,14 +113,13 @@ public class ScreenDataDTO {
     }
 
     /**
-     * 内嵌 DetectDataDTO —— PSM 反编译产物未单独输出该类（CFR 注释里列为
-     * "Could not load the following classes"），这里按 {@code ScreenServiceImpl}
-     * 调用方式（chain setter）反向补齐字段：
+     * 鍐呭祵 DetectDataDTO 鈥斺€?PSM 鍙嶇紪璇戜骇鐗╂湭鍗曠嫭杈撳嚭璇ョ被锛圕FR 娉ㄩ噴閲屽垪涓?     * "Could not load the following classes"锛夛紝杩欓噷鎸?{@code ScreenServiceImpl}
+     * 璋冪敤鏂瑰紡锛坈hain setter锛夊弽鍚戣ˉ榻愬瓧娈碉細
      * <ul>
-     *   <li>lineNo / faceNo / order / lineId / color —— 线体基础属性</li>
-     *   <li>removeTotal —— 当前小时剔除数</li>
-     *   <li>hourDefectCount —— 当前小时各 defect 名细数</li>
-     *   <li>realTimeDetectData —— 实时检测数据（line.realtimeData 反序列化得到）</li>
+     *   <li>lineNo / faceNo / order / lineId / color 鈥斺€?绾夸綋鍩虹灞炴€?/li>
+     *   <li>removeTotal 鈥斺€?褰撳墠灏忔椂鍓旈櫎鏁?/li>
+     *   <li>hourDefectCount 鈥斺€?褰撳墠灏忔椂鍚?defect 鍚嶇粏鏁?/li>
+     *   <li>realTimeDetectData 鈥斺€?瀹炴椂妫€娴嬫暟鎹紙line.realtimeData 鍙嶅簭鍒楀寲寰楀埌锛?/li>
      * </ul>
      */
     public static class DetectDataDTO {

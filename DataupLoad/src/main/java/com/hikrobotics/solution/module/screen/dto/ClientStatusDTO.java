@@ -1,9 +1,3 @@
-/*
- * Decompiled with CFR 0.152.
- *
- * Could not load the following classes:
- *  com.hikrobotics.solution.module.screen.dto.ClientStatusDTO
- */
 package com.hikrobotics.solution.module.screen.dto;
 
 public class ClientStatusDTO {

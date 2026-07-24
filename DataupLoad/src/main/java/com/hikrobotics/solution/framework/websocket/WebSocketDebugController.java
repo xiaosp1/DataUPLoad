@@ -24,7 +24,6 @@ import java.util.Map;
  *   <li>{@code GET /debug/ws/sessions} 查看当前所有连接的 session 信息</li>
  * </ul>
  *
- * @author DataupLoad W-B06
  * @since 2026-07-22
  */
 @RestController

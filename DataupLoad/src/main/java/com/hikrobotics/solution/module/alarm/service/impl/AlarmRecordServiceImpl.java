@@ -41,12 +41,12 @@ import com.hikrobotics.solution.module.alarm.event.DealAlarmEvent;
 import com.hikrobotics.solution.module.yingke.event.PushAlarmEvent;
 import com.hikrobotics.solution.module.yingke.service.IYKService;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import org.assertj.core.util.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -353,7 +353,7 @@ public class AlarmRecordServiceImpl extends ServiceImpl<AlarmRecordMapper, Alarm
     */
    @Override
    public BaseResult handleAlarmIgnore(IgnoreAlarmDTO form) {
-      List<AlarmRecord> alarmRecords = Lists.newArrayList();
+      List<AlarmRecord> alarmRecords = new ArrayList<>();
       // PSM: form.getIgnoreAll() == StateEnum.NO.getValue().intValue() —— 0
       // DPL ignoreAll 是 Integer，auto-unbox 与 int 比较
       if (form.getIgnoreAll() != null && form.getIgnoreAll() == StateEnum.NO.getValue().intValue()) {
@@ -523,7 +523,7 @@ public class AlarmRecordServiceImpl extends ServiceImpl<AlarmRecordMapper, Alarm
       if (CollectionUtils.isEmpty(list)) {
          return;
       }
-      List<AlarmRecord> toUpdate = Lists.newArrayList();
+      List<AlarmRecord> toUpdate = new ArrayList<>();
       for (int i = 1; i < list.size(); i++) {
          list.get(i).setSolve(AlarmSolvedEnum.SOLVED.getValue());
          toUpdate.add(list.get(i));
@@ -597,8 +597,8 @@ public class AlarmRecordServiceImpl extends ServiceImpl<AlarmRecordMapper, Alarm
             .eq(AlarmRecord::getSolve, AlarmSolvedEnum.UNSOLVED.getValue())
             .in(AlarmRecord::getDefectName, enableAlarmDefects);
          List<AlarmRecord> list = this.list(qw);
-         return list == null ? Lists.newArrayList() : list;
+         return list == null ? new ArrayList<>() : list;
       }
-      return Lists.newArrayList();
+      return new ArrayList<>();
    }
 }

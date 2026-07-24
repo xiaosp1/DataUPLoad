@@ -23,7 +23,6 @@ import java.util.Map;
  *   <li>这样既支持 PSM 风格的 {@code /ws?type=screen} 单端点，也支持 W-B06 要求的 {@code /ws/screen} 路径风格</li>
  * </ol>
  *
- * @author DataupLoad W-B06
  * @since 2026-07-22
  */
 @Component

@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import org.assertj.core.util.Lists;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,7 +21,7 @@ public class LineOrderServiceImpl extends ServiceImpl<LineOrderMapper, LineOrder
     @Override
     public void addLineOrder(List<Integer> lineIds) {
         if (CollectionUtils.isNotEmpty(lineIds)) {
-            ArrayList<LineOrder> orders = Lists.newArrayList();
+            ArrayList<LineOrder> orders = new ArrayList<>();
             LineOrder latest = this.getOne(((LambdaQueryWrapper<LineOrder>) Wrappers.<LineOrder>lambdaQuery()
                 .orderByDesc(LineOrder::getOrderValue)).last("limit 1"));
             int current = latest == null ? 1 : latest.getOrderValue() + 1;
@@ -45,7 +44,7 @@ public class LineOrderServiceImpl extends ServiceImpl<LineOrderMapper, LineOrder
     public Boolean modLineOrder(List<ChgLineOrderDTO> lineOrders) {
         if (CollectionUtils.isNotEmpty(lineOrders)) {
             if (this.remove(Wrappers.lambdaQuery())) {
-                ArrayList<LineOrder> orders = Lists.newArrayList();
+                ArrayList<LineOrder> orders = new ArrayList<>();
                 List<ChgLineOrderDTO> temp = lineOrders.stream()
                     .sorted(Comparator.comparing(ChgLineOrderDTO::getOrder))
                     .toList();

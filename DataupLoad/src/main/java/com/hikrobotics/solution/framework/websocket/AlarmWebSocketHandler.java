@@ -18,7 +18,6 @@ import org.springframework.stereotype.Component;
  * </ul>
  * 端点路径：{@code /ws/alarm} —— 由 {@link WebSocketConfig} 注册
  *
- * @author DataupLoad W-B06
  * @since 2026-07-22
  */
 @Component

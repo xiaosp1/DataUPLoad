@@ -1,10 +1,3 @@
-/*
- * Decompiled with CFR 0.152.
- *
- * Could not load the following classes:
- *  com.hikrobotics.solution.module.detect.entity.DefectDayRecord
- *  com.hikrobotics.solution.module.screen.dto.DefectNumberDTO
- */
 package com.hikrobotics.solution.module.screen.dto;
 
 import com.hikrobotics.solution.module.detect.entity.DefectDayRecord;

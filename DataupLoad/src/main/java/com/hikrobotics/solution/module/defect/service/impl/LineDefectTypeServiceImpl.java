@@ -10,9 +10,9 @@ import com.hikrobotics.solution.module.line.dto.DefectCountDTO;
 import com.hikrobotics.solution.module.line.entity.Line;
 import com.hikrobotics.solution.module.line.entity.LineDefectType;
 import com.hikrobotics.solution.module.line.mapper.LineDefectTypeMapper;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.assertj.core.util.Lists;
 import org.springframework.stereotype.Service;
 
 /**
@@ -43,7 +43,7 @@ public class LineDefectTypeServiceImpl
                .eq(LineDefectType::getLineNo, line.getLineNo())
                .eq(LineDefectType::getFaceNo, line.getFaceNo());
          this.list(qw).forEach(defect -> existDefectsOfLine.put(defect.getName(), defect));
-         List<String> uploadDefectNames = Lists.newArrayList();
+         List<String> uploadDefectNames = new ArrayList<>();
          defects.forEach(defect -> {
             uploadDefectNames.add(defect.getType());
             LineDefectType value = existDefectsOfLine.getOrDefault(defect.getType(), new LineDefectType());
@@ -52,7 +52,7 @@ public class LineDefectTypeServiceImpl
          });
          result = this.saveOrUpdateBatch(existDefectsOfLine.values());
          if (result) {
-            List<Integer> needDelDefectId = Lists.newArrayList();
+            List<Integer> needDelDefectId = new ArrayList<>();
             existDefectsOfLine.forEach((name, defect) -> {
                if (!uploadDefectNames.contains(name)) {
                   needDelDefectId.add(defect.getId());

@@ -1,10 +1,3 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  com.fasterxml.jackson.annotation.JsonFormat
- *  com.hikrobotics.solution.module.line.dto.ClientPlanResultDTO
- */
 package com.hikrobotics.solution.module.line.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;

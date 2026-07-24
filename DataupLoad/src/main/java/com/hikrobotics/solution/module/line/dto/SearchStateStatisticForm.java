@@ -1,12 +1,3 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  com.baomidou.mybatisplus.core.toolkit.StringUtils
- *  com.hikrobotics.solution.module.line.dto.SearchStateStatisticForm
- *  jakarta.validation.constraints.NotBlank
- *  org.assertj.core.util.Sets
- */
 package com.hikrobotics.solution.module.line.dto;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
@@ -15,7 +6,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.Set;
-import org.assertj.core.util.Sets;
 
 public class SearchStateStatisticForm {
     public static LocalTime EIGHT = LocalTime.parse("08:00:00");
@@ -27,7 +17,7 @@ public class SearchStateStatisticForm {
     private String endTime;
 
     public Set<Integer> getFaceIds() {
-        HashSet faceId = Sets.newHashSet();
+        HashSet faceId = new HashSet<>();
         if (StringUtils.isNotBlank((CharSequence)this.faceIds)) {
             for (String id : this.faceIds.split(",")) {
                 faceId.add(Integer.parseInt(id));

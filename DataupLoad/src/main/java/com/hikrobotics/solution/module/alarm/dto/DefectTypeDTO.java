@@ -1,13 +1,3 @@
-/*
- * Decompiled with CFR 0.152.
- *
- * Could not load the following classes:
- *  com.hikrobotics.solution.framework.common.validation.group.AddGroup
- *  com.hikrobotics.solution.framework.common.validation.group.UpdateGroup
- *  com.hikrobotics.solution.module.alarm.dto.DefectTypeDTO
- *  jakarta.validation.constraints.NotBlank
- *  jakarta.validation.constraints.NotNull
- */
 package com.hikrobotics.solution.module.alarm.dto;
 
 import com.hikrobotics.solution.framework.common.validation.group.AddGroup;

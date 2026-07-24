@@ -26,7 +26,6 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
  * 以避免与 framework-starter 的 {@code com.hikrobotics.solution.framework.component.ws.config.WebSocketConfig}
  * 产生 Spring bean name 冲突（两者默认 bean name 都是 {@code webSocketConfig}）。</p>
  *
- * @author DataupLoad W-B06
  * @since 2026-07-22
  */
 @Configuration("hiksDataupLoadWebSocketConfig")

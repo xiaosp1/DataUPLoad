@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import org.assertj.core.util.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -179,7 +178,7 @@ public class StateChangeServiceImpl
         });
 
         sortChangeByLine.keySet().forEach(line -> {
-            List<StateChange> changeRecords = Lists.newArrayList(sortChangeByLine.get(line));
+            List<StateChange> changeRecords = new ArrayList<>(sortChangeByLine.get(line));
             if (CollectionUtils.isNotEmpty(changeRecords)) {
                 changeRecords.sort(Comparator.comparing(StateChange::getChangeTime));
                 StateChange firstChange = changeRecords.get(0);

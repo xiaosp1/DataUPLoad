@@ -1,9 +1,3 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  com.hikrobotics.solution.module.line.dto.LineDTO
- */
 package com.hikrobotics.solution.module.line.dto;
 
 public class LineDTO {

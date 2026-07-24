@@ -1,16 +1,8 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  com.hikrobotics.solution.module.line.dto.LineTreeItemDTO
- *  com.hikrobotics.solution.module.line.entity.Line
- *  org.assertj.core.util.Lists
- */
 package com.hikrobotics.solution.module.line.dto;
 
 import com.hikrobotics.solution.module.line.entity.Line;
+import java.util.ArrayList;
 import java.util.List;
-import org.assertj.core.util.Lists;
 
 public class LineTreeItemDTO {
     private Integer id;
@@ -22,7 +14,7 @@ public class LineTreeItemDTO {
         this.setId(po.getId());
         this.setName(po.getName());
         this.setLineNo(po.getLineNo());
-        this.setChilds((List)Lists.newArrayList());
+        this.setChilds(new ArrayList<>());
     }
 
     public Integer getId() {

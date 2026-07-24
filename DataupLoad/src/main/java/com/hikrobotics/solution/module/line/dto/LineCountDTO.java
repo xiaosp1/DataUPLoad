@@ -1,9 +1,3 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  com.hikrobotics.solution.module.line.dto.LineCountDTO
- */
 package com.hikrobotics.solution.module.line.dto;
 
 import java.text.DecimalFormat;

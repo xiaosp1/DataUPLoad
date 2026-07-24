@@ -1,13 +1,3 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  com.hikrobotics.solution.module.line.dto.DetectDataUploadDTO
- *  com.hikrobotics.solution.module.line.dto.RealTimeDetectData
- *  com.hikrobotics.solution.module.line.dto.TodayDetectDataDTO
- *  jakarta.validation.constraints.NotBlank
- *  jakarta.validation.constraints.NotNull
- */
 package com.hikrobotics.solution.module.line.dto;
 
 import com.hikrobotics.solution.module.line.dto.RealTimeDetectData;

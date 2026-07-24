@@ -59,7 +59,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.assertj.core.util.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -245,7 +244,7 @@ public class LineServiceImpl extends ServiceImpl<LineMapper, Line> implements IL
         Line lineData = BeanUtil.copyProperties(lineDTO, Line.class);
         lineData.setClientNo(lineData.getLineNo() + "-" + lineData.getFaceNo());
         this.save(lineData);
-        this.lineOrderService.addLineOrder(Lists.newArrayList(lineData.getId()));
+        this.lineOrderService.addLineOrder(Collections.singletonList(lineData.getId()));
         return BaseResult.build();
     }
 
@@ -651,7 +650,7 @@ public class LineServiceImpl extends ServiceImpl<LineMapper, Line> implements IL
      * <p>对应 PSM LineServiceImpl.listByLineNo(List&lt;String&gt;)。逻辑：</p>
      * <ul>
      *   <li>lineNos 非空 → {@code this.list(Wrappers.lambdaQuery().in(Line::getLineNo, lineNos))}</li>
-     *   <li>lineNos 为空 → 返回空 {@code Lists.newArrayList()}</li>
+     *   <li>lineNos 为空 → 返回空 {@code new ArrayList<>()}</li>
      * </ul>
      *
      * <p>DataupLoad 改造：Java 重载区分参数类型，与已有 {@code listByLineNo(String)}（W-B03）
@@ -662,7 +661,7 @@ public class LineServiceImpl extends ServiceImpl<LineMapper, Line> implements IL
         if (CollectionUtil.isNotEmpty(lineNos)) {
             return this.list(Wrappers.<Line>lambdaQuery().in(Line::getLineNo, lineNos));
         }
-        return Lists.newArrayList();
+        return new ArrayList<>();
     }
 
     // ============================================================
@@ -708,7 +707,7 @@ public class LineServiceImpl extends ServiceImpl<LineMapper, Line> implements IL
         }
         List<ClientPlanResultDTO> all = this.planMapper.selectClientPlan(lineNo, faceNo);
         if (all == null) {
-            all = Lists.newArrayList();
+            all = new ArrayList<>();
         }
         // 不分页：size 非法 / null → 原样返回全量
         if (size == null || size <= 0) {

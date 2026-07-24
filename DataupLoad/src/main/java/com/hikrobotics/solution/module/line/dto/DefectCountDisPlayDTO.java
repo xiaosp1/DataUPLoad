@@ -1,19 +1,12 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  com.hikrobotics.solution.module.line.dto.DefectCountDisPlayDTO
- *  org.assertj.core.util.Lists
- */
 package com.hikrobotics.solution.module.line.dto;
 
+import java.util.ArrayList;
 import java.util.List;
-import org.assertj.core.util.Lists;
 
 public class DefectCountDisPlayDTO {
-    private List<String> time = Lists.newArrayList();
+    private List<String> time = new ArrayList<>();
     private String type;
-    private List<Integer> count = Lists.newArrayList();
+    private List<Integer> count = new ArrayList<>();
 
     public List<String> getTime() {
         return this.time;

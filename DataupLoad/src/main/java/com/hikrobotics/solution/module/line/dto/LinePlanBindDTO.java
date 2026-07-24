@@ -1,11 +1,3 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  com.hikrobotics.solution.module.line.dto.LinePlanBindDTO
- *  jakarta.validation.constraints.NotEmpty
- *  jakarta.validation.constraints.NotNull
- */
 package com.hikrobotics.solution.module.line.dto;
 
 import jakarta.validation.constraints.NotEmpty;

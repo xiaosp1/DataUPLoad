@@ -1,34 +1,3 @@
-/*
- * Decompiled with CFR 0.152.
- *
- * Could not load the following classes:
- *  cn.hutool.json.JSONUtil
- *  com.baomidou.mybatisplus.core.toolkit.StringUtils
- *  com.google.common.collect.Maps
- *  com.hikrobotics.solution.common.constants.WsTypeEnum
- *  com.hikrobotics.solution.framework.component.ws.handler.WebSocketHandler
- *  com.hikrobotics.solution.framework.component.ws.model.WsMessage
- *  com.hikrobotics.solution.framework.util.HikDateUtil
- *  com.hikrobotics.solution.module.defect.service.ILineDefectTypeService
- *  com.hikrobotics.solution.module.detect.enums.DeviceStatus
- *  com.hikrobotics.solution.module.detect.enums.DeviceType
- *  com.hikrobotics.solution.module.detect.model.DefectDayRecordPO
- *  com.hikrobotics.solution.module.detect.model.LineDayRecordPO
- *  com.hikrobotics.solution.module.detect.model.StatusRecordPO
- *  com.hikrobotics.solution.module.detect.service.IDefectDayRecordService
- *  com.hikrobotics.solution.module.detect.service.ILineDayRecordService
- *  com.hikrobotics.solution.module.detect.service.IStatusRecordService
- *  com.hikrobotics.solution.module.line.dto.RealTimeDetectData
- *  com.hikrobotics.solution.module.line.service.ILineService
- *  com.hikrobotics.solution.module.screen.dto.ClientStatusDTO
- *  com.hikrobotics.solution.module.screen.dto.DefectNumberDTO
- *  com.hikrobotics.solution.module.screen.dto.ScreenDataDTO
- *  com.hikrobotics.solution.module.screen.dto.ScreenDataDTO$DetectDataDTO
- *  com.hikrobotics.solution.module.screen.service.IScreenService
- *  org.assertj.core.util.Sets
- *  org.springframework.beans.factory.annotation.Autowired
- *  org.springframework.stereotype.Service
- */
 package com.hikrobotics.solution.module.screen.service.impl;
 
 import cn.hutool.json.JSONUtil;
@@ -66,7 +35,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.assertj.core.util.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -95,7 +63,7 @@ implements IScreenService {
 
     private ScreenDataDTO buildScreenData() {
         ScreenDataDTO result = new ScreenDataDTO();
-        Set<String> needShowDefectNames = Sets.newHashSet();
+        Set<String> needShowDefectNames = new HashSet<>();
         Map<String, Map<String, LineDefectType>> sortDefectByPosAndName = Maps.newHashMap();
         this.lineDefectTypeService.listIfShowEnable(null, null).forEach(defect -> {
             needShowDefectNames.add(defect.getName());

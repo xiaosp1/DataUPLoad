@@ -7,8 +7,8 @@ import com.hikrobotics.solution.framework.common.base.BaseResult;
 import com.hikrobotics.solution.module.config.mapper.SystemConfigMapper;
 import com.hikrobotics.solution.module.config.model.SystemConfigPO;
 import com.hikrobotics.solution.module.config.service.ISystemConfigService;
+import java.util.ArrayList;
 import java.util.List;
-import org.assertj.core.util.Lists;
 import org.springframework.stereotype.Service;
 
 /**
@@ -53,6 +53,6 @@ public class SystemConfigServiceImpl
             return this.list(Wrappers.<SystemConfigPO>lambdaQuery()
                     .in(SystemConfigPO::getConfigKey, configKeys));
         }
-        return Lists.newArrayList();
+        return new ArrayList<>();
     }
 }

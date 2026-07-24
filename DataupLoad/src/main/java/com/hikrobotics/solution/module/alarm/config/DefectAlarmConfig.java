@@ -1,7 +1,7 @@
 package com.hikrobotics.solution.module.alarm.config;
 
+import java.util.ArrayList;
 import java.util.List;
-import org.assertj.core.util.Lists;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -33,7 +33,7 @@ public class DefectAlarmConfig {
     * <p>对应配置 {@code alarm.global-enabled}。
     */
    private boolean globalEnabled = true;
-   private List<DefectTypeConfig> config = Lists.newArrayList();
+   private List<DefectTypeConfig> config = new ArrayList<>();
 
    public boolean isGlobalEnabled() {
       return this.globalEnabled;
@@ -54,7 +54,7 @@ public class DefectAlarmConfig {
    public static class DefectTypeConfig {
       private String type;
       private String template;
-      private List<String> names = Lists.newArrayList();
+      private List<String> names = new ArrayList<>();
 
       public String getType() {
          return this.type;
