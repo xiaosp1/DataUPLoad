@@ -45,7 +45,7 @@ import org.springframework.web.bind.annotation.RestController;
  *   <tr><td>11</td><td>GET</td><td>{@code /status}</td><td>{@code lineService.planStatus(query)}（PSM planStatus）</td></tr>
  *   <tr><td>12</td><td>GET</td><td>{@code /tree-search}</td><td>{@code lineService.lineGroup()}（W-LIN-05 新增；PSM 等价于 {@code /group}）</td></tr>
  *   <tr><td>13</td><td>POST</td><td>{@code /chg-line-order}</td><td>{@code lineService.chgLineOrder(lineOrders)}（W-LIN-05 新增；PSM 等价于 {@code PUT /order}）</td></tr>
- *   <tr><td>14</td><td>GET</td><td>{@code /plan/manage}</td><td>stub — {@code lineService.planPanelListPage} 待补（W-LIN-05）</td></tr>
+ *   <tr><td>14</td><td>GET</td><td>{@code /plan/manage}</td><td>{@code lineService.planOrderDtos(lineNo, faceNo, page, size)}（W-LIN-05 引入；W-LIN-06 联通真实业务）</td></tr>
  * </table>
  *
  * <p>DataupLoad 与 PSM 路径差异说明：</p>
@@ -73,9 +73,11 @@ import org.springframework.web.bind.annotation.RestController;
  *   <li>{@code /order}（PSM 原路径）与 {@code /chg-line-order}（kebab-case 别名）共存</li>
  * </ul>
  *
- * <p>已知限制：{@code GET /plan/manage} 是 DataupLoad 自定义 endpoint（PSM 无对应），
- * 调用 {@code lineService.planPanelListPage} 但该 service 方法尚未实现（W-LIN-05 不新增 service 方法）。
- * 本 endpoint 以 stub 形式提供（{@code code=90003}），待后续工单在 service 层补齐后即可联通。</p>
+ * <p>W-LIN-06 补充：{@code GET /plan/manage}（原 W-LIN-05 stub，{@code code=90003}）
+ * 已联通到 {@link ILineService#planOrderDtos(String, String, Integer, Integer)}。
+ * 业务语义对齐 PSM {@code PlanServiceImpl.clientPlan}（按 lineNo+faceNo 联查 plan × plan_to_line × line）。
+ * PSM {@code PlanServiceImpl.clientPlan} 仅返回全量列表；DataupLoad 补齐分页维度（{@code page / size}）。
+ * 所有 {@code @RequestParam} 均显式声明 {@code name="..."}。</p>
  */
 @RestController
 @RequestMapping("/web/line")
@@ -286,29 +288,26 @@ public class LineController {
     }
 
     // ============================================================
-    // 12) GET /plan/manage — 产线大屏管理（W-LIN-05 新增；PSM 无对应，暂以 stub 提供）
+    // 12) GET /plan/manage — 产线大屏管理（W-LIN-06：联通真实业务）
     // ============================================================
     /**
-     * 产线大屏管理（W-LIN-05 新增）。
+     * 产线配方大屏管理（W-LIN-06：联通真实业务）。
      *
-     * <p>DataupLoad 自定义 endpoint（PSM 反编译中无对应路由）。
-     * 工单说明：本 endpoint 应调用 {@code planPanel} 的 listPage 版本；
-     * 但 DataupLoad 当前 {@link ILineService} 接口未声明分页版本的 planPanel 方法，
-     * 且本工单约束不新增 service 类/方法，故本 endpoint 暂以 stub 形式路由。</p>
+     * <p>W-LIN-05 引入本 endpoint 时为 stub（{@code code=90003}），未实现业务。
+     * W-LIN-06 将其联通到 {@link ILineService#planOrderDtos(String, String, Integer, Integer)}：
+     * 按 {@code (lineNo, faceNo)} 查询该产线下分发到该面的全部配方（含运行状态、分页维度）。
+     * 返回 {@code BaseResult.data(IPage<ClientPlanResultDTO>)} 或
+     * {@code BaseResult.data(List<ClientPlanResultDTO>)}（size 非法时退化）。</p>
      *
-     * <p>待后续工单：</p>
-     * <ul>
-     *   <li>在 {@code ILineService} 增加 {@code planPanelListPage(LinePanelQueryDTO) → BaseResult}</li>
-     *   <li>把本方法体改为 {@code return this.lineService.planPanelListPage(linePanelQueryDTO);}</li>
-     * </ul>
-     *
-     * <p>当前返回：{@code BaseResult.code(90003).error()}，语义与 W-LIN-03 stub 一致。</p>
+     * <p>所有 {@code @RequestParam} 均显式声明 {@code name="..."}，避免 javac
+     * {@code -parameters} 警告。</p>
      */
     @GetMapping("/plan/manage")
-    public BaseResult planManage(LinePanelQueryDTO linePanelQueryDTO) {
-        return BaseResult.build()
-            .code(90003)
-            .msgBody("W-LIN-05 pending: ILineService.planPanelListPage(LinePanelQueryDTO) not implemented yet")
-            .error();
+    public BaseResult planManage(
+            @RequestParam(name = "lineNo", required = true) String lineNo,
+            @RequestParam(name = "faceNo", required = true) String faceNo,
+            @RequestParam(name = "page", required = false) Integer page,
+            @RequestParam(name = "size", required = false) Integer size) {
+        return this.lineService.planOrderDtos(lineNo, faceNo, page, size);
     }
 }

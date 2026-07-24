@@ -147,4 +147,35 @@ public interface ILineService extends IService<Line> {
      * — Java 按参数类型分派，无歧义。</p>
      */
     List<Line> listByLineNo(List<String> lineNos);
+
+    // ============================================================
+    // W-LIN-06 — plan/manage endpoint 真实业务实装
+    // ============================================================
+
+    /**
+     * W-LIN-06：产线配方大屏管理（PSM 反编译中无完全同名的 service 方法，
+     * 名称沿用 PSM 反编译 {@code PlanServiceImpl.clientPlan(ClientPlanQueryDTO)}
+     * 的业务语义与 DTO 形态，返回 {@code List<ClientPlanResultDTO>}）。
+     *
+     * <p>语义（PSM {@code PlanServiceImpl.clientPlan} 1:1）：
+     * 按 {@code (lineNo, faceNo)} 联查 {@code plan} × {@code plan_to_line} × {@code line}，
+     * 返回该线下面向客户端展示的配方信息（{@code name/uri/description/status/updateTime/createTime}）。</p>
+     *
+     * <p>DataupLoad 改造：原 stub {@code /plan/manage} 由 W-LIN-05 引入（{@code code=90003}），
+     * 本工单将 service 入口从 {@code PlanServiceImpl.clientPlan(ClientPlanQueryDTO)}
+     * 迁移到 {@code LineServiceImpl.planOrderDtos(String, String, Integer, Integer)}，
+     * 并在前端契约上补齐 {@code page / size} 两个分页参数（PSM 无分页；DataupLoad 沿用
+     * MyBatis Plus {@code IPage<ClientPlanResultDTO>} 包装以匹配项目其它 listPage 端点）。</p>
+     *
+     * @param lineNo 产线编号（必填）
+     * @param faceNo 面编号（必填）
+     * @param page   页码（从 1 开始；{@code null} 或 {@code <= 0} 视为第 1 页）
+     * @param size   每页条数（{@code null} 或 {@code <= 0} 时退化为不分页，返回全量列表）
+     * @return {@code BaseResult.data}：
+     *         <ul>
+     *           <li>分页模式 → {@code BaseResult.data(IPage<ClientPlanResultDTO>)}</li>
+     *           <li>不分页模式 → {@code BaseResult.data(List<ClientPlanResultDTO>)}</li>
+     *         </ul>
+     */
+    BaseResult planOrderDtos(String lineNo, String faceNo, Integer page, Integer size);
 }

@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Maps;
 import com.hikrobotics.solution.common.constants.CommonMethod;
@@ -27,6 +28,7 @@ import com.hikrobotics.solution.module.detect.service.IDefectDayRecordService;
 import com.hikrobotics.solution.module.detect.service.IStatusRecordService;
 import com.hikrobotics.solution.module.line.constant.PlanStatusEnum;
 import com.hikrobotics.solution.module.line.dto.ChgLineOrderDTO;
+import com.hikrobotics.solution.module.line.dto.ClientPlanResultDTO;
 import com.hikrobotics.solution.module.line.dto.DefectCountDTO;
 import com.hikrobotics.solution.module.line.dto.DefectCountDisPlayDTO;
 import com.hikrobotics.solution.module.line.dto.LineBodyDTO;
@@ -43,6 +45,7 @@ import com.hikrobotics.solution.module.line.entity.LineDefectType;
 import com.hikrobotics.solution.module.line.entity.PlanToLine;
 import com.hikrobotics.solution.module.line.mapper.LineDayRecordMapper;
 import com.hikrobotics.solution.module.line.mapper.LineMapper;
+import com.hikrobotics.solution.module.line.mapper.PlanMapper;
 import com.hikrobotics.solution.module.line.mapper.PlanToLineMapper;
 import com.hikrobotics.solution.module.line.model.LinePO;
 import com.hikrobotics.solution.module.line.service.ILineOrderService;
@@ -97,7 +100,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class LineServiceImpl extends ServiceImpl<LineMapper, Line> implements ILineService {
 
     // ============================================================
-    // 12 个 PSM 1:1 @Autowired 注入（W-LIN-01 任务要求）
+    // 13 个 PSM 1:1 @Autowired 注入（W-LIN-01 任务要求 + W-LIN-06 追加 1 个）
     // 原始 PSM: ILineDefectTypeService / ILineOrderService / LineDAO / PlanToLineService /
     //          PlanToLineDAO / WebSocketHandler / IStatusRecordService / StatusRecordDAO /
     //          AlarmRecordServiceImpl / LineDayRecordDAO / DefectDayRecordDAO /
@@ -112,6 +115,8 @@ public class LineServiceImpl extends ServiceImpl<LineMapper, Line> implements IL
     //   - AlarmRecordServiceImpl 包名从 module.alarm.service.imp 改为 .impl
     //   - 去掉 LineDAO 注入（PSM 冗余，DataupLoad 统一用 baseMapper）
     //   - 保留 PlanToLineDAO 注入的语义，改名为 PlanToLineMapper
+    //   - 追加 PlanMapper（W-LIN-06）：用于 planOrderDtos 调用 planMapper.selectClientPlan(lineNo, faceNo)
+    //     替代 PSM PlanServiceImpl.clientPlan 的 planDAO.selectClientPlan 语义
     // ============================================================
 
     @Autowired
@@ -149,6 +154,9 @@ public class LineServiceImpl extends ServiceImpl<LineMapper, Line> implements IL
 
     @Autowired
     private IDefectDayRecordService defectDayRecordService;
+
+    @Autowired
+    private PlanMapper planMapper;
 
     // ============================================================
     // W-B03 既有方法（保留）
@@ -658,5 +666,64 @@ public class LineServiceImpl extends ServiceImpl<LineMapper, Line> implements IL
             return this.list(Wrappers.<Line>lambdaQuery().in(Line::getLineNo, lineNos));
         }
         return Lists.newArrayList();
+    }
+
+    // ============================================================
+    // W-LIN-06 — plan/manage endpoint 真实业务实装
+    //   业务入口从 PSM PlanServiceImpl.clientPlan(ClientPlanQueryDTO)
+    //   迁移到 LineServiceImpl.planOrderDtos(String, String, Integer, Integer)，
+    //   与 /web/line/plan/manage endpoint 联通。
+    // ============================================================
+
+    /**
+     * W-LIN-06：产线配方大屏管理分页查询。
+     *
+     * <p>业务语义对齐 PSM {@code PlanServiceImpl.clientPlan(ClientPlanQueryDTO)}：
+     * 按 {@code (lineNo, faceNo)} 联查 {@code plan} × {@code plan_to_line} × {@code line}，
+     * 返回该产线下分发到该面的全部配方（含运行状态）。DataupLoad 沿用既有
+     * {@link com.hikrobotics.solution.module.line.mapper.PlanMapper#selectClientPlan(String, String)}
+     * 执行同样 SQL。</p>
+     *
+     * <p>PSM {@code PlanServiceImpl.clientPlan} 原签名仅接受 {@code ClientPlanQueryDTO(lineNo, faceNo)}
+     * 并返回全量列表；DataupLoad 在本工单补齐分页维度（{@code page / size}），分页模式与项目其它
+     * listPage 端点保持一致：</p>
+     * <ul>
+     *   <li>{@code page == null || page <= 0} → 退化为第 1 页</li>
+     *   <li>{@code size == null || size <= 0} → 不分页，返回全量列表
+     *       （{@code BaseResult.data(List<ClientPlanResultDTO>)}）</li>
+     *   <li>否则 → {@code Page<ClientPlanResultDTO>} 内存分页
+     *       （{@code BaseResult.data(IPage<ClientPlanResultDTO>)}）</li>
+     * </ul>
+     *
+     * <p>注：{@code PlanMapper.selectClientPlan} 是无 {@code @Param("pageable")} 参数的 SQL，
+     * 分页由 service 层在内存中对 {@code List<ClientPlanResultDTO>} 做 subList 切片并包装为
+     * {@code Page<ClientPlanResultDTO>}（与 PSM 反编译产物中其它 listPage 端点对 limit-only
+     * mapper 的处理模式一致）。</p>
+     *
+     * <p>与 {@code PlanServiceImpl.clientPlan} 的关系：本方法迁移其业务语义到 {@code LineServiceImpl}，
+     * {@code PlanServiceImpl.clientPlan} 仍保留（PSM 1:1），二者调用的底层 SQL 完全相同。</p>
+     */
+    @Override
+    public BaseResult planOrderDtos(String lineNo, String faceNo, Integer page, Integer size) {
+        if (lineNo == null || lineNo.isEmpty() || faceNo == null || faceNo.isEmpty()) {
+            return BaseResult.build().error("20206")
+                .log("planOrderDtos failed, lineNo/faceNo blank.", lineNo + "/" + faceNo);
+        }
+        List<ClientPlanResultDTO> all = this.planMapper.selectClientPlan(lineNo, faceNo);
+        if (all == null) {
+            all = Lists.newArrayList();
+        }
+        // 不分页：size 非法 / null → 原样返回全量
+        if (size == null || size <= 0) {
+            return BaseResult.build().data(all);
+        }
+        int p = (page == null || page <= 0) ? 1 : page;
+        long total = all.size();
+        int fromIndex = Math.min((p - 1) * size, all.size());
+        int toIndex = Math.min(fromIndex + size, all.size());
+        List<ClientPlanResultDTO> pageData = all.subList(fromIndex, toIndex);
+        Page<ClientPlanResultDTO> result = new Page<>(p, size, total);
+        result.setRecords(pageData);
+        return BaseResult.build().data(result);
     }
 }
