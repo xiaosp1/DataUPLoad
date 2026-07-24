@@ -41,7 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * <p>取舍：</p>
  * <ul>
- *   <li>使用项目已有的 line.entity.Line / line.entity.LineDayRecord（不再单独搞 LinePO / LineDayRecord PO），保证 DataupLoad 单一表映射源；</li>
+ *   <li>使用项目已有的 line.entity.Line / line.entity.LineDayRecord（不再单独搞 LinePO / LineDayRecord PO，W-CLEAN-03 起 LinePO 已删除），保证 DataupLoad 单一表映射源；</li>
  *   <li>handleDetectData 内联 defect_day_record / line_day_record 的查+改，
  *       不再单独拆 IDefectDayRecordService / ILineDayRecordService，避免 PSM 模块拆分粒度直接搬运到本工单；</li>
  *   <li>其它接口方法（handleDetectDetailSearch / handleStatisticDataExport / handleRealtimeDetectDataSearch）

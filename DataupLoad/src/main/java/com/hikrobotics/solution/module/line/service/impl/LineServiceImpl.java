@@ -47,7 +47,6 @@ import com.hikrobotics.solution.module.line.mapper.LineDayRecordMapper;
 import com.hikrobotics.solution.module.line.mapper.LineMapper;
 import com.hikrobotics.solution.module.line.mapper.PlanMapper;
 import com.hikrobotics.solution.module.line.mapper.PlanToLineMapper;
-import com.hikrobotics.solution.module.line.model.LinePO;
 import com.hikrobotics.solution.module.line.service.ILineOrderService;
 import com.hikrobotics.solution.module.line.service.ILineService;
 // DataupLoad 没有 PSM {@code PlanToLineService} 接口（PSM 本身就是 @Service 类），
@@ -83,7 +82,7 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * <p>DataupLoad vs PSM 实体差异：
  * <ul>
- *   <li>PSM LinePO → DataupLoad {@link Line}（字段一致，TableName 都是 {@code line}）</li>
+ *   <li>PSM LinePO → DataupLoad {@link Line}（字段一致，TableName 都是 {@code line}；W-CLEAN-03 起 LinePO 已删除）</li>
  *   <li>PSM PlanToLinePO → DataupLoad {@link PlanToLine}</li>
  *   <li>PSM StatusRecordPO → DataupLoad {@link StatusRecord}</li>
  *   <li>PSM LineDefectTypePO → DataupLoad {@link LineDefectType}（包名 line/entity）</li>
@@ -578,7 +577,7 @@ public class LineServiceImpl extends ServiceImpl<LineMapper, Line> implements IL
      * {@code baseMapper.selectList(new QueryWrapper().select("distinct NAME,line_no"))}，
      * 返回仅含 {@code name} 与 {@code lineNo} 两个字段的去重 line 列表。</p>
      *
-     * <p>DataupLoad 改造：{@code Line} 实体替代 PSM {@code LinePO}（字段一致）。
+     * <p>DataupLoad 改造：{@code Line} 实体替代 PSM {@code LinePO}（字段一致；W-CLEAN-03 起 LinePO 已删除）。
      * DataupLoad 当前 {@link LineMapper} 仅 {@code BaseMapper<Line>}，未声明自定义查询，
      * 但 PSM 用的也是空 DAO（{@code lineDAO.selectList(QueryWrapper)}），
      * 因此 {@code baseMapper.selectList} 与 PSM 行为等价。</p>
@@ -625,11 +624,9 @@ public class LineServiceImpl extends ServiceImpl<LineMapper, Line> implements IL
      *   <li>最终按父节点 id 排序，返回 {@code List<LineTreeItemDTO>}</li>
      * </ol>
      *
-     * <p>DataupLoad 改造：{@link LineTreeItemDTO} 构造器签名仍是
-     * {@code LineTreeItemDTO(LinePO po)}（来自 PSM 反编译产物，且 PSM 业务依赖此构造器）。
-     * DataupLoad {@code Line} 实体与 PSM {@code LinePO} 字段一致（id/name/lineNo/faceNo），
-     * 因此通过 {@link BeanUtil#copyProperties(Object, Class)} 把 {@code Line} 转 {@code LinePO}
-     * 再传入构造器（DataupLoad {@code LinePO} 仍保留为模型层死代码，{@code line.model.LinePO}）。</p>
+     * <p>DataupLoad 改造：{@link LineTreeItemDTO} 构造器签名在 W-CLEAN-03 起直接接受
+     * {@code Line}（{@code LineTreeItemDTO(Line po)}），与 PSM 反编译 {@code LinePO}
+     * 字段一致（id/name/lineNo/faceNo），不需要 {@code BeanUtil.copyProperties} 中转。</p>
      */
     @Override
     public BaseResult handleLineTreeSearch() {
@@ -637,9 +634,9 @@ public class LineServiceImpl extends ServiceImpl<LineMapper, Line> implements IL
         for (Line line : this.list()) {
             LineTreeItemDTO tree = sortByLineNo.computeIfAbsent(
                 line.getLineNo(),
-                k -> new LineTreeItemDTO(BeanUtil.copyProperties(line, LinePO.class)));
+                k -> new LineTreeItemDTO(line));
             tree.getChilds().add(
-                new LineTreeItemDTO(BeanUtil.copyProperties(line, LinePO.class))
+                new LineTreeItemDTO(line)
                     .setLineNo(line.getFaceNo()));
         }
         List<LineTreeItemDTO> data = sortByLineNo.values().stream()

@@ -10,7 +10,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * DataupLoad line 表映射实体（沿用 PSM LinePO 字段）。
+ * DataupLoad line 表映射实体（沿用 PSM LinePO 字段；W-CLEAN-03 起 PSM LinePO 已删除，统一用本类）。
  */
 @TableName("line")
 public class Line implements Serializable {

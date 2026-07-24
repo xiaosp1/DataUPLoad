@@ -19,7 +19,6 @@
  *  com.hikrobotics.solution.module.detect.service.ILineDayRecordService
  *  com.hikrobotics.solution.module.detect.service.IStatusRecordService
  *  com.hikrobotics.solution.module.line.dto.RealTimeDetectData
- *  com.hikrobotics.solution.module.line.model.LinePO
  *  com.hikrobotics.solution.module.line.service.ILineService
  *  com.hikrobotics.solution.module.screen.dto.ClientStatusDTO
  *  com.hikrobotics.solution.module.screen.dto.DefectNumberDTO

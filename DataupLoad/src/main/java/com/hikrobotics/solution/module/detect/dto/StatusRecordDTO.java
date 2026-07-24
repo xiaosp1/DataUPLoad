@@ -2,7 +2,7 @@ package com.hikrobotics.solution.module.detect.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.hikrobotics.solution.module.detect.entity.StatusRecord;
-import com.hikrobotics.solution.module.line.model.LinePO;
+import com.hikrobotics.solution.module.line.entity.Line;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -46,7 +46,7 @@ public class StatusRecordDTO implements Serializable {
    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Shanghai")
    private LocalDateTime createTime;
 
-   public StatusRecordDTO buildClient(LinePO line, String deviceNo) {
+   public StatusRecordDTO buildClient(Line line, String deviceNo) {
       StatusRecordDTO record = new StatusRecordDTO();
       record.setTime(java.time.LocalDateTime.now().toString());
       record.setType(com.hikrobotics.solution.module.detect.enums.DeviceType.CLIENT.getValue());

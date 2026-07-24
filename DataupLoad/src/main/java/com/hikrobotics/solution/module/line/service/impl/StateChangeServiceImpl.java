@@ -42,7 +42,7 @@ import org.springframework.stereotype.Service;
  *
  * <p>逻辑 1:1 抄自反编译 PSM StateChangeServiceImpl，差异如下：</p>
  * <ul>
- *   <li>PSM StateChangePO / StateStatisticPO / LinePO → DataupLoad entity 同名类（StateChange /
+ *   <li>PSM StateChangePO / StateStatisticPO / LinePO（PSM 反编译命名，DataupLoad 已统一为 entity/Line）→ DataupLoad entity 同名类（StateChange /
  *       StateStatistic / Line）</li>
  *   <li>PSM StateChangeDAO → DataupLoad StateChangeMapper</li>
  *   <li>PSM StatusRecordPO → DataupLoad StatusRecord</li>

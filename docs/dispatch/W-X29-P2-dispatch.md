@@ -75,4 +75,41 @@ W-X28 P1 冲刺完成（8/8）后，启动 P2 工单冲刺，把 Excel 导出、
 - worker 诚实未虚构，按 PSM DTO 实际产物落地 (2 个 Collection 字段)
 - 决策: 以 PSM 反编译产物为准，不以工单表格为准
 - 报告: `docs/work-orders/W-DFT-01a-report.md`
-- ADR: 待补 ADR-0010
+- ADR: ADR-0010 已生成
+
+## 第一批 codex 完成 (5/5)
+
+| 工单 | 完成时间 | 工时 |
+|---|---|---|
+| W-DET-05a | 20:20 | 18m |
+| W-DET-05b | 20:35 | 33m (含 race condition 修复) |
+| W-DET-05c | 20:35 | 33m (与 05b race condition) |
+| W-DFT-01a | 20:08 | 6m |
+| W-DFT-01b | 20:15 | 13m |
+
+提交: c882101 ✅ push 成功
+
+## 第二批 codex 启动 (20:38)
+
+### W-LIN-06 — 20:38 sessions_spawn ✅
+- 完成: 20:43 (5m13s)
+- 改动: ILineService 152→187 + LineServiceImpl 662→730 + LineController 312→313
+- 新增: planOrderDtos(String, String, Integer, Integer) 服务方法
+- 改造: /web/line/plan/manage 从 stub 90003 改实装
+- 逆验发现: PSM 实际无 planOrderDtos/manageList/planManagePage → 用 PSM 最近语义 PlanServiceImpl.clientPlan → planMapper.selectClientPlan
+- 编译: 0 errors
+- 报告: `docs/work-orders/W-LIN-06-report.md`
+- 提交: c4924c7 ✅ push 成功
+
+## 第三批 codex 启动 (20:46)
+
+### W-CLEAN-03 — 20:46 sessions_spawn ✅
+- 完成: 20:43 (5m36s)
+- 改动: 8 文件 + 删 LinePO.java + 删空 line/model/ 目录
+- 关键简化: handleLineTreeSearch 不再需 BeanUtil.copyProperties 中转
+- 编译: 187 文件 0 errors
+- 重启: PID 23688 (worker 自己重启服务)
+- 冒烟: 5/5 端点 200
+- 报告: `docs/work-orders/W-CLEAN-03-report.md` (7564 bytes)
+- ⚠️ CFR 遗留: LineTreeItemDTO 仍含 assertj import (lib 已有该 jar，不阻塞)
+- ADR-0008 已反转 (main agent 负责)

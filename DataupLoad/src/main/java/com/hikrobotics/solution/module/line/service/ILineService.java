@@ -10,7 +10,6 @@ import com.hikrobotics.solution.module.line.dto.LinePlanBindDTO;
 import com.hikrobotics.solution.module.line.dto.LinePlanSwitchDTO;
 import com.hikrobotics.solution.module.line.dto.LineUpdateDTO;
 import com.hikrobotics.solution.module.line.entity.Line;
-import com.hikrobotics.solution.module.line.model.LinePO;
 import java.util.List;
 
 /**
@@ -27,7 +26,7 @@ import java.util.List;
  *   <li>{@link #planStatus(LinePanelQueryDTO)} 大屏实时状态</li>
  * </ul>
  *
- * <p>DataupLoad 沿用 {@link Line} 作为 entity（PSM 是 {@link LinePO}，字段一致）。
+ * <p>DataupLoad 沿用 {@link Line} 作为 entity（PSM 是 LinePO，字段一致；W-CLEAN-03 起 LinePO 已删除）。
  * `init()` 方法不进入接口（@PostConstruct 生命周期回调，由 Spring 容器调用，
  * 详见 PSM LineServiceImpl 类级别声明）。</p>
  */
@@ -115,7 +114,7 @@ public interface ILineService extends IService<Line> {
      * W-LIN-05：产线分组查询（PSM 1:1，对应 PSM LineController.lineGroup）。
      *
      * <p>PSM 实现：{@code lineDAO.selectList(new QueryWrapper().select("distinct NAME,line_no"))}，
-     * 返回 {@code BaseResult.data(List<LinePO> distinct name+line_no>)}。
+     * 返回 {@code BaseResult.data(List<LinePO> distinct name+line_no>)}（PSM 反编译引用 PSM LinePO，字段一致）。
      * DataupLoad 沿用 PSM 语义，{@code Line} 实体在 DataupLoad 中承担 PSM LinePO 角色。</p>
      */
     BaseResult lineGroup();
@@ -140,7 +139,7 @@ public interface ILineService extends IService<Line> {
     /**
      * W-LIN-05：按 lineNo 列表批量查询线体（PSM 1:1 重载）。
      *
-     * <p>PSM 实现：{@code list(Wrappers.lambdaQuery().in(LinePO::getLineNo, lineNos))}，
+     * <p>PSM 实现：{@code list(Wrappers.lambdaQuery().in(LinePO::getLineNo, lineNos))}（PSM 反编译引用 PSM LinePO，字段一致），
      * 入参为空时返回空列表。</p>
      *
      * <p>DataupLoad 沿用 PSM 1:1，重载已有的 {@link #listByLineNo(String)}（W-B03 单参版本）

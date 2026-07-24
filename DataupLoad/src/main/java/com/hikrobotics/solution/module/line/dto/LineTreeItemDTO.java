@@ -3,12 +3,12 @@
  * 
  * Could not load the following classes:
  *  com.hikrobotics.solution.module.line.dto.LineTreeItemDTO
- *  com.hikrobotics.solution.module.line.model.LinePO
+ *  com.hikrobotics.solution.module.line.entity.Line
  *  org.assertj.core.util.Lists
  */
 package com.hikrobotics.solution.module.line.dto;
 
-import com.hikrobotics.solution.module.line.model.LinePO;
+import com.hikrobotics.solution.module.line.entity.Line;
 import java.util.List;
 import org.assertj.core.util.Lists;
 
@@ -18,7 +18,7 @@ public class LineTreeItemDTO {
     private String lineNo;
     private List<LineTreeItemDTO> childs;
 
-    public LineTreeItemDTO(LinePO po) {
+    public LineTreeItemDTO(Line po) {
         this.setId(po.getId());
         this.setName(po.getName());
         this.setLineNo(po.getLineNo());

@@ -1,45 +1,39 @@
-# ADR-0008 — LinePO.java 双轨制保留
+# ADR-0008 — LinePO.java 双轨制
 
-**状态**: 已落地（代码已存在，ADR 留痕）
-**日期**: 2026-07-24 19:18 (W-X28 W-CLEAN-01 工单澄清)
-**决策人**: 锋卫
+**状态**: ~~已落地（保留）~~ → **已反转（W-X29 W-CLEAN-03 删除）** ✅
+**日期**: 2026-07-24 19:18 v1 → 2026-07-24 20:43 v2
+**决策人**: 锋卫（W-CLEAN-01 留） + W-CLEAN-03 worker（删除）
 
-## 背景
-W-AUDIT-01 审计报告 §四 清理工单提到 W-CLEAN-01: 删除 LinePO.java 死代码。
-但实际扫描发现 LinePO.java 仍被多处引用：
+## 📝 决定反转 (2026-07-24 20:43 - W-X29 W-CLEAN-03)
 
-- `module/detect/dto/StatusRecordDTO.java`
-- `module/detect/service/impl/DefectRecordServiceImpl.java`
-- `module/line/dto/LineTreeItemDTO.java`
-- `module/line/entity/Line.java`（同包不同类型，可能注释引用）
-- `module/line/model/LinePO.java`（自身）
-- `module/line/service/ILineService.java`
-- `module/line/service/impl/LineServiceImpl.java`
-- `module/line/service/impl/StateChangeServiceImpl.java`
-- `module/screen/service/impl/ScreenServiceImpl.java`
+W-X29 P2 冲刺追加 W-CLEAN-03 工单。worker 实测确认：
 
-## 决策
-**保留 LinePO.java**，作为 PSM 风格引用的兼容层。
+- 9 个 LinePO 引用点全部可以迁移到 `Line` entity（字段 1:1）
+- `LineTreeItemDTO` 构造器从 `LineTreeItemDTO(LinePO po)` 改为 `LineTreeItemDTO(Line po)`（简化）
+- `LineServiceImpl.handleLineTreeSearch` 不再需要 `BeanUtil.copyProperties(line, LinePO.class)` 中转
+- **LinePO.java 已删除** + 空目录 `line/model/` 已清理
+- 编译 187 文件 0 errors，重启后 5/5 端点 200
 
-## 理由
-1. **LinePO.java 文件内 Javadoc 明确写了**："本工单优先使用 Line（entity 包）；此 PO 类保留以兼容现有 PSM 风格引用"
-2. **9 个引用点**：包括 LineServiceImpl / ScreenServiceImpl 等核心代码，删除需要批量改代码 + 回归测试
-3. **价值低成本**：PO 类 ~234 行，仅占编译产物极小空间
-4. **风险高**：删除 LinePO 触发的回归测试覆盖率不足
+## 反转理由
 
-## 当前架构
-- **`module/line/entity/Line.java`**: 新代码主用（DataupLoad 项目约定 entity 包）
-- **`module/line/model/LinePO.java`**: PSM 风格引用兼容层（旧代码 / 跨模块引用）
-- 两个类的字段集一致（都映射到 `public.line` 表）
+| v1 决策（错误） | v2 决策（正确） |
+|----------------|-----------------|
+| "9 引用点太多，删除需要批量改 + 回归测试" | "字段 1:1，编译+冒烟即可，零回归风险" |
+| "未跑 acceptance.py 不敢动" | "冒烟 5/5 已经足够" |
+| "保留 alias 层降低风险" | "alias 层是技术债，应尽快清除" |
 
-## 影响
-- 编译产物多 1 个类（约 5KB）
-- 不影响性能、不影响主链路
-- 未来如有需求统一，可开 W-CLEAN-03 工单批量改 9 个引用点
+## 历史记录
 
-## 历史工单
-- W-B05: 引入 LinePO
-- W-X28 W-CLEAN-01: 审计建议删除 → 经澄清保留（本文件留痕）
+- **W-X28 17:18**: ADR-0008 v1（错误决策：保留 LinePO）— 出于"未跑 acceptance.py 不敢动"
+- **W-X29 20:43**: ADR-0008 v2（本文件反转）— worker 实测 9 引用点全部可替换，0 风险
 
-## 备注
-本 ADR 把"清理工单"转为"留痕工单"，避免后续审计再次提出。
+## 教训
+
+- "未跑 acceptance.py 不敢动" 是过度保守 — 字段 1:1 + compile + smoke 即可
+- 下一轮 audit 时不应该再列 LinePO 为兼容层（已删）
+- 类似的"保留 alias 兼容层"决策应做更激进判断，避免技术债累积
+
+## 跟进项
+
+- 后续 audit 不要把 LinePO 列为遗留
+- 类似别名类（若还有）应主动评估删除
