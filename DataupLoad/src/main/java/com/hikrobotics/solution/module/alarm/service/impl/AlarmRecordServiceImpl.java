@@ -17,6 +17,7 @@ import com.hikrobotics.solution.framework.component.ws.handler.WebSocketHandler;
 import com.hikrobotics.solution.framework.component.ws.model.WsMessage;
 import com.hikrobotics.solution.framework.util.EventUtil;
 import com.hikrobotics.solution.module.alarm.config.DefectAlarmConfig;
+import com.hikrobotics.solution.module.alarm.constant.AlarmConstants;
 import com.hikrobotics.solution.module.alarm.constant.AlarmSolvedEnum;
 import com.hikrobotics.solution.module.alarm.constant.AlarmTypeEnum;
 import com.hikrobotics.solution.module.alarm.dto.AlarmCountDTO;
@@ -25,6 +26,7 @@ import com.hikrobotics.solution.module.alarm.dto.AlarmInfoQueryDTO;
 import com.hikrobotics.solution.module.alarm.dto.AlarmNumDTO;
 import com.hikrobotics.solution.module.alarm.dto.AlarmQueryDTO;
 import com.hikrobotics.solution.module.alarm.dto.IgnoreAlarmDTO;
+import com.hikrobotics.solution.module.alarm.dto.PlaySoundWsMsgDTO;
 import com.hikrobotics.solution.module.alarm.dto.SearchAlarmDTO;
 import com.hikrobotics.solution.module.alarm.entity.AlarmRecord;
 import com.hikrobotics.solution.module.alarm.mapper.AlarmRecordMapper;
@@ -78,9 +80,22 @@ import org.springframework.stereotype.Service;
  * <ol>
  *   <li>{@code alarm.global-enabled} 短路：DataupLoad 入口先判 {@link DefectAlarmConfig#isGlobalEnabled()}，
  *       {@code false} 直接 return OK（老板紧急关停用）。</li>
- *   <li>{@code sendAlarmSoundWsMessage}：DataupLoad 未启用 {@code ISystemConfigService}，跳过 WS 声音推送。</li>
+ *   <li>{@code sendAlarmSoundWsMessage}：DataupLoad 未启用 {@code ISystemConfigService}，无法像 PSM 那样从
+ *       {@code system_config} 表读 uri/playCount；W-ALM-05 改为使用 {@link AlarmConstants} 里的兜底默认值。
+ *       推送结构（{@link PlaySoundWsMsgDTO} + {@link WsMessage#type(String)} + 
+ *       {@link WebSocketHandler#broadcastByUid(String, String)}）仍 1:1 对齐 PSM。</li>
  *   <li>BaseResult.data()：PSM XML 用 {@code resultType}，DPL 走对象 → List/Page 直接 {@code data(...)} 即可，无需类型转换。</li>
  * </ol>
+ *
+ * <h2>W-ALM-05 — handleAlarmNumGet WS 推送 + soundEnable 声音播放分支</h2>
+ * <ul>
+ *   <li>{@link #handleAlarmNumGet()} 在 selectAlarmCountByType 之后追加 {@link #sendAlarmSoundWsMessage(int)}，
+ *       把 total 次数推到 /web 端大屏（PSM 未在 handleAlarmNumGet 推声音——本工单按任务简报要求补齐）。</li>
+ *   <li>{@link #sendAlarmMessage(AlarmRecord)} 当 {@code defectType.soundEnable == YES} 且 {@code solve == UNSOLVED}
+ *       时真正调 {@link #sendAlarmSoundWsMessage(int)}（之前 W-ALM-02 只 log.debug 跳过）。</li>
+ *   <li>{@code dealClientAlarm} 链路最终走 {@link #deal(String)} → {@link #sendAlarmMessage(AlarmRecord)}，
+ *       因此 soundEnable 判断在 sendAlarmMessage 内统一完成；dealClientAlarm 本体无需另加分支。</li>
+ * </ul>
  *
  * <h2>老板口径（W-B04）</h2>
  * <p>
@@ -268,6 +283,13 @@ public class AlarmRecordServiceImpl extends ServiceImpl<AlarmRecordMapper, Alarm
          .totalNum(Integer.valueOf(total))
          .highNum(Integer.valueOf(specialAlarmNum))
          .build();
+      // ====== W-ALM-05：handleAlarmNumGet 末尾推送声音到大屏 ======
+      // PSM 反编译产物 handleAlarmNumGet 不主动推 sound —— 仅 add()/deal() 链路经 sendAlarmMessage 推。
+      // 任务简报要求：handleAlarmNumGet 调 selectAlarmCountByType 后用 WebSocketHandler 推 PlaySoundWsMsgDTO。
+      // 这里按任务补齐：把 total 数推给 /web，前端按 SOUND_PLAY_DEFAULT_INTERVAL_SECONDS 轮播。
+      if (total > 0) {
+         this.sendAlarmSoundWsMessage(total);
+      }
       return BaseResult.build().ok().data(alarmNum);
    }
 
@@ -463,9 +485,11 @@ public class AlarmRecordServiceImpl extends ServiceImpl<AlarmRecordMapper, Alarm
          this.sendAlarmTextMessage();
          if (Objects.equals(defectType.getSoundEnable(), StateEnum.YES.getValue())
             && Objects.equals(alarm.getSolve(), AlarmSolvedEnum.UNSOLVED.getValue())) {
-            // PSM 原版：sendAlarmSoundWsMessage —— DataupLoad 当前未启用 system_config，
-            // 跳过 WS 声音推送（不影响报警记录入库和 yk 推送）。
-            log.debug("defect alarm sound ws push skipped (system_config not wired).[alarm={}]", alarm);
+            // ====== W-ALM-05：激活 soundEnable 推送分支 ======
+            // 之前（W-ALM-02）：log.debug 跳过（system_config 未启用）。
+            // 现在：直接调 sendAlarmSoundWsMessage，uri/interval/playCount 走 AlarmConstants 兜底。
+            // defectType 自身仅作"是否推送"的开关；推送内容来自 Constants，避免引入 ISystemConfigService。
+            this.sendAlarmSoundWsMessage(AlarmConstants.SOUND_PLAY_DEFAULT_COUNT);
          }
       }
 
@@ -519,6 +543,38 @@ public class AlarmRecordServiceImpl extends ServiceImpl<AlarmRecordMapper, Alarm
    @EventListener(DealAlarmEvent.class)
    public void dealClientAlarmListener(DealAlarmEvent event) {
       this.dealClientAlarm(event.getLineNo(), event.getFaceNo(), event.getReason());
+   }
+
+   /**
+    * 推送报警声音到 /web 大屏（PSM {@code sendAlarmSoundWsMessage} DPL 适配版）。
+    * <p>
+    * PSM 原版：{@code sendAlarmSoundWsMessage(DefectTypePO)} 从 {@code system_config} 读
+    * {@code type.getSoundConfigKey()}（uri）+ {@code sound_play_count}（次数），再 broadcast。
+    * <p>
+    * DPL（W-ALM-05）：{@code ISystemConfigService} 未启用（任务约束：不修改其它模块），
+    * uri / playCount 走 {@link AlarmConstants} 兜底；本方法新增一个 {@code count} 参数，
+    * 兼顾两路调用方：
+    * <ul>
+    *   <li>{@link #handleAlarmNumGet()} → {@code count = total}（大屏告警计数推送）</li>
+    *   <li>{@link #sendAlarmMessage(AlarmRecord)} → {@code count = SOUND_PLAY_DEFAULT_COUNT}（单条报警推送）</li>
+    * </ul>
+    * <p>
+    * 推送结构与 PSM 1:1：{@link WsMessage#type(String) WsMessage.type(ALARM_SOUND)} +
+    * {@link PlaySoundWsMsgDTO} + {@link WebSocketHandler#broadcastByUid(String, String) broadcastByUid(json, "web")}。
+    */
+   private void sendAlarmSoundWsMessage(int count) {
+      try {
+         PlaySoundWsMsgDTO soundMsg = new PlaySoundWsMsgDTO()
+            .setUri(AlarmConstants.SOUND_PLAY_DEFAULT_URI)
+            .setPlayCount(Integer.valueOf(count));
+         WsMessage wsData = WsMessage.build()
+            .type(WsTypeEnum.ALARM_SOUND.getValue())
+            .data(soundMsg);
+         this.webSocketHandler.broadcastByUid(wsData.toJsonString(), "web");
+      } catch (Exception ex) {
+         // 推送失败不应阻塞报警链路；log 后吞掉（与 sendAlarmTextMessage 处理一致）。
+         log.warn("broadcast sound ws msg failed. cause: {}", ex.toString());
+      }
    }
 
    @Override

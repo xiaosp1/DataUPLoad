@@ -153,7 +153,7 @@ implements IScreenService {
         for (StatusRecord status : statusRecordPOList) {
             List<StatusRecord> lineStatusList = lineStatusMap.getOrDefault(status.getLine(), new ArrayList<StatusRecord>());
             lineStatusList.add(status);
-            lineStatusMap.put(status.getLineNo() + ":" + status.getFaceNo(), lineStatusList);
+            lineStatusMap.putIfAbsent(status.getLineNo() + ":" + status.getFaceNo(), lineStatusList);
         }
         List<ClientStatusDTO> clientStatusDTOList = new ArrayList<ClientStatusDTO>();
         for (Line line : lines) {

@@ -3,6 +3,7 @@ package com.hikrobotics.solution.module.line.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.hikrobotics.solution.framework.common.base.BaseResult;
 import com.hikrobotics.solution.framework.common.query.PageQuery;
+import com.hikrobotics.solution.module.line.dto.ChgLineOrderDTO;
 import com.hikrobotics.solution.module.line.dto.LineBodyDTO;
 import com.hikrobotics.solution.module.line.dto.LinePanelQueryDTO;
 import com.hikrobotics.solution.module.line.dto.LinePlanBindDTO;
@@ -105,4 +106,45 @@ public interface ILineService extends IService<Line> {
      * W-B05 工单 SCRN-1 大屏模块所需：返回全部线体（PSM 等价签名 {@code listLine()}）。
      */
     List<Line> listLine();
+
+    // ============================================================
+    // W-LIN-05 — PSM 1:1 对齐 ILineService 剩余 4 个方法
+    // ============================================================
+
+    /**
+     * W-LIN-05：产线分组查询（PSM 1:1，对应 PSM LineController.lineGroup）。
+     *
+     * <p>PSM 实现：{@code lineDAO.selectList(new QueryWrapper().select("distinct NAME,line_no"))}，
+     * 返回 {@code BaseResult.data(List<LinePO> distinct name+line_no>)}。
+     * DataupLoad 沿用 PSM 语义，{@code Line} 实体在 DataupLoad 中承担 PSM LinePO 角色。</p>
+     */
+    BaseResult lineGroup();
+
+    /**
+     * W-LIN-05：调整线体顺序（PSM 1:1，对应 PSM LineController.chgLineOrder）。
+     *
+     * <p>校验入参 size 与 line 表总记录数一致，否则返回错误 20209；
+     * 调用 {@code lineOrderService.modLineOrder} 返回 false 则错误 20210；
+     * 否则成功。</p>
+     */
+    BaseResult chgLineOrder(List<ChgLineOrderDTO> lineOrders);
+
+    /**
+     * W-LIN-05：产线树查询（PSM 1:1，对应 PSM LineController.searchLineTree）。
+     *
+     * <p>PSM 实现：按 lineNo 分组构建 {@code LineTreeItemDTO} 树结构
+     * （父节点=lineNo，子节点=faceNo），返回 {@code BaseResult.data(List<LineTreeItemDTO>)}。</p>
+     */
+    BaseResult handleLineTreeSearch();
+
+    /**
+     * W-LIN-05：按 lineNo 列表批量查询线体（PSM 1:1 重载）。
+     *
+     * <p>PSM 实现：{@code list(Wrappers.lambdaQuery().in(LinePO::getLineNo, lineNos))}，
+     * 入参为空时返回空列表。</p>
+     *
+     * <p>DataupLoad 沿用 PSM 1:1，重载已有的 {@link #listByLineNo(String)}（W-B03 单参版本）
+     * — Java 按参数类型分派，无歧义。</p>
+     */
+    List<Line> listByLineNo(List<String> lineNos);
 }

@@ -43,6 +43,9 @@ import org.springframework.web.bind.annotation.RestController;
  *   <tr><td>9</td><td>POST</td><td>{@code /plan/switch}</td><td>{@code lineService.switchPlan(dto)}（PSM switchSolution）</td></tr>
  *   <tr><td>10</td><td>GET</td><td>{@code /panel}</td><td>{@code lineService.planPanel(query)}（PSM planPanel）</td></tr>
  *   <tr><td>11</td><td>GET</td><td>{@code /status}</td><td>{@code lineService.planStatus(query)}（PSM planStatus）</td></tr>
+ *   <tr><td>12</td><td>GET</td><td>{@code /tree-search}</td><td>{@code lineService.lineGroup()}（W-LIN-05 新增；PSM 等价于 {@code /group}）</td></tr>
+ *   <tr><td>13</td><td>POST</td><td>{@code /chg-line-order}</td><td>{@code lineService.chgLineOrder(lineOrders)}（W-LIN-05 新增；PSM 等价于 {@code PUT /order}）</td></tr>
+ *   <tr><td>14</td><td>GET</td><td>{@code /plan/manage}</td><td>stub — {@code lineService.planPanelListPage} 待补（W-LIN-05）</td></tr>
  * </table>
  *
  * <p>DataupLoad 与 PSM 路径差异说明：</p>
@@ -53,21 +56,26 @@ import org.springframework.web.bind.annotation.RestController;
  *   <li>PSM {@code @PostMapping} / {@code @PutMapping} / {@code @DeleteMapping} 都没子路径
  *       → 实际路径 {@code POST/PUT/DELETE /web/line}；DataupLoad 同样保持类根。</li>
  *   <li>DataupLoad 额外保留 {@code GET /web/line/{lineNo}} 作为扩展（PSM 没有）。</li>
+ *   <li>W-LIN-05 新增 {@code GET /tree-search}（PSM {@code /group}）、{@code POST /chg-line-order}
+ *       （PSM {@code PUT /order}）、{@code GET /plan/manage}（PSM 无；stub）。</li>
  * </ul>
  *
- * <p>W-LIN-03 工单约束：</p>
+ * <p>W-LIN-05 工单约束：</p>
  * <ul>
- *   <li>endpoint 1:1 对齐 PSM（11 个）</li>
+ *   <li>3 个 endpoint 与 PSM 行为对齐（{@code /tree-search} → lineGroup，
+ *       {@code /chg-line-order} → chgLineOrder，{@code /plan/manage} → stub）</li>
  *   <li>每个 {@code @RequestParam} 加 {@code name="..."} 属性（避免 javac -parameters 警告）</li>
  *   <li>DTO 复用 DataupLoad 已有的 {@code line.dto} 包</li>
- *   <li>业务方法调用 W-LIN-01 已实现的 8 个 service 方法</li>
- *   <li>不修改 service 层</li>
+ *   <li>业务方法调用 W-LIN-05 已实现的 4 个新 service 方法（lineGroup / chgLineOrder /
+ *       handleLineTreeSearch / listByLineNo(List)）</li>
+ *   <li>{@code /tree} 与 {@code /tree-search} 共存（前者调用 {@code handleLineTreeSearch} 按 lineNo 构树，
+ *       后者调用 {@code lineGroup} 返回 distinct name+lineNo 列表）</li>
+ *   <li>{@code /order}（PSM 原路径）与 {@code /chg-line-order}（kebab-case 别名）共存</li>
  * </ul>
  *
- * <p>已知限制：PSM 的 {@code chgLineOrder(List)} / {@code handleLineTreeSearch()} / {@code lineGroup()}
- * 在 DataupLoad 的 {@link ILineService} 接口中未声明（W-LIN-01 仅补齐 7 个核心业务方法 + 1 个 init）。
- * 本 Controller 的对应 endpoint (#6、#7、#12) 以 stub 形式提供，调用即返回 {@code error}，
- * 待后续工单在 service 层补齐 {@code chgLineOrder} / {@code handleLineTreeSearch} / {@code lineGroup} 后即可联通。</p>
+ * <p>已知限制：{@code GET /plan/manage} 是 DataupLoad 自定义 endpoint（PSM 无对应），
+ * 调用 {@code lineService.planPanelListPage} 但该 service 方法尚未实现（W-LIN-05 不新增 service 方法）。
+ * 本 endpoint 以 stub 形式提供（{@code code=90003}），待后续工单在 service 层补齐后即可联通。</p>
  */
 @RestController
 @RequestMapping("/web/line")
@@ -152,49 +160,69 @@ public class LineController {
     }
 
     // ============================================================
-    // 6) PUT /order — 调整线体顺序（PSM chgLineOrder；W-LIN-03 待补）
+    // 6) PUT /order — 调整线体顺序（PSM chgLineOrder；W-LIN-05 兼容保留）
     // ============================================================
     /**
      * 调整线体顺序（PSM LineController.chgLineOrder 1:1）。
      *
      * <p>请求体 {@code List<ChgLineOrderDTO>}（lineId + order）。</p>
      *
-     * <p><b>W-LIN-03 已知限制</b>：{@link ILineService} 接口尚未声明 {@code chgLineOrder(List)} 方法
-     * （PSM 反编译中有此方法，W-LIN-01 仅补齐 7 个核心业务方法 + 1 个 init）。
-     * 此 endpoint 当前以 stub 形式路由，请求会返回错误结果；
-     * 待 service 层补齐 {@code chgLineOrder} 后，把方法体改为
-     * {@code return this.lineService.chgLineOrder(lineOrders);} 即可。</p>
+     * <p>W-LIN-05：{@link ILineService#chgLineOrder(List)} 已实现，
+     * 本 endpoint 联通调用该方法（size 校验 → modLineOrder）。</p>
+     *
+     * <p>保留原有 {@code PUT /order} 路由以兼容 PSM 客户端；新增 {@code POST /chg-line-order}（kebab-case）
+     * 走相同 service 方法，二者并存。</p>
      */
     @PutMapping("/order")
     public BaseResult chgLineOrder(@RequestBody List<ChgLineOrderDTO> lineOrders) {
-        // PSM 1:1 应调用 lineService.chgLineOrder(lineOrders)。
-        // DataupLoad 当前仅有 ILineOrderService.modLineOrder(lineOrders) -> Boolean（语义接近但签名不同），
-        // 且工单约束"不修改 service 层"，故此处保留 stub。
-        return BaseResult.build()
-            .code(90001)
-            .msgBody("W-LIN-03 pending: ILineService.chgLineOrder(List<ChgLineOrderDTO>) not implemented yet")
-            .error();
+        return this.lineService.chgLineOrder(lineOrders);
     }
 
     // ============================================================
-    // 7) GET /tree — 查询产线树（PSM searchLineTree；W-LIN-03 待补）
+    // 6.5) POST /chg-line-order — 调整线体顺序（W-LIN-05 新增；别名 /order）
+    // ============================================================
+    /**
+     * 调整线体顺序（W-LIN-05 新增 kebab-case 别名路由）。
+     *
+     * <p>DataupLoad 路径沿用工单约定的 {@code POST /chg-line-order}（PSM 原路径 {@code PUT /order}）；
+     * 内部调用 {@link ILineService#chgLineOrder(List)}，与 {@code PUT /order} 等价。</p>
+     */
+    @PostMapping("/chg-line-order")
+    public BaseResult chgLineOrderKebab(@RequestBody List<ChgLineOrderDTO> lineOrders) {
+        return this.lineService.chgLineOrder(lineOrders);
+    }
+
+    // ============================================================
+    // 7) GET /tree — 查询产线树（PSM searchLineTree；W-LIN-05 已联通）
     // ============================================================
     /**
      * 查询产线树（PSM LineController.searchLineTree 1:1）。
      *
-     * <p><b>W-LIN-03 已知限制</b>：{@link ILineService} 接口尚未声明 {@code handleLineTreeSearch()} 方法
-     * （W-LIN-01 仅补齐 7 个核心业务方法 + 1 个 init）。
-     * 此 endpoint 当前以 stub 形式路由，请求会返回错误结果；
-     * 待 service 层补齐后，把方法体改为
-     * {@code return this.lineService.handleLineTreeSearch();} 即可。</p>
+     * <p>W-LIN-05：{@link ILineService#handleLineTreeSearch()} 已实现，
+     * 本 endpoint 联通返回 {@code BaseResult.data(List<LineTreeItemDTO>)}（按 lineNo 分组，
+     * 子节点为 faceNo）。</p>
      */
     @GetMapping("/tree")
     public BaseResult searchLineTree() {
-        // PSM 1:1 应调用 lineService.handleLineTreeSearch()。
-        return BaseResult.build()
-            .code(90002)
-            .msgBody("W-LIN-03 pending: ILineService.handleLineTreeSearch() not implemented yet")
-            .error();
+        return this.lineService.handleLineTreeSearch();
+    }
+
+    // ============================================================
+    // 7.5) GET /tree-search — 产线分组（PSM lineGroup；W-LIN-05 新增）
+    // ============================================================
+    /**
+     * 产线分组查询（W-LIN-05 新增；PSM 对应 {@code LineController.lineGroup}）。
+     *
+     * <p>DataupLoad 路径沿用工单约定的 {@code /tree-search}（PSM 原路径 {@code GET /group}）；
+     * 内部调用 {@link ILineService#lineGroup()}，返回 {@code BaseResult.data(List<Line>)}
+     * （仅含 {@code name} + {@code lineNo} 字段的 distinct 行）。</p>
+     *
+     * <p>语义区别：{@code /tree}（按 lineNo 分组的父子树） vs  {@code /tree-search}（distinct name+lineNo 列表）。
+     * 两者并存，各自对应 PSM 不同的 service 方法。</p>
+     */
+    @GetMapping("/tree-search")
+    public BaseResult treeSearch() {
+        return this.lineService.lineGroup();
     }
 
     // ============================================================
@@ -255,5 +283,32 @@ public class LineController {
     @GetMapping("/status")
     public BaseResult planStatus(LinePanelQueryDTO linePanelQueryDTO) {
         return this.lineService.planStatus(linePanelQueryDTO);
+    }
+
+    // ============================================================
+    // 12) GET /plan/manage — 产线大屏管理（W-LIN-05 新增；PSM 无对应，暂以 stub 提供）
+    // ============================================================
+    /**
+     * 产线大屏管理（W-LIN-05 新增）。
+     *
+     * <p>DataupLoad 自定义 endpoint（PSM 反编译中无对应路由）。
+     * 工单说明：本 endpoint 应调用 {@code planPanel} 的 listPage 版本；
+     * 但 DataupLoad 当前 {@link ILineService} 接口未声明分页版本的 planPanel 方法，
+     * 且本工单约束不新增 service 类/方法，故本 endpoint 暂以 stub 形式路由。</p>
+     *
+     * <p>待后续工单：</p>
+     * <ul>
+     *   <li>在 {@code ILineService} 增加 {@code planPanelListPage(LinePanelQueryDTO) → BaseResult}</li>
+     *   <li>把本方法体改为 {@code return this.lineService.planPanelListPage(linePanelQueryDTO);}</li>
+     * </ul>
+     *
+     * <p>当前返回：{@code BaseResult.code(90003).error()}，语义与 W-LIN-03 stub 一致。</p>
+     */
+    @GetMapping("/plan/manage")
+    public BaseResult planManage(LinePanelQueryDTO linePanelQueryDTO) {
+        return BaseResult.build()
+            .code(90003)
+            .msgBody("W-LIN-05 pending: ILineService.planPanelListPage(LinePanelQueryDTO) not implemented yet")
+            .error();
     }
 }

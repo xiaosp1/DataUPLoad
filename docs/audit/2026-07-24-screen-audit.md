@@ -34,3 +34,25 @@
 
 ## 结论
 screen 模块核心 WS 推送逻辑完整。**一个微调需关注**：putIfAbsent vs put 应复测。
+
+---
+
+## 📝 事实订正（2026-07-24 19:42 - W-X28 W-SCR-01）
+
+审计原文表 1/Top 1 写反了 PSM 与 DataupLoad 的方向：
+
+| 项目 | 原描述（错误） | **事实** |
+|------|---------------|----------|
+| PSM | `put` | **`putIfAbsent`** |
+| DataupLoad | `putIfAbsent` | **`put`** |
+
+**证据**：W-SCR-01 worker 复测 + `javap -c -p` 字节码 + PSM 反编译产物 `screen/service/imp/ScreenServiceImpl.java` 第 156 行 `lineStatusMap.putIfAbsent(...)`。
+
+**修订决策**（W-SCR-01 + ADR-0006）：
+- DPL 第 156 行已从 `put` → `putIfAbsent`，贴 PSM
+- 原因：PSM 是参考实现；中间表语义对齐；下游 `Collectors.toMap(..., (o,n) -> o.getId() > n.getId() ? o : n)` 按 id 去重不依赖中间表顺序；多客户端并发无业务回归；零回归风险
+
+**复测结果**：6/6 断言通过（put 会覆盖、putIfAbsent 保留首次）。
+
+**ADR**：`docs/adr/0006-screen-cache-strategy.md`
+

@@ -26,6 +26,7 @@ import com.hikrobotics.solution.module.detect.mapper.StatusRecordMapper;
 import com.hikrobotics.solution.module.detect.service.IDefectDayRecordService;
 import com.hikrobotics.solution.module.detect.service.IStatusRecordService;
 import com.hikrobotics.solution.module.line.constant.PlanStatusEnum;
+import com.hikrobotics.solution.module.line.dto.ChgLineOrderDTO;
 import com.hikrobotics.solution.module.line.dto.DefectCountDTO;
 import com.hikrobotics.solution.module.line.dto.DefectCountDisPlayDTO;
 import com.hikrobotics.solution.module.line.dto.LineBodyDTO;
@@ -34,6 +35,7 @@ import com.hikrobotics.solution.module.line.dto.LinePanelDTO;
 import com.hikrobotics.solution.module.line.dto.LinePanelQueryDTO;
 import com.hikrobotics.solution.module.line.dto.LinePlanBindDTO;
 import com.hikrobotics.solution.module.line.dto.LinePlanSwitchDTO;
+import com.hikrobotics.solution.module.line.dto.LineTreeItemDTO;
 import com.hikrobotics.solution.module.line.dto.LineUpdateDTO;
 import com.hikrobotics.solution.module.line.dto.ToDayCountDTO;
 import com.hikrobotics.solution.module.line.entity.Line;
@@ -42,6 +44,7 @@ import com.hikrobotics.solution.module.line.entity.PlanToLine;
 import com.hikrobotics.solution.module.line.mapper.LineDayRecordMapper;
 import com.hikrobotics.solution.module.line.mapper.LineMapper;
 import com.hikrobotics.solution.module.line.mapper.PlanToLineMapper;
+import com.hikrobotics.solution.module.line.model.LinePO;
 import com.hikrobotics.solution.module.line.service.ILineOrderService;
 import com.hikrobotics.solution.module.line.service.ILineService;
 // DataupLoad 没有 PSM {@code PlanToLineService} 接口（PSM 本身就是 @Service 类），
@@ -553,5 +556,107 @@ public class LineServiceImpl extends ServiceImpl<LineMapper, Line> implements IL
             return BaseResult.build().data(status);
         }
         return BaseResult.build().error("20204");
+    }
+
+    // ============================================================
+    // W-LIN-05 — PSM 1:1 剩余 4 个方法
+    //   lineGroup / chgLineOrder / handleLineTreeSearch / listByLineNo(List)
+    // ============================================================
+
+    /**
+     * W-LIN-05 #1：产线分组查询（PSM 1:1）。
+     *
+     * <p>对应 PSM LineServiceImpl.lineGroup()。实现：
+     * {@code baseMapper.selectList(new QueryWrapper().select("distinct NAME,line_no"))}，
+     * 返回仅含 {@code name} 与 {@code lineNo} 两个字段的去重 line 列表。</p>
+     *
+     * <p>DataupLoad 改造：{@code Line} 实体替代 PSM {@code LinePO}（字段一致）。
+     * DataupLoad 当前 {@link LineMapper} 仅 {@code BaseMapper<Line>}，未声明自定义查询，
+     * 但 PSM 用的也是空 DAO（{@code lineDAO.selectList(QueryWrapper)}），
+     * 因此 {@code baseMapper.selectList} 与 PSM 行为等价。</p>
+     */
+    @Override
+    public BaseResult lineGroup() {
+        List<Line> lineList = this.baseMapper.selectList(
+            new QueryWrapper<Line>().select("distinct NAME,line_no"));
+        return BaseResult.build().data(lineList);
+    }
+
+    /**
+     * W-LIN-05 #2：调整线体顺序（PSM 1:1）。
+     *
+     * <p>对应 PSM LineServiceImpl.chgLineOrder()。逻辑：</p>
+     * <ol>
+     *   <li>校验入参 size 与 line 表总记录数一致 → 否则错误 20209</li>
+     *   <li>调用 {@code lineOrderService.modLineOrder(lineOrders)}；返回 false 则错误 20210</li>
+     *   <li>否则成功</li>
+     * </ol>
+     *
+     * <p>DataupLoad 改造：{@code lineOrderService.modLineOrder} 已在 W-B03 实现
+     * （{@link com.hikrobotics.solution.module.line.service.ILineOrderService#modLineOrder}）。</p>
+     */
+    @Override
+    public BaseResult chgLineOrder(List<ChgLineOrderDTO> lineOrders) {
+        if ((long) lineOrders.size() != this.count()) {
+            return BaseResult.build().error("20209");
+        }
+        if (!Boolean.TRUE.equals(this.lineOrderService.modLineOrder(lineOrders))) {
+            return BaseResult.build().error("20210");
+        }
+        return BaseResult.build().ok();
+    }
+
+    /**
+     * W-LIN-05 #3：产线树查询（PSM 1:1）。
+     *
+     * <p>对应 PSM LineServiceImpl.handleLineTreeSearch()。逻辑：</p>
+     * <ol>
+     *   <li>遍历 {@code this.list()}（所有 line）</li>
+     *   <li>按 lineNo 分组：首个出现的 line 创建父节点 {@code LineTreeItemDTO(line)}，
+     *       后续同 lineNo 的 line 创建子节点 {@code new LineTreeItemDTO(line).setLineNo(line.getFaceNo())}</li>
+     *   <li>最终按父节点 id 排序，返回 {@code List<LineTreeItemDTO>}</li>
+     * </ol>
+     *
+     * <p>DataupLoad 改造：{@link LineTreeItemDTO} 构造器签名仍是
+     * {@code LineTreeItemDTO(LinePO po)}（来自 PSM 反编译产物，且 PSM 业务依赖此构造器）。
+     * DataupLoad {@code Line} 实体与 PSM {@code LinePO} 字段一致（id/name/lineNo/faceNo），
+     * 因此通过 {@link BeanUtil#copyProperties(Object, Class)} 把 {@code Line} 转 {@code LinePO}
+     * 再传入构造器（DataupLoad {@code LinePO} 仍保留为模型层死代码，{@code line.model.LinePO}）。</p>
+     */
+    @Override
+    public BaseResult handleLineTreeSearch() {
+        HashMap<String, LineTreeItemDTO> sortByLineNo = Maps.newHashMap();
+        for (Line line : this.list()) {
+            LineTreeItemDTO tree = sortByLineNo.computeIfAbsent(
+                line.getLineNo(),
+                k -> new LineTreeItemDTO(BeanUtil.copyProperties(line, LinePO.class)));
+            tree.getChilds().add(
+                new LineTreeItemDTO(BeanUtil.copyProperties(line, LinePO.class))
+                    .setLineNo(line.getFaceNo()));
+        }
+        List<LineTreeItemDTO> data = sortByLineNo.values().stream()
+            .sorted(Comparator.comparing(LineTreeItemDTO::getId))
+            .toList();
+        return BaseResult.build().data(data);
+    }
+
+    /**
+     * W-LIN-05 #4：按 lineNo 列表批量查询线体（PSM 1:1 重载）。
+     *
+     * <p>对应 PSM LineServiceImpl.listByLineNo(List&lt;String&gt;)。逻辑：</p>
+     * <ul>
+     *   <li>lineNos 非空 → {@code this.list(Wrappers.lambdaQuery().in(Line::getLineNo, lineNos))}</li>
+     *   <li>lineNos 为空 → 返回空 {@code Lists.newArrayList()}</li>
+     * </ul>
+     *
+     * <p>DataupLoad 改造：Java 重载区分参数类型，与已有 {@code listByLineNo(String)}（W-B03）
+     * 共存无歧义。</p>
+     */
+    @Override
+    public List<Line> listByLineNo(List<String> lineNos) {
+        if (CollectionUtil.isNotEmpty(lineNos)) {
+            return this.list(Wrappers.<Line>lambdaQuery().in(Line::getLineNo, lineNos));
+        }
+        return Lists.newArrayList();
     }
 }
