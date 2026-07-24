@@ -1,0 +1,23 @@
+{
+  "Tag": "T15",
+  "SnapshotTime": "2026-07-23 17:20:47",
+  "SinceTime": "2026-07-23 17:02:50",
+  "HikAlive": 1,
+  "EstabPort80": 37,
+  "AlarmRecordTotal": "2",
+  "IgnoreAlarmTotal": "5",
+  "ReceiveAlarmCount": 731,
+  "NotInterestingCount": 731,
+  "IsIgnoreCount": 0,
+  "YkPushCount": 0,
+  "BadSqlGrammarCount": 0,
+  "IgnoreHitCount": 0,
+  "OldCodeSigCount": 0,
+  "NewCodeSigCount": 731,
+  "NewCodeLoaded": true,
+  "ErrorLevelLines": 2,
+  "WarnLevelLines": 734,
+  "ErrorLogErrorEntries": 2,
+  "ErrorLogBadSqlEntries": 0,
+  "DataupLoadLogSize": 44777305
+}

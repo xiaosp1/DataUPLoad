@@ -1,0 +1,1 @@
+ALTER TABLE alarm_record add COLUMN defect_name varchar(128);

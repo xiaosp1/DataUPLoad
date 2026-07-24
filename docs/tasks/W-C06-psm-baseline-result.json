@@ -1,0 +1,1291 @@
+{
+  "log_root": "E:\\DEMO\\鏁版嵁閲囬泦\\docs\\domain\\娴峰悍澶у睆閫嗗悜\\10-鍙嶇紪璇戜骇鐗?NEW\\PSM\\server\\log\\intco-screen",
+  "files_scanned": 93,
+  "bytes_processed_GB": 2.61,
+  "totals": {
+    "deal_failed": 47050,
+    "ticket_success": 478,
+    "alarm_not_interesting": 7158264,
+    "push_success": 1109,
+    "push_err_resp": 102,
+    "ticket_failed": 378,
+    "push_err_ticket": 485
+  },
+  "push_total": 1696,
+  "total_hours_with_push_activity": 272,
+  "min_pushes_in_active_hour": 1,
+  "max_pushes_in_active_hour": 128,
+  "median_p50": 2,
+  "p90": 15,
+  "p99": 53,
+  "avg_push_per_active_hour": 6.24,
+  "avg_per_day": {
+    "2026-06-22": 5.8,
+    "2026-06-23": 3.92,
+    "2026-06-24": 4.4,
+    "2026-06-25": 8.44,
+    "2026-06-26": 28.17,
+    "2026-06-27": 11.31,
+    "2026-06-28": 3.14,
+    "2026-06-29": 5.06,
+    "2026-06-30": 4.44,
+    "2026-07-01": 4.69,
+    "2026-07-02": 3.71,
+    "2026-07-03": 31.6,
+    "2026-07-04": 6.4,
+    "2026-07-05": 7.41,
+    "2026-07-06": 5.55,
+    "2026-07-07": 3.09,
+    "2026-07-08": 3.07,
+    "2026-07-09": 6.35,
+    "2026-07-10": 4.62,
+    "2026-07-11": 2.08,
+    "2026-07-12": 2.0,
+    "2026-07-13": 11.5,
+    "2026-07-14": 2.0,
+    "2026-07-15": 2.0,
+    "2026-07-16": 1.0,
+    "2026-07-17": 3.8
+  },
+  "day_totals": {
+    "2026-06-22": {
+      "deal_failed": 1465,
+      "ticket_success": 34,
+      "alarm_not_interesting": 346523,
+      "push_success": 87
+    },
+    "2026-06-23": {
+      "deal_failed": 718,
+      "ticket_success": 34,
+      "alarm_not_interesting": 195043,
+      "push_success": 51
+    },
+    "2026-06-24": {
+      "deal_failed": 1081,
+      "ticket_success": 33,
+      "alarm_not_interesting": 178473,
+      "push_success": 44
+    },
+    "2026-06-25": {
+      "deal_failed": 1541,
+      "ticket_success": 34,
+      "alarm_not_interesting": 190185,
+      "push_success": 76
+    },
+    "2026-06-26": {
+      "deal_failed": 1996,
+      "push_err_resp": 64,
+      "ticket_failed": 2,
+      "ticket_success": 31,
+      "alarm_not_interesting": 251868,
+      "push_success": 105
+    },
+    "2026-06-27": {
+      "deal_failed": 7998,
+      "ticket_success": 34,
+      "alarm_not_interesting": 304510,
+      "push_success": 181
+    },
+    "2026-06-28": {
+      "deal_failed": 2762,
+      "ticket_success": 34,
+      "alarm_not_interesting": 126854,
+      "push_success": 44
+    },
+    "2026-06-29": {
+      "deal_failed": 2053,
+      "ticket_success": 33,
+      "alarm_not_interesting": 161136,
+      "push_success": 81
+    },
+    "2026-06-30": {
+      "deal_failed": 2731,
+      "ticket_success": 34,
+      "alarm_not_interesting": 122203,
+      "push_success": 40
+    },
+    "2026-07-01": {
+      "deal_failed": 2556,
+      "ticket_success": 34,
+      "alarm_not_interesting": 130529,
+      "push_success": 61
+    },
+    "2026-07-02": {
+      "ticket_success": 33,
+      "alarm_not_interesting": 27850,
+      "push_success": 26
+    },
+    "2026-07-03": {
+      "push_err_resp": 38,
+      "ticket_failed": 5,
+      "push_err_ticket": 38,
+      "ticket_success": 29,
+      "push_success": 82,
+      "alarm_not_interesting": 489550
+    },
+    "2026-07-04": {
+      "deal_failed": 1575,
+      "ticket_success": 33,
+      "alarm_not_interesting": 878558,
+      "push_success": 96
+    },
+    "2026-07-05": {
+      "deal_failed": 2061,
+      "ticket_success": 34,
+      "alarm_not_interesting": 361489,
+      "push_success": 126
+    },
+    "2026-07-06": {
+      "deal_failed": 2904,
+      "ticket_failed": 20,
+      "push_err_ticket": 52,
+      "ticket_success": 14,
+      "alarm_not_interesting": 182046,
+      "push_success": 9
+    },
+    "2026-07-07": {
+      "ticket_failed": 33,
+      "push_err_ticket": 34,
+      "deal_failed": 2114,
+      "alarm_not_interesting": 404066
+    },
+    "2026-07-08": {
+      "ticket_failed": 34,
+      "push_err_ticket": 43,
+      "deal_failed": 2093,
+      "alarm_not_interesting": 206820
+    },
+    "2026-07-09": {
+      "ticket_failed": 33,
+      "push_err_ticket": 108,
+      "deal_failed": 2075,
+      "alarm_not_interesting": 461728
+    },
+    "2026-07-10": {
+      "ticket_failed": 34,
+      "deal_failed": 3217,
+      "push_err_ticket": 97,
+      "alarm_not_interesting": 211103
+    },
+    "2026-07-11": {
+      "ticket_failed": 34,
+      "push_err_ticket": 27,
+      "deal_failed": 76,
+      "alarm_not_interesting": 202118
+    },
+    "2026-07-12": {
+      "ticket_failed": 33,
+      "push_err_ticket": 10,
+      "deal_failed": 1295,
+      "alarm_not_interesting": 167537
+    },
+    "2026-07-13": {
+      "ticket_failed": 34,
+      "deal_failed": 1416,
+      "push_err_ticket": 46,
+      "alarm_not_interesting": 179223
+    },
+    "2026-07-14": {
+      "ticket_failed": 33,
+      "push_err_ticket": 4,
+      "deal_failed": 140,
+      "alarm_not_interesting": 180231
+    },
+    "2026-07-15": {
+      "ticket_failed": 30,
+      "push_err_ticket": 6,
+      "deal_failed": 1079,
+      "alarm_not_interesting": 685368
+    },
+    "2026-07-16": {
+      "ticket_failed": 33,
+      "deal_failed": 399,
+      "push_err_ticket": 1,
+      "alarm_not_interesting": 182183
+    },
+    "2026-07-17": {
+      "ticket_failed": 20,
+      "push_err_ticket": 19,
+      "deal_failed": 1705,
+      "alarm_not_interesting": 331070
+    }
+  },
+  "per_file_count": [
+    {
+      "day": "2026-06-22",
+      "file": "error.0.log",
+      "size_bytes": 273802,
+      "deal_failed": 1465
+    },
+    {
+      "day": "2026-06-22",
+      "file": "info.0.log",
+      "size_bytes": 407623,
+      "ticket_success": 34
+    },
+    {
+      "day": "2026-06-22",
+      "file": "warn.0.log",
+      "size_bytes": 104580376,
+      "alarm_not_interesting": 272347,
+      "push_success": 81
+    },
+    {
+      "day": "2026-06-22",
+      "file": "warn.1.log",
+      "size_bytes": 29270405,
+      "alarm_not_interesting": 74176,
+      "push_success": 6
+    },
+    {
+      "day": "2026-06-23",
+      "file": "error.0.log",
+      "size_bytes": 140423,
+      "deal_failed": 718
+    },
+    {
+      "day": "2026-06-23",
+      "file": "info.0.log",
+      "size_bytes": 407626,
+      "ticket_success": 34
+    },
+    {
+      "day": "2026-06-23",
+      "file": "warn.0.log",
+      "size_bytes": 76710856,
+      "alarm_not_interesting": 195043,
+      "push_success": 51
+    },
+    {
+      "day": "2026-06-24",
+      "file": "error.0.log",
+      "size_bytes": 202209,
+      "deal_failed": 1081
+    },
+    {
+      "day": "2026-06-24",
+      "file": "info.0.log",
+      "size_bytes": 401963,
+      "ticket_success": 33
+    },
+    {
+      "day": "2026-06-24",
+      "file": "warn.0.log",
+      "size_bytes": 70935766,
+      "alarm_not_interesting": 178473,
+      "push_success": 44
+    },
+    {
+      "day": "2026-06-25",
+      "file": "error.0.log",
+      "size_bytes": 287974,
+      "deal_failed": 1541
+    },
+    {
+      "day": "2026-06-25",
+      "file": "info.0.log",
+      "size_bytes": 407630,
+      "ticket_success": 34
+    },
+    {
+      "day": "2026-06-25",
+      "file": "warn.0.log",
+      "size_bytes": 75230079,
+      "alarm_not_interesting": 190185,
+      "push_success": 76
+    },
+    {
+      "day": "2026-06-26",
+      "file": "error.0.log",
+      "size_bytes": 872562,
+      "deal_failed": 1996,
+      "push_err_resp": 64,
+      "ticket_failed": 2
+    },
+    {
+      "day": "2026-06-26",
+      "file": "info.0.log",
+      "size_bytes": 400996,
+      "ticket_success": 31
+    },
+    {
+      "day": "2026-06-26",
+      "file": "warn.0.log",
+      "size_bytes": 98099949,
+      "alarm_not_interesting": 251868,
+      "push_success": 105
+    },
+    {
+      "day": "2026-06-27",
+      "file": "error.0.log",
+      "size_bytes": 1487397,
+      "deal_failed": 7998
+    },
+    {
+      "day": "2026-06-27",
+      "file": "info.0.log",
+      "size_bytes": 407634,
+      "ticket_success": 34
+    },
+    {
+      "day": "2026-06-27",
+      "file": "warn.0.log",
+      "size_bytes": 104572752,
+      "alarm_not_interesting": 272900,
+      "push_success": 166
+    },
+    {
+      "day": "2026-06-27",
+      "file": "warn.1.log",
+      "size_bytes": 12872491,
+      "alarm_not_interesting": 31610,
+      "push_success": 15
+    },
+    {
+      "day": "2026-06-28",
+      "file": "error.0.log",
+      "size_bytes": 514912,
+      "deal_failed": 2762
+    },
+    {
+      "day": "2026-06-28",
+      "file": "info.0.log",
+      "size_bytes": 407630,
+      "ticket_success": 34
+    },
+    {
+      "day": "2026-06-28",
+      "file": "warn.0.log",
+      "size_bytes": 51218069,
+      "alarm_not_interesting": 126854,
+      "push_success": 44
+    },
+    {
+      "day": "2026-06-29",
+      "file": "error.0.log",
+      "size_bytes": 1848647,
+      "deal_failed": 2053
+    },
+    {
+      "day": "2026-06-29",
+      "file": "info.0.log",
+      "size_bytes": 403393,
+      "ticket_success": 33
+    },
+    {
+      "day": "2026-06-29",
+      "file": "warn.0.log",
+      "size_bytes": 63874885,
+      "alarm_not_interesting": 161136,
+      "push_success": 81
+    },
+    {
+      "day": "2026-06-30",
+      "file": "error.0.log",
+      "size_bytes": 509039,
+      "deal_failed": 2731
+    },
+    {
+      "day": "2026-06-30",
+      "file": "info.0.log",
+      "size_bytes": 407364,
+      "ticket_success": 34
+    },
+    {
+      "day": "2026-06-30",
+      "file": "warn.0.log",
+      "size_bytes": 49246390,
+      "alarm_not_interesting": 122203,
+      "push_success": 40
+    },
+    {
+      "day": "2026-07-01",
+      "file": "error.0.log",
+      "size_bytes": 476109,
+      "deal_failed": 2556
+    },
+    {
+      "day": "2026-07-01",
+      "file": "info.0.log",
+      "size_bytes": 402201,
+      "ticket_success": 34
+    },
+    {
+      "day": "2026-07-01",
+      "file": "warn.0.log",
+      "size_bytes": 52436659,
+      "alarm_not_interesting": 130529,
+      "push_success": 61
+    },
+    {
+      "day": "2026-07-02",
+      "file": "error.0.log",
+      "size_bytes": 16892
+    },
+    {
+      "day": "2026-07-02",
+      "file": "info.0.log",
+      "size_bytes": 407394,
+      "ticket_success": 33
+    },
+    {
+      "day": "2026-07-02",
+      "file": "warn.0.log",
+      "size_bytes": 12788731,
+      "alarm_not_interesting": 27850,
+      "push_success": 26
+    },
+    {
+      "day": "2026-07-03",
+      "file": "error.0.log",
+      "size_bytes": 360836,
+      "push_err_resp": 38,
+      "ticket_failed": 5,
+      "push_err_ticket": 38
+    },
+    {
+      "day": "2026-07-03",
+      "file": "info.0.log",
+      "size_bytes": 406496,
+      "ticket_success": 29
+    },
+    {
+      "day": "2026-07-03",
+      "file": "warn.0.log",
+      "size_bytes": 104614348,
+      "push_success": 82,
+      "alarm_not_interesting": 274223
+    },
+    {
+      "day": "2026-07-03",
+      "file": "warn.1.log",
+      "size_bytes": 80644308,
+      "alarm_not_interesting": 215327
+    },
+    {
+      "day": "2026-07-04",
+      "file": "error.0.log",
+      "size_bytes": 317157,
+      "deal_failed": 1575
+    },
+    {
+      "day": "2026-07-04",
+      "file": "info.0.log",
+      "size_bytes": 401964,
+      "ticket_success": 33
+    },
+    {
+      "day": "2026-07-04",
+      "file": "warn.0.log",
+      "size_bytes": 104587143,
+      "alarm_not_interesting": 278569,
+      "push_success": 18
+    },
+    {
+      "day": "2026-07-04",
+      "file": "warn.1.log",
+      "size_bytes": 104575706,
+      "alarm_not_interesting": 272450,
+      "push_success": 74
+    },
+    {
+      "day": "2026-07-04",
+      "file": "warn.2.log",
+      "size_bytes": 104696845,
+      "alarm_not_interesting": 277120,
+      "push_success": 4
+    },
+    {
+      "day": "2026-07-04",
+      "file": "warn.3.log",
+      "size_bytes": 19018698,
+      "alarm_not_interesting": 50419
+    },
+    {
+      "day": "2026-07-05",
+      "file": "error.0.log",
+      "size_bytes": 588131,
+      "deal_failed": 2061
+    },
+    {
+      "day": "2026-07-05",
+      "file": "info.0.log",
+      "size_bytes": 410910,
+      "ticket_success": 34
+    },
+    {
+      "day": "2026-07-05",
+      "file": "warn.0.log",
+      "size_bytes": 104577933,
+      "alarm_not_interesting": 274093,
+      "push_success": 40
+    },
+    {
+      "day": "2026-07-05",
+      "file": "warn.1.log",
+      "size_bytes": 35176333,
+      "alarm_not_interesting": 87396,
+      "push_success": 86
+    },
+    {
+      "day": "2026-07-06",
+      "file": "error.0.log",
+      "size_bytes": 727721,
+      "deal_failed": 2904,
+      "ticket_failed": 20,
+      "push_err_ticket": 52
+    },
+    {
+      "day": "2026-07-06",
+      "file": "info.0.log",
+      "size_bytes": 398127,
+      "ticket_success": 14
+    },
+    {
+      "day": "2026-07-06",
+      "file": "warn.0.log",
+      "size_bytes": 72533754,
+      "alarm_not_interesting": 182046,
+      "push_success": 9
+    },
+    {
+      "day": "2026-07-07",
+      "file": "error.0.log",
+      "size_bytes": 667786,
+      "ticket_failed": 33,
+      "push_err_ticket": 34,
+      "deal_failed": 2114
+    },
+    {
+      "day": "2026-07-07",
+      "file": "info.0.log",
+      "size_bytes": 399697
+    },
+    {
+      "day": "2026-07-07",
+      "file": "warn.0.log",
+      "size_bytes": 104621989,
+      "alarm_not_interesting": 275055
+    },
+    {
+      "day": "2026-07-07",
+      "file": "warn.1.log",
+      "size_bytes": 50917965,
+      "alarm_not_interesting": 129011
+    },
+    {
+      "day": "2026-07-08",
+      "file": "error.0.log",
+      "size_bytes": 895754,
+      "ticket_failed": 34,
+      "push_err_ticket": 43,
+      "deal_failed": 2093
+    },
+    {
+      "day": "2026-07-08",
+      "file": "info.0.log",
+      "size_bytes": 399955
+    },
+    {
+      "day": "2026-07-08",
+      "file": "warn.0.log",
+      "size_bytes": 81718757,
+      "alarm_not_interesting": 206820
+    },
+    {
+      "day": "2026-07-09",
+      "file": "error.0.log",
+      "size_bytes": 708801,
+      "ticket_failed": 33,
+      "push_err_ticket": 108,
+      "deal_failed": 2075
+    },
+    {
+      "day": "2026-07-09",
+      "file": "info.0.log",
+      "size_bytes": 394499
+    },
+    {
+      "day": "2026-07-09",
+      "file": "warn.0.log",
+      "size_bytes": 104635530,
+      "alarm_not_interesting": 272754
+    },
+    {
+      "day": "2026-07-09",
+      "file": "warn.1.log",
+      "size_bytes": 71687722,
+      "alarm_not_interesting": 188974
+    },
+    {
+      "day": "2026-07-10",
+      "file": "error.0.log",
+      "size_bytes": 920845,
+      "ticket_failed": 34,
+      "deal_failed": 3217,
+      "push_err_ticket": 97
+    },
+    {
+      "day": "2026-07-10",
+      "file": "info.0.log",
+      "size_bytes": 399692
+    },
+    {
+      "day": "2026-07-10",
+      "file": "warn.0.log",
+      "size_bytes": 83431718,
+      "alarm_not_interesting": 211103
+    },
+    {
+      "day": "2026-07-11",
+      "file": "error.0.log",
+      "size_bytes": 291386,
+      "ticket_failed": 34,
+      "push_err_ticket": 27,
+      "deal_failed": 76
+    },
+    {
+      "day": "2026-07-11",
+      "file": "info.0.log",
+      "size_bytes": 394501
+    },
+    {
+      "day": "2026-07-11",
+      "file": "warn.0.log",
+      "size_bytes": 80419371,
+      "alarm_not_interesting": 202118
+    },
+    {
+      "day": "2026-07-12",
+      "file": "error.0.log",
+      "size_bytes": 499672,
+      "ticket_failed": 33,
+      "push_err_ticket": 10,
+      "deal_failed": 1295
+    },
+    {
+      "day": "2026-07-12",
+      "file": "info.0.log",
+      "size_bytes": 399694
+    },
+    {
+      "day": "2026-07-12",
+      "file": "warn.0.log",
+      "size_bytes": 67094128,
+      "alarm_not_interesting": 167537
+    },
+    {
+      "day": "2026-07-13",
+      "file": "error.0.log",
+      "size_bytes": 556320,
+      "ticket_failed": 34,
+      "deal_failed": 1416,
+      "push_err_ticket": 46
+    },
+    {
+      "day": "2026-07-13",
+      "file": "info.0.log",
+      "size_bytes": 399692
+    },
+    {
+      "day": "2026-07-13",
+      "file": "warn.0.log",
+      "size_bytes": 71572900,
+      "alarm_not_interesting": 179223
+    },
+    {
+      "day": "2026-07-14",
+      "file": "error.0.log",
+      "size_bytes": 280745,
+      "ticket_failed": 33,
+      "push_err_ticket": 4,
+      "deal_failed": 140
+    },
+    {
+      "day": "2026-07-14",
+      "file": "info.0.log",
+      "size_bytes": 394503
+    },
+    {
+      "day": "2026-07-14",
+      "file": "warn.0.log",
+      "size_bytes": 71899119,
+      "alarm_not_interesting": 180231
+    },
+    {
+      "day": "2026-07-15",
+      "file": "error.0.log",
+      "size_bytes": 578834,
+      "ticket_failed": 30,
+      "push_err_ticket": 6,
+      "deal_failed": 1079
+    },
+    {
+      "day": "2026-07-15",
+      "file": "info.0.log",
+      "size_bytes": 432075
+    },
+    {
+      "day": "2026-07-15",
+      "file": "warn.0.log",
+      "size_bytes": 104638314,
+      "alarm_not_interesting": 275326
+    },
+    {
+      "day": "2026-07-15",
+      "file": "warn.1.log",
+      "size_bytes": 104581357,
+      "alarm_not_interesting": 278705
+    },
+    {
+      "day": "2026-07-15",
+      "file": "warn.2.log",
+      "size_bytes": 50159393,
+      "alarm_not_interesting": 131337
+    },
+    {
+      "day": "2026-07-16",
+      "file": "error.0.log",
+      "size_bytes": 332437,
+      "ticket_failed": 33,
+      "deal_failed": 399,
+      "push_err_ticket": 1
+    },
+    {
+      "day": "2026-07-16",
+      "file": "info.0.log",
+      "size_bytes": 397654
+    },
+    {
+      "day": "2026-07-16",
+      "file": "warn.0.log",
+      "size_bytes": 71637189,
+      "alarm_not_interesting": 182183
+    },
+    {
+      "day": "2026-07-17",
+      "file": "error.0.log",
+      "size_bytes": 762242,
+      "ticket_failed": 20,
+      "push_err_ticket": 19,
+      "deal_failed": 1705
+    },
+    {
+      "day": "2026-07-17",
+      "file": "info.0.log",
+      "size_bytes": 239432
+    },
+    {
+      "day": "2026-07-17",
+      "file": "warn.0.log",
+      "size_bytes": 104575361,
+      "alarm_not_interesting": 278687
+    },
+    {
+      "day": "2026-07-17",
+      "file": "warn.1.log",
+      "size_bytes": 21111264,
+      "alarm_not_interesting": 52383
+    },
+    {
+      "day": "CURRENT",
+      "file": "error.log",
+      "size_bytes": 36751
+    },
+    {
+      "day": "CURRENT",
+      "file": "info.log",
+      "size_bytes": 2767
+    },
+    {
+      "day": "CURRENT",
+      "file": "warn.log",
+      "size_bytes": 574
+    }
+  ],
+  "push_hour_breakdown_sample_first_30": [
+    {
+      "day": "2026-06-22",
+      "hour": "2026-06-22 00",
+      "total_pushes": 12,
+      "success": 12,
+      "err_ticket": 0,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-06-22",
+      "hour": "2026-06-22 01",
+      "total_pushes": 1,
+      "success": 1,
+      "err_ticket": 0,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-06-22",
+      "hour": "2026-06-22 03",
+      "total_pushes": 1,
+      "success": 1,
+      "err_ticket": 0,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-06-22",
+      "hour": "2026-06-22 05",
+      "total_pushes": 1,
+      "success": 1,
+      "err_ticket": 0,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-06-22",
+      "hour": "2026-06-22 07",
+      "total_pushes": 1,
+      "success": 1,
+      "err_ticket": 0,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-06-22",
+      "hour": "2026-06-22 08",
+      "total_pushes": 27,
+      "success": 27,
+      "err_ticket": 0,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-06-22",
+      "hour": "2026-06-22 09",
+      "total_pushes": 27,
+      "success": 27,
+      "err_ticket": 0,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-06-22",
+      "hour": "2026-06-22 10",
+      "total_pushes": 7,
+      "success": 7,
+      "err_ticket": 0,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-06-22",
+      "hour": "2026-06-22 11",
+      "total_pushes": 1,
+      "success": 1,
+      "err_ticket": 0,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-06-22",
+      "hour": "2026-06-22 12",
+      "total_pushes": 2,
+      "success": 2,
+      "err_ticket": 0,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-06-22",
+      "hour": "2026-06-22 13",
+      "total_pushes": 1,
+      "success": 1,
+      "err_ticket": 0,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-06-22",
+      "hour": "2026-06-22 16",
+      "total_pushes": 1,
+      "success": 1,
+      "err_ticket": 0,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-06-22",
+      "hour": "2026-06-22 17",
+      "total_pushes": 1,
+      "success": 1,
+      "err_ticket": 0,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-06-22",
+      "hour": "2026-06-22 18",
+      "total_pushes": 1,
+      "success": 1,
+      "err_ticket": 0,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-06-22",
+      "hour": "2026-06-22 20",
+      "total_pushes": 3,
+      "success": 3,
+      "err_ticket": 0,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-06-23",
+      "hour": "2026-06-23 01",
+      "total_pushes": 1,
+      "success": 1,
+      "err_ticket": 0,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-06-23",
+      "hour": "2026-06-23 04",
+      "total_pushes": 1,
+      "success": 1,
+      "err_ticket": 0,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-06-23",
+      "hour": "2026-06-23 05",
+      "total_pushes": 3,
+      "success": 3,
+      "err_ticket": 0,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-06-23",
+      "hour": "2026-06-23 08",
+      "total_pushes": 20,
+      "success": 20,
+      "err_ticket": 0,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-06-23",
+      "hour": "2026-06-23 10",
+      "total_pushes": 3,
+      "success": 3,
+      "err_ticket": 0,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-06-23",
+      "hour": "2026-06-23 12",
+      "total_pushes": 2,
+      "success": 2,
+      "err_ticket": 0,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-06-23",
+      "hour": "2026-06-23 13",
+      "total_pushes": 10,
+      "success": 10,
+      "err_ticket": 0,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-06-23",
+      "hour": "2026-06-23 14",
+      "total_pushes": 4,
+      "success": 4,
+      "err_ticket": 0,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-06-23",
+      "hour": "2026-06-23 15",
+      "total_pushes": 1,
+      "success": 1,
+      "err_ticket": 0,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-06-23",
+      "hour": "2026-06-23 18",
+      "total_pushes": 1,
+      "success": 1,
+      "err_ticket": 0,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-06-23",
+      "hour": "2026-06-23 20",
+      "total_pushes": 1,
+      "success": 1,
+      "err_ticket": 0,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-06-23",
+      "hour": "2026-06-23 22",
+      "total_pushes": 3,
+      "success": 3,
+      "err_ticket": 0,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-06-23",
+      "hour": "2026-06-23 23",
+      "total_pushes": 1,
+      "success": 1,
+      "err_ticket": 0,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-06-24",
+      "hour": "2026-06-24 02",
+      "total_pushes": 1,
+      "success": 1,
+      "err_ticket": 0,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-06-24",
+      "hour": "2026-06-24 08",
+      "total_pushes": 20,
+      "success": 20,
+      "err_ticket": 0,
+      "err_resp": 0
+    }
+  ],
+  "push_hour_breakdown_sample_last_30": [
+    {
+      "day": "2026-07-11",
+      "hour": "2026-07-11 06",
+      "total_pushes": 1,
+      "success": 0,
+      "err_ticket": 1,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-07-11",
+      "hour": "2026-07-11 09",
+      "total_pushes": 2,
+      "success": 0,
+      "err_ticket": 2,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-07-11",
+      "hour": "2026-07-11 10",
+      "total_pushes": 1,
+      "success": 0,
+      "err_ticket": 1,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-07-11",
+      "hour": "2026-07-11 12",
+      "total_pushes": 2,
+      "success": 0,
+      "err_ticket": 2,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-07-11",
+      "hour": "2026-07-11 13",
+      "total_pushes": 2,
+      "success": 0,
+      "err_ticket": 2,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-07-11",
+      "hour": "2026-07-11 15",
+      "total_pushes": 1,
+      "success": 0,
+      "err_ticket": 1,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-07-11",
+      "hour": "2026-07-11 16",
+      "total_pushes": 2,
+      "success": 0,
+      "err_ticket": 2,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-07-11",
+      "hour": "2026-07-11 18",
+      "total_pushes": 2,
+      "success": 0,
+      "err_ticket": 2,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-07-11",
+      "hour": "2026-07-11 20",
+      "total_pushes": 2,
+      "success": 0,
+      "err_ticket": 2,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-07-11",
+      "hour": "2026-07-11 22",
+      "total_pushes": 1,
+      "success": 0,
+      "err_ticket": 1,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-07-12",
+      "hour": "2026-07-12 03",
+      "total_pushes": 1,
+      "success": 0,
+      "err_ticket": 1,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-07-12",
+      "hour": "2026-07-12 14",
+      "total_pushes": 2,
+      "success": 0,
+      "err_ticket": 2,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-07-12",
+      "hour": "2026-07-12 17",
+      "total_pushes": 1,
+      "success": 0,
+      "err_ticket": 1,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-07-12",
+      "hour": "2026-07-12 19",
+      "total_pushes": 1,
+      "success": 0,
+      "err_ticket": 1,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-07-12",
+      "hour": "2026-07-12 20",
+      "total_pushes": 5,
+      "success": 0,
+      "err_ticket": 5,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-07-13",
+      "hour": "2026-07-13 14",
+      "total_pushes": 2,
+      "success": 0,
+      "err_ticket": 2,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-07-13",
+      "hour": "2026-07-13 15",
+      "total_pushes": 41,
+      "success": 0,
+      "err_ticket": 41,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-07-13",
+      "hour": "2026-07-13 20",
+      "total_pushes": 2,
+      "success": 0,
+      "err_ticket": 2,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-07-13",
+      "hour": "2026-07-13 21",
+      "total_pushes": 1,
+      "success": 0,
+      "err_ticket": 1,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-07-14",
+      "hour": "2026-07-14 04",
+      "total_pushes": 1,
+      "success": 0,
+      "err_ticket": 1,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-07-14",
+      "hour": "2026-07-14 19",
+      "total_pushes": 3,
+      "success": 0,
+      "err_ticket": 3,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-07-15",
+      "hour": "2026-07-15 13",
+      "total_pushes": 1,
+      "success": 0,
+      "err_ticket": 1,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-07-15",
+      "hour": "2026-07-15 14",
+      "total_pushes": 4,
+      "success": 0,
+      "err_ticket": 4,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-07-15",
+      "hour": "2026-07-15 23",
+      "total_pushes": 1,
+      "success": 0,
+      "err_ticket": 1,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-07-16",
+      "hour": "2026-07-16 08",
+      "total_pushes": 1,
+      "success": 0,
+      "err_ticket": 1,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-07-17",
+      "hour": "2026-07-17 03",
+      "total_pushes": 9,
+      "success": 0,
+      "err_ticket": 9,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-07-17",
+      "hour": "2026-07-17 04",
+      "total_pushes": 4,
+      "success": 0,
+      "err_ticket": 4,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-07-17",
+      "hour": "2026-07-17 09",
+      "total_pushes": 2,
+      "success": 0,
+      "err_ticket": 2,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-07-17",
+      "hour": "2026-07-17 10",
+      "total_pushes": 2,
+      "success": 0,
+      "err_ticket": 2,
+      "err_resp": 0
+    },
+    {
+      "day": "2026-07-17",
+      "hour": "2026-07-17 12",
+      "total_pushes": 2,
+      "success": 0,
+      "err_ticket": 2,
+      "err_resp": 0
+    }
+  ],
+  "push_hour_breakdown_total_records": 272
+}

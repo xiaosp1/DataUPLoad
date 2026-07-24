@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400px" height="28px" viewBox="0 0 400 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>2</title>
+    <defs>
+        <linearGradient x1="0%" y1="100%" x2="100%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#004454" stop-opacity="0.8" offset="0%"></stop>
+            <stop stop-color="#000000" stop-opacity="0" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="100%" y1="100%" x2="0%" y2="100%" id="linearGradient-2">
+            <stop stop-color="#09C889" stop-opacity="0" offset="0%"></stop>
+            <stop stop-color="#39EFA5" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="控件" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="编组">
+            <path d="M400,6 L400,28 L2,28 L2,0 L144,0 L152,6 L400,6 Z" id="形状结合" fill="url(#linearGradient-1)"></path>
+            <rect id="轮廓线" fill-opacity="0.7" fill="#095D58" fill-rule="nonzero" x="168" y="6" width="232" height="1"></rect>
+            <path d="M256,6 L256,7 L250,7 L250,6 L256,6 Z M246,6 L246,7 L222,7 L222,6 L246,6 Z" id="装饰线1" fill="#0DFDF0" transform="translate(239.000000, 6.500000) scale(-1, 1) translate(-239.000000, -6.500000) "></path>
+            <polygon id="轮廓线" fill-opacity="0.7" fill="#095D58" fill-rule="nonzero" points="1 27 1 1 143 1 151 7 168 7 168 6 152 6 144 -2.14411822e-14 0 -2.14411822e-14 0 28 168 28 168 27"></polygon>
+            <path d="M140,27 L140,28 L0,28 L0,27 L140,27 Z M140,0 L140,1 L0,1 L0,0 L140,0 Z" id="高光线" fill="url(#linearGradient-2)"></path>
+            <rect id="装饰线1" fill="#DAFFE8" x="0" y="5" width="1" height="18"></rect>
+        </g>
+    </g>
+</svg>

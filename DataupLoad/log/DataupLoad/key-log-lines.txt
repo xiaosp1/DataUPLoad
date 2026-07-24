@@ -1,0 +1,6 @@
+
+log\DataupLoad\DataupLoad.log:17:2026-07-22 16:54:00.693 - INFO DataupLoad [main] [TomcatWebServer.start:220] Tomcat started on port(s): 8080 (http) with context path ''
+log\DataupLoad\DataupLoad.log:18:2026-07-22 16:54:00.868 - INFO DataupLoad [main] [Application.logStarted:57] Started Application in 38.872 seconds (process running for 41.81)
+log\DataupLoad\DataupLoad.log:775:2026-07-22 17:04:56.038 - INFO DataupLoad [main] [TomcatWebServer.start:220] Tomcat started on port(s): 8080 (http) with context path ''
+log\DataupLoad\DataupLoad.log:776:2026-07-22 17:04:56.169 - INFO DataupLoad [main] [Application.logStarted:57] Started Application in 42.972 seconds (process running for 45.686)
+

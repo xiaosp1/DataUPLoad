@@ -1,0 +1,1 @@
+System.register(["./index-legacy.0208e821-20260520160358.js","./vendor-legacy.cd362f1d-20260520160358.js"],(function(e,t){"use strict";var n,r,u,c;return{setters:[function(e){n=e._},function(e){r=e.m,u=e.f,c=e.h}],execute:function(){e("default",n({},[["render",function(e,t){var n=u("router-view");return c(),r(n)}]]))}}}));

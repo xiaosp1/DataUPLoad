@@ -1,0 +1,125 @@
+server:
+  port: 80
+  tomcat:
+    threads:
+      max: 1000
+
+# yk（鹰科）模块 - PSM 同款配置，老板说报警通过 yk 推 MES，MES 转飞书
+# 2026-07-22 18:01 PM 老板下令熔断：yk 推送关闭（报警继续落 PG）
+# 2026-07-22 21:20 PM 老板拍板同意 enable=true 推 1 条测试
+# 2026-07-22 21:23 PM 老板叫停：别推了，enable=false（PM 没推过任何报警，只是 updateTicket 拿了登录凭证）
+# 2026-07-23 08:07 PM 老板新方案：yk 拆双开关（铁则 42）
+#   - loginEnabled: 调 MES AuthenticationController.Login 拿 / 续 ticket（凭证预热）
+#   - uploadEnabled: 报警来了是否真推 yk 到 MES
+# 灰盒默认：loginEnabled=true（预热）+ uploadEnabled=false（不推）
+# 正式上线 checklist：uploadEnabled=true（铁则 42）
+yk:
+  # enable: false  # DEPRECATED：保留 0.x 兼容，YKConfig.isEnable() 返回 loginEnabled||uploadEnabled
+  loginEnabled: true   # 灰盒：始终拿 ticket（MES 192.168.80.33:10031 可达）
+  uploadEnabled: false # W-X30 5min 测试（老板拍板），测试后改回 false
+  workshop: QZN2
+  username: HKSJSB
+  password: HKSJSB123
+  login-interval: 50
+  url: http://192.168.80.33:10031/api/dataportal/invoke
+
+# MES HTTP 接口配置（沿用 PSM yk 推送链路的 MES 端点）
+http:
+  port: 80
+
+# 报警推送规则（沿用 PSM alarm.config）
+# 2026-07-23 PM 锋卫派 W-X21：alarm.global-enabled 全局开关（紧急可一键关停）
+# - global-enabled=true（默认）：报警正常落 PG + 走 sendAlarmMessage 全链路
+# - global-enabled=false：AlarmRecordServiceImpl.add() 入口即 return BaseResult.build().ok()
+#   报警既不落 PG 也不推 yk / WebSocket；用于老板紧急关停（老板指令时 PM 派工单改 false）
+alarm:
+  global-enabled: true
+  config:
+    - type: defect
+      template: (?<=\[)[^]]+(?=\])
+    - type: system
+      template: ^([^。]*)
+    - type: device
+      template: ^([^。]*)
+
+# HikVision 上传文件存储（沿用 PSM）
+hik-upload:
+  store-path: /data
+  file-config:
+    - type: 1
+      ttl: -1
+      path: /sound
+      strategy: rename
+
+spring:
+  datasource:
+    dynamic:
+      hikari:
+        maximum-pool-size: 50
+        minimum-idle: 20
+        connection-timeout: 10000
+        idle-timeout: 300000
+        max-lifetime: 1200000
+        leak-detection-threshold: 60000
+      primary: master
+      lazy: true
+      strict: false
+      datasource:
+        master:
+          driver-class-name: org.postgresql.Driver
+          # PM 13:27 调整：本机已装 PG 14 运行在 5433（PG 12 安装包在非交互模式下挂起）
+          # 先用 PG 14，功能等价，老板可后续让运维把 PG 14 停掉再装 PG 12
+          url: jdbc:postgresql://127.0.0.1:5433/intco
+          username: postgres
+          password: postgres
+  flyway:
+    enabled: true
+    out-of-order: true
+    baseline-on-migrate: true
+    baseline-version: 1.20
+    baseline-description: 'PSM 19 versions + ignore_alarm 1.20 pre-existing in DB'
+    locations: classpath:sql/,classpath:db/migration/
+
+# Hik 安全认证白名单（沿用 PSM）
+hik-security:
+  auth:
+    uri-permit:
+      - /data/**
+      - /ws/**
+      - /img/**
+      - /client/**
+      - /web/upload/file
+      - /web/defect**
+  oauth:
+    # framework-starter 必需 OAuth2Properties bean（W-B05 修复：缺此段启动报 UnsatisfiedDependency）
+    enable: false
+    token-timeout: 7200
+    scope-map: []
+    uri-permit: []
+
+# 静态资源映射（沿用 PSM）
+hik-res:
+  res-map:
+    - handlers: /data/**
+      locations: file:./data/
+
+# Hik 日志 trace
+hik-log:
+  trace:
+    print: false
+    uri-ignore:
+      - /ws/**
+      - /client/data/defect
+      - /client/data/status
+      - /client/data/alarm
+
+# MyBatis-Plus 配置（沿用 PSM）
+mybatis-plus:
+  configuration:
+    settings:
+      useCursorFetch: true
+
+# 加密狗：按 ADR-0004 不移植
+dongle:
+  enabled: false
+

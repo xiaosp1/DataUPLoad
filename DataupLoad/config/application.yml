@@ -1,0 +1,30 @@
+server:
+  port: 80
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+spring:
+  profiles:
+    active: prod
+  application:
+    name: DataupLoad
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+    default-property-inclusion: non_null
+
+logging:
+  level:
+    root: INFO
+    com.hikrobotics: INFO
+
+# Hik 日志路径（W-B03 启动 PSM 同款 logback-spring.xml 必需参数）
+hik:
+  log:
+    root-path: ./log
+    max-history: 30
+    max-file-size: 50MB
+    total-size-cap: 10GB

@@ -1,0 +1,23 @@
+{
+  "Tag": "T0",
+  "SnapshotTime": "2026-07-23 17:05:28",
+  "SinceTime": "2026-07-23 17:02:50",
+  "HikAlive": 1,
+  "EstabPort80": 38,
+  "AlarmRecordTotal": "2",
+  "IgnoreAlarmTotal": "5",
+  "ReceiveAlarmCount": 83,
+  "NotInterestingCount": 83,
+  "IsIgnoreCount": 0,
+  "YkPushCount": 0,
+  "BadSqlGrammarCount": 0,
+  "IgnoreHitCount": 0,
+  "OldCodeSigCount": 0,
+  "NewCodeSigCount": 83,
+  "NewCodeLoaded": true,
+  "ErrorLevelLines": 2,
+  "WarnLevelLines": 86,
+  "ErrorLogErrorEntries": 2,
+  "ErrorLogBadSqlEntries": 0,
+  "DataupLoadLogSize": 44298727
+}

@@ -1,0 +1,1 @@
+ALTER TABLE line add COLUMN realtime_data  text;

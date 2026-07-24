@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!--
+        W-B04: 极简 logback 配置，避免 framework-starter / Spring Boot 默认配置的 maxFileSize_IS_UNDEFINED 占位符问题。
+        后续工单可按 PSM 同款规则文件覆盖。
+    -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+    <logger name="com.hikrobotics" level="INFO"/>
+    <logger name="org.springframework" level="INFO"/>
+    <logger name="com.baomidou.mybatisplus" level="INFO"/>
+</configuration>

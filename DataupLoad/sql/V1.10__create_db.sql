@@ -1,0 +1,1 @@
+ALTER TABLE status_record add COLUMN device_name varchar(128);

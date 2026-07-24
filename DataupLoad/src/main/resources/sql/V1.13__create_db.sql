@@ -1,0 +1,1 @@
+CREATE INDEX alarm_record_defect_name_idx ON public.alarm_record USING btree (defect_name, solve, line_no, face_no);

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="298px" height="37px" viewBox="0 0 298 37" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>5</title>
+    <defs>
+        <linearGradient x1="0%" y1="50%" x2="100%" y2="50%" id="linearGradient-1">
+            <stop stop-color="#00C4B9" offset="0%"></stop>
+            <stop stop-color="#006560" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="英科信息分析平台" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="2.切图" transform="translate(-1101.000000, -130.000000)">
+            <g id="图例1" transform="translate(1101.000000, 130.000000)">
+                <g id="编组-28" transform="translate(0.500000, 0.500000)">
+                    <path d="M296,34.5 L296,36 L0,36 L0,34.5 L296,34.5 Z M296,0 L296,1.5 L0,1.5 L0,0 L296,0 Z" id="上下装饰" fill="#095D58"></path>
+                    <path d="M296,34.5 L296,36 L290,36 L290,34.5 L296,34.5 Z M6,34.5 L6,36 L0,36 L0,34.5 L6,34.5 Z M296,0 L296,1.5 L290,1.5 L290,0 L296,0 Z M6,0 L6,1.5 L0,1.5 L0,0 L6,0 Z" id="角标" fill="#39EFA5"></path>
+                    <polygon id="蒙版" fill="url(#linearGradient-1)" fill-rule="nonzero" points="0.5 3.5 296.5 3.5 296.5 33.5 0.5 33.5"></polygon>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

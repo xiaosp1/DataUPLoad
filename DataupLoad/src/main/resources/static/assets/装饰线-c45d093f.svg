@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="3px" height="10px" viewBox="0 0 3 10" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>装饰线</title>
+    <g id="英科信息分析平台" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" opacity="0.5">
+        <g id="2.切图" transform="translate(-91.000000, -255.000000)" fill="#0DFDF0">
+            <g id="装饰线-2" transform="translate(91.000000, 255.000000)">
+                <path d="M3,0 L3,10 L2,10 L2,0 L3,0 Z M1,2 L1,8 L0,8 L0,2 L1,2 Z" id="装饰线" transform="translate(1.500000, 5.000000) scale(-1, 1) translate(-1.500000, -5.000000) "></path>
+            </g>
+        </g>
+    </g>
+</svg>

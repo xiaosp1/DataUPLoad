@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="91px" height="37px" viewBox="0 0 91 37" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>3</title>
+    <defs>
+        <polygon id="path-1" points="-2.59323812e-13 0 90 0 90 30 -2.59323812e-13 30"></polygon>
+    </defs>
+    <g id="英科信息分析平台" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="2.切图" transform="translate(-60.000000, -130.000000)">
+            <g id="图例1" transform="translate(60.000000, 130.000000)">
+                <path d="M90.5,35 L90.5,36.5 L0.5,36.5 L0.5,35 L90.5,35 Z M90.5,0.5 L90.5,2 L0.5,2 L0.5,0.5 L90.5,0.5 Z" id="上下装饰" fill="#095D58"></path>
+                <path d="M90.5,35 L90.5,36.5 L84.5,36.5 L84.5,35 L90.5,35 Z M6.5,35 L6.5,36.5 L0.5,36.5 L0.5,35 L6.5,35 Z M90.5,0.5 L90.5,2 L84.5,2 L84.5,0.5 L90.5,0.5 Z M6.5,0.5 L6.5,2 L0.5,2 L0.5,0.5 L6.5,0.5 Z" id="角标" fill="#39EFA5"></path>
+                <g id="蓝色背景" transform="translate(1.000000, 4.000000)">
+                    <mask id="mask-2" fill="white">
+                        <use xlink:href="#path-1"></use>
+                    </mask>
+                    <use id="蒙版" fill="#12344A" opacity="0.61374628" xlink:href="#path-1"></use>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

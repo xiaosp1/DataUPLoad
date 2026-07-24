@@ -1,0 +1,1 @@
+ALTER TABLE alarm_record alter COLUMN message type character varying(1000);

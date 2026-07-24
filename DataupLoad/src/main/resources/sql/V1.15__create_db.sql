@@ -1,0 +1,1 @@
+INSERT INTO public.system_config(id, config_name,config_key, config_value, update_time, create_time)VALUES(default,'重复播报次数','sound-play-count', '1', '2025-04-15 15:27:46.423', '2025-04-15 15:27:46.423');

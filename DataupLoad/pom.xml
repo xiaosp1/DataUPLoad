@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.0.5</version>
+        <relativePath/>
+    </parent>
+
+    <artifactId>DataupLoad</artifactId>
+    <groupId>com.hikrobotics.solution</groupId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <framework.version>2.2.3-SNAPSHOT</framework.version>
+    </properties>
+
+    <dependencies>
+        <!-- framework-starter: PSM 私有依赖，从 PSM fat jar 提取到 lib/ -->
+        <dependency>
+            <groupId>com.hikrobotics.solution</groupId>
+            <artifactId>framework-starter</artifactId>
+            <version>${framework.version}</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/framework-starter-2.2.3-SNAPSHOT.jar</systemPath>
+        </dependency>
+
+        <!-- Spring Boot Web (RestController / RequestMapping 等) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- Spring Boot Validation (jakarta.validation.constraints.*) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!-- MyBatis-Plus 3.5.x (与 PSM 框架版本一致) -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <version>3.5.3.2</version>
+        </dependency>
+
+        <!-- PostgreSQL JDBC -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
+
+        <!-- hutool (cn.hutool.*) -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>5.8.21</version>
+        </dependency>
+
+        <!-- Guava (com.google.common.*) -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>31.1-jre</version>
+        </dependency>
+
+        <!-- Apache Commons Lang3 (org.apache.commons.lang3.*) -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.12.0</version>
+        </dependency>
+
+        <!-- Spring Boot WebSocket (PSM 同款，用于 DataupLoad 内部大屏推送) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+
+        <!-- sa-token 1.34.0 (PSM 鉴权，framework-starter 必需) -->
+        <dependency>
+            <groupId>cn.dev33</groupId>
+            <artifactId>sa-token-core</artifactId>
+            <version>1.34.0</version>
+        </dependency>
+        <dependency>
+            <groupId>cn.dev33</groupId>
+            <artifactId>sa-token-spring-boot3-starter</artifactId>
+            <version>1.34.0</version>
+        </dependency>
+        <!-- W-X11b 00:18：framework-starter 的 GlobalExceptionHandler 引用 SaOAuth2Exception，
+             但 lib/ 里只有 sa-token-oauth2-1.34.0.jar 物理文件、pom 里没声明 →
+             spring-boot:repackage 没把它打进 fat-jar，导致 Spring 启动 ClassNotFoundException。
+             用 system scope 复用 lib/ 里的物理 jar（与 framework-starter 同模式），不引入 Maven 仓库。 -->
+        <dependency>
+            <groupId>cn.dev33</groupId>
+            <artifactId>sa-token-oauth2</artifactId>
+            <version>1.34.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/sa-token-oauth2-1.34.0.jar</systemPath>
+        </dependency>
+
+        <!-- dynamic-datasource (PSM @DS 多数据源注解) -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>dynamic-datasource-spring-boot3-starter</artifactId>
+            <version>4.3.1</version>
+        </dependency>
+        <!-- W-X11b 00:20：Flyway 已在 application-prod.yml 启用（baseline-version=1.20），
+             但 lib/flyway-core-9.5.1.jar 没在 pom 声明 → spring-boot:repackage 没把它打进 fat-jar，
+             导致 FlywayMigrationStrategyExtend 加载时 NoClassDefFoundError。
+             同 sa-token-oauth2 模式：system scope + lib/ 物理 jar。 -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>9.5.1</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/flyway-core-9.5.1.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <!-- W-B04 显式指定 main class，避免 spring-boot 插件在两个候选（Application + WsTestApplication）之间报歧义 -->
+                    <mainClass>com.hikrobotics.solution.Application</mainClass>
+                    <!-- 将 system 作用域的 framework-starter 打进 fat-jar -->
+                    <includeSystemScope>true</includeSystemScope>
+                    <!-- PM 整合 16:55：让 spring-boot-plugin 把整个 lib/*.jar 都打进 fat-jar 的 BOOT-INF/lib/，
+                         解决 sa-token / dynamic-datasource / flyway 没在 pom 声明的问题 -->
+                    <outputDirectory>${project.build.directory}/dependency-copy</outputDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>build-info</id>
+                        <goals>
+                            <goal>build-info</goal>
+                        </goals>
+                        <configuration>
+                            <additionalProperties>
+                                <package.version>${project.version}-${package.time}</package.version>
+                            </additionalProperties>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.10</version>
+                <executions>
+                    <execution>
+                        <id>timestamp-property</id>
+                        <goals>
+                            <goal>timestamp-property</goal>
+                        </goals>
+                        <configuration>
+                            <name>package.time</name>
+                            <pattern>yyyyMMddHHmmss</pattern>
+                            <locale>zh_CN</locale>
+                            <timeZone>Asia/Shanghai</timeZone>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.5</version>
+                <configuration>
+                    <source>17</source>
+                    <target>17</target>
+                    <!--
+                        W-X11b（2026-07-23 00:09）：W-X11a smoke 发现 DetectDataController
+                        注入 IDefectRecordService 缺实现 → Spring 启动失败。
+                        修法：放开 DefectRecordServiceImpl + LineDefectTypeServiceImpl
+                        （后者是前者的 @Autowired 依赖）；保留 StatusRecordDTO + WsTestApplication
+                        排除（前者 W-B04 决策保留 jar tf 实证能编；后者是测试启动类会冲掉主 Application）。
+                    -->
+                    <excludes>
+                        <exclude>**/module/detect/dto/StatusRecordDTO.java</exclude>
+                        <exclude>**/framework/websocket/WsTestApplication.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+        <finalName>${project.artifactId}-${project.version}-${package.time}</finalName>
+    </build>
+
+</project>
