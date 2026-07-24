@@ -1,14 +1,3 @@
-/*
- * Decompiled with CFR 0.152.
- *
- * Could not load the following classes:
- *  cn.hutool.extra.spring.SpringUtil
- *  com.fasterxml.jackson.core.JsonProcessingException
- *  com.fasterxml.jackson.databind.ObjectMapper
- *  com.fasterxml.jackson.databind.node.ObjectNode
- *  com.hikrobotics.solution.framework.common.locale.LocaleUtil
- *  com.hikrobotics.solution.framework.common.log.MySlf4j
- */
 package com.hikrobotics.solution.framework.common.base;
 
 import cn.hutool.extra.spring.SpringUtil;

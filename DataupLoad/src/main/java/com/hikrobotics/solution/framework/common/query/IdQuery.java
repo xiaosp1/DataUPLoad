@@ -1,6 +1,3 @@
-/*
- * Decompiled with CFR 0.152.
- */
 package com.hikrobotics.solution.framework.common.query;
 
 import jakarta.validation.constraints.Min;
