@@ -74,4 +74,69 @@ public class LineDefectTypeServiceImpl
             .eq(LineDefectType::getShowFlag, 1);
       return this.list(qw);
    }
+
+   // ============================================================
+   // W-DFT-01b — 5 个 CRUD 方法（Controller 暴露用，PSM LineDefectTypeServiceImpl 1:1）
+   // ============================================================
+
+   /**
+    * W-DFT-01b：新增缺陷类型（PSM 1:1）。
+    *
+    * <p>用 MyBatis-Plus {@code IService.save(LineDefectType)} — 实体无 id 时走 INSERT
+    * 自增主键（{@code @TableId(type = IdType.AUTO)}），有 id 时走 INSERT_OR_UPDATE。</p>
+    *
+    * <p>调用方应在 controller 层做参数校验（{@code @RequestBody} 反序列化后由 Spring 校验
+    * 或者 service 入口校验）。本工单沿用 PSM 简单 save，不做业务校验（PSM 也未做）。</p>
+    */
+   @Override
+   public void add(LineDefectType entity) {
+      this.save(entity);
+   }
+
+   /**
+    * W-DFT-01b：按 id 更新缺陷类型（PSM 1:1）。
+    *
+    * <p>用 MyBatis-Plus {@code IService.updateById(LineDefectType)} — 按 {@code entity.id}
+    * 主键做 UPDATE（非空字段）。</p>
+    */
+   @Override
+   public void modify(LineDefectType entity) {
+      this.updateById(entity);
+   }
+
+   /**
+    * W-DFT-01b：按 id 删除缺陷类型（PSM 1:1）。
+    *
+    * <p>用 MyBatis-Plus {@code IService.removeById(Integer)} — 返回 boolean，
+    * 转 int 给接口（true → 1, false → 0）。</p>
+    */
+   @Override
+   public int delete(Integer id) {
+      return this.removeById(id) ? 1 : 0;
+   }
+
+   /**
+    * W-DFT-01b：查询全部缺陷类型（PSM 1:1）。
+    *
+    * <p>用 MyBatis-Plus {@code IService.list()} — 无过滤全表 SELECT。</p>
+    */
+   @Override
+   public List<LineDefectType> listAll() {
+      return this.list();
+   }
+
+   /**
+    * W-DFT-01b：按 lineNo 查询缺陷类型（PSM 1:1）。
+    *
+    * <p>用 MyBatis-Plus {@code lambdaQuery().eq(getLineNo, lineNo).list()}。</p>
+    *
+    * <p>实体字段对齐说明：见 {@link ILineDefectTypeService#listByLineNo(String)} 注释 —
+    * PSM/DataupLoad 实体均无 {@code lineId} 字段，业务关联是 {@code lineNo}（String）。</p>
+    */
+   @Override
+   public List<LineDefectType> listByLineNo(String lineNo) {
+      LambdaQueryWrapper<LineDefectType> qw = Wrappers.<LineDefectType>lambdaQuery()
+            .eq(LineDefectType::getLineNo, lineNo);
+      return this.list(qw);
+   }
 }

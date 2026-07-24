@@ -69,7 +69,7 @@ spring:
           driver-class-name: org.postgresql.Driver
           # PM 13:27 调整：本机已装 PG 14 运行在 5433（PG 12 安装包在非交互模式下挂起）
           # 先用 PG 14，功能等价，老板可后续让运维把 PG 14 停掉再装 PG 12
-          url: jdbc:postgresql://127.0.0.1:5433/intco
+          url: jdbc:postgresql://127.0.0.1:5433/intco?allowMultiQueries=true
           username: postgres
           password: postgres
   flyway:
