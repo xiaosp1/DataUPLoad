@@ -1,0 +1,37 @@
+﻿你是 PSM 审计 + Java 开发 worker。任务：**W-DET-02** — 补全 ILineDayRecordService 4 个缺失方法 + 修复 removeRecordByTime 边界 bug。
+
+## 任务背景
+参考审计报告: `E:\DEMO\数据采集\docs\audit\2026-07-24-line-audit.md` §其他观察 #6
+参考 PSM 反编译产物: `E:\DEMO\数据采集\docs\domain\海康大屏逆向\PSM\server\decompiled\com\hikrobotics\solution\module\detect\service\ILineDayRecordService.java`
+当前 DataupLoad 接口: `E:\DEMO\数据采集\DataupLoad\src\main\java\com\hikrobotics\solution\module\line\service\ILineDayRecordService.java`
+当前 DataupLoad 实现: `E:\DEMO\数据采集\DataupLoad\src\main\java\com\hikrobotics\solution\module\line\service\impl\LineDayRecordServiceImpl.java`
+
+## 5 个改动
+
+### 4 个缺失方法（接口签名 1:1 抄 PSM + Impl 实现）
+| 方法 | 返回 | 说明 |
+|---|---|---|
+| `listByStartTime(time)` | List<LineDayRecord> | 小时粒度 |
+| `listByTimeAndLineNo(time, lineNo)` | List<LineDayRecord> | 单产线 |
+| `listOfLineBetween(start, end)` | List<LineDayRecord> | 产线维度 |
+| `listLineDayBetween(start, end)` | List<LineDayRecord> | 日维度 |
+
+### 1 个边界修复
+- `LineDayRecordServiceImpl.removeRecordByTime(LocalDateTime time)` 当前用 `time.toLocalDate().toString()` 输出 `"2025-01-01"`
+- PSM 用 `HikDateUtil.formatLocalDate(time)` 输出 `"2025-01-01 23:59:59"` 全格式
+- 改用框架的 `HikDateUtil.formatLocalDate(time)`，如果没有就改成 `time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))`
+
+## 工作要求
+- 接口签名对齐 PSM
+- Impl 用 MyBatis-Plus 工具方法
+- 不要新增文件
+- 编译验证：`cd E:\DEMO\数据采集 && javac -encoding UTF-8 -d X:\DataupLoad\target\classes -cp "X:\DataupLoad\target\classes;X:\DataupLoad\lib\*" -sourcepath DataupLoad\src\main\java DataupLoad\src\main\java\com\hikrobotics\solution\module\line\service\impl\LineDayRecordServiceImpl.java`
+
+## 输出
+报告写到 `E:\DEMO\数据采集\docs\work-orders\W-DET-02-report.md`：
+- 改动的文件
+- 4 个方法签名 + 实现要点
+- 边界修复的 diff
+- 编译结果
+
+不要修改其它模块，不要推 git。

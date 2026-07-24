@@ -1,0 +1,49 @@
+﻿你是 PSM 审计 + Java 开发 worker。任务：**W-LIN-01** — 补全 LineServiceImpl 8 个核心业务方法 + 注入 12 个 bean。
+
+## 任务背景
+参考审计报告: `E:\DEMO\数据采集\docs\audit\2026-07-24-line-audit.md` §重点问题 Top 1
+参考 PSM 反编译产物: `E:\DEMO\数据采集\docs\domain\海康大屏逆向\PSM\server\decompiled\com\hikrobotics\solution\module\line\service\imp\LineServiceImpl.java`（PSM 用 `imp` 不是 `impl`）
+当前 DataupLoad 接口: `E:\DEMO\数据采集\DataupLoad\src\main\java\com\hikrobotics\solution\module\line\service\ILineService.java`
+当前 DataupLoad 实现: `E:\DEMO\数据采集\DataupLoad\src\main\java\com\hikrobotics\solution\module\line\service\impl\LineServiceImpl.java`
+
+## 8 个方法
+| 方法 | 作用 |
+|---|---|
+| `add(dto)` | 新增产线 |
+| `modify(dto)` | 修改产线 |
+| `delete(id)` | 删除 |
+| `bindPlan(dto)` | 配方分发（PSM LinePlanBindDTO） |
+| `switchPlan(dto)` | 配方切换（PSM LinePlanSwitchDTO）+ WebSocketHandler 广播 |
+| `planPanel(query)` | 大屏面板聚合 |
+| `planStatus(lineNo, faceNo)` | 大屏实时状态 |
+| `init()` | @PostConstruct 初始化 line_order（首次启动填充） |
+
+## 12 个 bean 注入（参考 PSM LineServiceImpl 头部 @Autowired 列表）
+参考 PSM 反编译的 LineServiceImpl 看 @Autowired 字段名 1:1 抄
+- ILineDefectTypeService
+- ILineOrderService
+- PlanToLineService（注意是 Service 接口还是 Mapper）
+- WebSocketHandler
+- IStatusRecordService
+- DefectDayRecordDAO
+- LineDayRecordDAO
+- AlarmRecordDAO
+- IDefectDayRecordService
+- 等其它 PSM 中 @Autowired 字段
+
+## 工作要求
+- 8 个方法 1:1 对齐 PSM（包括返回类型、参数、逻辑）
+- bean 注入 1:1 抄 PSM 头部
+- DTO 类型用 DataupLoad 已有的（看 `line/dto/` 包）
+- 不要新增/删除类
+- 编译验证：`cd E:\DEMO\数据采集 && javac -encoding UTF-8 -d X:\DataupLoad\target\classes -cp "X:\DataupLoad\target\classes;X:\DataupLoad\lib\*" -sourcepath DataupLoad\src\main\java DataupLoad\src\main\java\com\hikrobotics\solution\module\line\service\impl\LineServiceImpl.java`
+
+## 输出
+报告写到 `E:\DEMO\数据采集\docs\work-orders\W-LIN-01-report.md`：
+- 改动的文件 + 改动行数
+- 8 个方法的方法签名 + 实现要点
+- 注入的 12 个 bean 列表
+- 编译结果（成功/失败）
+- 已知限制 / TODO
+
+注意：这是最大工单，预计耗时较长，编译可能要修改其他依赖文件但不要修改其它模块的功能逻辑。

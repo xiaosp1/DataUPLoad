@@ -1,0 +1,30 @@
+﻿你是 PSM 审计 + Java 开发 worker。任务：**W-ALM-01** — 补全 AlarmRecordMapper 5 个聚合查询方法 + XML。
+
+## 任务背景
+参考审计报告: `E:\DEMO\数据采集\docs\audit\2026-07-24-alarm-audit.md` §重点问题 Top 1
+参考 PSM 反编译产物: `E:\DEMO\数据采集\docs\domain\海康大屏逆向\PSM\server\decompiled\com\hikrobotics\solution\module\alarm\mapper\AlarmRecordDAO.java` 和同目录的 mapper XML（如果有）
+当前 DataupLoad 文件: `E:\DEMO\数据采集\DataupLoad\src\main\java\com\hikrobotics\solution\module\alarm\mapper\AlarmRecordMapper.java`
+
+## 5 个方法
+1. `selectAlarmCountDay(start, end)` → `List<AlarmCountDTO>` — `to_char(time::date, 'yyyy-MM-dd')` group by date
+2. `countAlarmCount(...)` → `Integer` — 复合条件计数
+3. `selectAlarmCountByType(...)` → `List<AlarmCountDTO>` — group by level+type
+4. `selectRecord(page, query)` → `IPage<AlarmRecord>` — `row_number() over (partition by line_no, face_no, defect_name order by id desc)` + 条件
+5. `selectAlarmCount(...)` → `Integer` — 复合 count
+
+## 工作要求
+- 使用 `@Select` 注解（项目统一风格，禁 XML mapper）— 除非 SQL 过长可用 @Select with provider
+- 返回类型用 DataupLoad 已有类：AlarmRecord (实体)、AlarmCountDTO (DTO)
+- 参数类型：LocalDateTime / Integer / String / 分页用 IPage<AlarmRecord>
+- 条件包装用 Wrapper 或者动态 SQL，参考 PSM XML 的 row_number over 用法
+- 不要创建新文件，除非方法签名跨文件需要
+- 编译验证：`cd E:\DEMO\数据采集 && javac -encoding UTF-8 -d X:\DataupLoad\target\classes -cp "X:\DataupLoad\target\classes;X:\DataupLoad\lib\*" -sourcepath DataupLoad\src\main\java DataupLoad\src\main\java\com\hikrobotics\solution\module\alarm\mapper\AlarmRecordMapper.java`
+
+## 输出
+完成后写报告到 `E:\DEMO\数据采集\docs\work-orders\W-ALM-01-report.md`，包含：
+- 改动的文件列表
+- 5 个方法的方法签名 + SQL 摘要
+- 编译结果（成功/失败 + 错误数）
+- 已知限制
+
+不要修改其它模块代码，不要推 git。

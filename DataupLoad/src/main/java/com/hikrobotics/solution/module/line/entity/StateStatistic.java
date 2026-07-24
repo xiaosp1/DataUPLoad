@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.io.Serializable;
+import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 
 /**
@@ -59,4 +60,35 @@ public class StateStatistic implements Serializable {
     public StateStatistic setLineNo(String lineNo) { this.lineNo = lineNo; return this; }
     public StateStatistic setFaceNo(String faceNo) { this.faceNo = faceNo; return this; }
     public StateStatistic setTime(LocalDateTime time) { this.time = time; return this; }
+
+    /**
+     * 班次: 08:00-20:00 为 A班, 20:00-次日 08:00 为 B班。
+     * 1:1 对齐 PSM StateStatisticPO.getWorkShift()。
+     */
+    public String getWorkShift() {
+        int hours = this.statisticTime.getHour();
+        return hours >= 8 && hours < 20 ? "A班" : "B班";
+    }
+
+    /**
+     * 良品率(%) — 保留 1 位小数，1:1 对齐 PSM StateStatisticPO.getOkRate()。
+     */
+    public String getOkRate() {
+        long total = (long) (this.okTime + this.errorTime);
+        if (total == 0) return "0.0";
+        double result = (double) this.okTime / total * 100;
+        DecimalFormat df = new DecimalFormat("0.0");
+        return df.format(result);
+    }
+
+    /**
+     * 异常率(%) — 保留 1 位小数，1:1 对齐 PSM StateStatisticPO.getErrorRate()。
+     */
+    public String getErrorRate() {
+        long total = (long) (this.okTime + this.errorTime);
+        if (total == 0) return "0.0";
+        double result = (double) this.errorTime / total * 100;
+        DecimalFormat df = new DecimalFormat("0.0");
+        return df.format(result);
+    }
 }

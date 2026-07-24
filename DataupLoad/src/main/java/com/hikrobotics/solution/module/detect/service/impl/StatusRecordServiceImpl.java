@@ -10,6 +10,7 @@ import com.hikrobotics.solution.module.alarm.constant.AlarmReasonEnum;
 import com.hikrobotics.solution.module.alarm.event.DealAlarmEvent;
 import com.hikrobotics.solution.module.detect.entity.StatusRecord;
 import com.hikrobotics.solution.module.detect.enums.DeviceStatus;
+import com.hikrobotics.solution.module.detect.enums.DeviceType;
 import com.hikrobotics.solution.module.detect.mapper.StatusRecordMapper;
 import com.hikrobotics.solution.module.detect.service.IStatusRecordService;
 import java.time.LocalDateTime;
@@ -21,12 +22,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * 设备状态记录服务实现（W-B03 + W-X30b DealAlarmEvent 接入）。
+ * 设备状态记录服务实现（W-B03 + W-X30b DealAlarmEvent + W-LIN-01）。
  *
  * <p>W-B03：实现 {@link #receiveStatus}，1:1 抄自反编译 PSM 同名方法；</p>
  * <p>W-X30b：客户端上线检测（旧状态 OUTLINE → 新状态 ONLINE）时发布 {@link DealAlarmEvent}，
  * 触发 {@code AlarmRecordServiceImpl.dealClientAlarmListener} 清理旧的 UNSOLVED 掉线告警，
  * 与 PSM 行为一致。</p>
+ * <p>W-LIN-01：实现 {@link #searchClientStatus}（PSM 1:1），
+ * 供 {@code LineServiceImpl.delete} 调用。</p>
  */
 @Service
 public class StatusRecordServiceImpl
@@ -79,6 +82,18 @@ public class StatusRecordServiceImpl
          }
       }
       return BaseResult.build();
+   }
+
+   @Override
+   public StatusRecord searchClientStatus(String lineNo, String faceNo) {
+      // W-LIN-01：1:1 抄自 PSM StatusRecordServiceImpl.searchClientStatus
+      // SELECT * FROM status_record
+      // WHERE line_no = #{lineNo} AND face_no = #{faceNo} AND type = #{DeviceType.CLIENT}
+      LambdaQueryWrapper<StatusRecord> qw = Wrappers.<StatusRecord>lambdaQuery()
+          .eq(StatusRecord::getLineNo, lineNo)
+          .eq(StatusRecord::getFaceNo, faceNo)
+          .eq(StatusRecord::getType, DeviceType.CLIENT.getValue());
+      return this.baseMapper.selectOne(qw);
    }
 
    @Override
