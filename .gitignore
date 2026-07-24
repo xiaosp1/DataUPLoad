@@ -45,6 +45,25 @@ docs/domain/海康大屏逆向/psm-decompiled/
 # Build output
 DataupLoad/target/
 
+# JDK (bundled, ~300MB, not source)
+DataupLoad/jdk/
+
+# Backup jars (large)
+DataupLoad/backup/
+DataupLoad/*.jar
+
+# Lib jars (managed by Maven)
+DataupLoad/lib/
+
+# Extracted boot jar (jars + classes from Spring Boot fat jar)
+DataupLoad/BOOT-INF/
+DataupLoad/META-INF/
+DataupLoad/org/
+
+# Standalone classpath jar (generated)
+DataupLoad/classpath.jar
+DataupLoad/DataupLoad-0.0.1-SNAPSHOT.jar
+
 # Build temp / diagnostics
 X:/
 compile.err
