@@ -38,6 +38,21 @@
 - 18:50–19:00 — 重启 hik-java + 冒烟测试
 - 19:00–19:10 — 推送 GitHub + 更新 STATUS.md
 
+## 第二批派工 (18:26) — 补 controller + 编译修复
+
+W-X27 第一批 5/6 全部完成 + GitHub push 成功。发现 controller 缺口，启动第二批 4 个并行 worker:
+
+| 工单 | 内容 | runId |
+|---|---|---|
+| W-LIN-03 | LineController 11 endpoint | `b8a1c158-adfc-44a4-91e8-0576c3d15332` |
+| W-ALM-03 | AlarmRecordController 6 endpoint | `126d1cbd-e493-4556-a6ac-35f526257069` |
+| W-DET-03 | DefectDayRecord/LineDayRecord Controller | `ad7978e3-103a-451d-9171-c0ce37c164b9` |
+| W-FIX-01 | javac -parameters + searchOffLineClient | `b9cbe35c-2d03-430f-b1d7-a19c0535a2f2` |
+
+启动时间: 18:26
+预计完成: 18:50 (约 25 分钟)
+后续: 全量编译 + 重启 + 冒烟 + push
+
 ## 派工命令模板
 
 ```powershell
@@ -68,11 +83,14 @@ codex exec -C "E:\DEMO\数据采集" --skip-git-repo-check -s workspace-write "<
 - 编译: 0 errors
 - ⚠️ 注意: `listByTimeAndLineNo` 按 PSM 真实签名落地（3 参返回单对象），偏离 brief
 
-### W-LIN-01 — 17:43 sessions_spawn
+### W-LIN-01 — 17:43 sessions_spawn ✅
 - childSessionKey: `agent:industry:subagent:2526630d-821c-4019-9df8-9115d610cce8`
 - runId: `5750b03c-b296-4f9a-9d7e-45b2b1b4797d`
-- model: openai/INTCO-Thinking
-- status: 跑着
+- **status: 完成 18:21** (38m, 6 个文件, 8 个方法 1:1 PSM)
+- 报告: `docs/work-orders/W-LIN-01-report.md`
+- 编译: 0 errors
+- ⚠️ 已知差异: LineController 11 endpoint 未补 (下一批 W-LIN-03)
+- ⚠️ 已知差异: PSM `detect/util/TimeRange` 不存在 → 内联 day-step 循环等价实现
 
 ### W-ALM-02 — 等待 W-ALM-01
 - 触发条件：W-ALM-01 完成事件
@@ -83,3 +101,26 @@ codex exec -C "E:\DEMO\数据采集" --skip-git-repo-check -s workspace-write "<
 - 报告: `docs/work-orders/W-LIN-02-report.md`
 - 编译: 0 errors
 - hik-java: PID 11824 在线
+
+## 第二批完成情况
+
+### W-ALM-03 — 18:22 sessions_spawn ✅
+- 完成: 18:31 (8m58s)
+- 改动: AlarmRecordController 2 → 8 endpoint
+- 编译: 0 errors
+- 报告: `docs/work-orders/W-ALM-03-report.md`
+
+### W-FIX-01 — 18:22 sessions_spawn ✅
+- 完成: 18:34 (12m)
+- 改动: 编译脚本加 -parameters + StatusRecordServiceImpl.searchOffLineClient
+- 编译: 0 errors
+- 报告: `docs/work-orders/W-FIX-01-report.md`
+
+### W-LIN-03 — 18:22 sessions_spawn ✅
+- 完成: 18:38 (16m)
+- 改动: LineController 2 → 11 endpoint (含 2 stub)
+- 编译: 0 errors
+- 报告: `docs/work-orders/W-LIN-03-report.md`
+
+### W-DET-03 — 18:22 sessions_spawn
+- 状态: 跑着 (18:42 仍在跑)

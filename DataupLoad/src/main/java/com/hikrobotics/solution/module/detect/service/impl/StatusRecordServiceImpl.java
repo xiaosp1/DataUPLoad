@@ -8,6 +8,7 @@ import com.hikrobotics.solution.framework.common.base.BaseResult;
 import com.hikrobotics.solution.framework.util.EventUtil;
 import com.hikrobotics.solution.module.alarm.constant.AlarmReasonEnum;
 import com.hikrobotics.solution.module.alarm.event.DealAlarmEvent;
+import com.hikrobotics.solution.module.detect.dto.DeviceStateDTO;
 import com.hikrobotics.solution.module.detect.entity.StatusRecord;
 import com.hikrobotics.solution.module.detect.enums.DeviceStatus;
 import com.hikrobotics.solution.module.detect.enums.DeviceType;
@@ -30,6 +31,9 @@ import org.springframework.transaction.annotation.Transactional;
  * 与 PSM 行为一致。</p>
  * <p>W-LIN-01：实现 {@link #searchClientStatus}（PSM 1:1），
  * 供 {@code LineServiceImpl.delete} 调用。</p>
+ * <p>W-FIX-01：实现 {@link #searchOffLineClient}（PSM 1:1），
+ * 返回 type 匹配 + status=OUTLINE 的 DeviceStateDTO 列表，供
+ * {@code AlarmRecordServiceImpl.handleAlarmSearch} 的 type!=4 分支调用。</p>
  */
 @Service
 public class StatusRecordServiceImpl
@@ -97,9 +101,20 @@ public class StatusRecordServiceImpl
    }
 
    @Override
-   public Object searchOffLineClient(String lineNo, String faceNo, Integer type) {
-      log.debug("searchOffLineClient W-B03 stub: lineNo={}, faceNo={}, type={}", lineNo, faceNo, type);
-      return java.util.Collections.emptyList();
+   public List<DeviceStateDTO> searchOffLineClient(String lineNo, String faceNo, Integer type) {
+      // W-FIX-01：1:1 抄自反编译 PSM StatusRecordServiceImpl.searchOffLineClient
+      // SELECT * FROM status_record
+      // WHERE line_no = #{lineNo}
+      //   AND face_no = #{faceNo}
+      //   AND type    = #{type}
+      //   AND status  = DeviceStatus.OUTLINE (2)
+      // → 转换为 DeviceStateDTO 列表
+      LambdaQueryWrapper<StatusRecord> qw = Wrappers.<StatusRecord>lambdaQuery()
+          .eq(StatusRecord::getLineNo, lineNo)
+          .eq(StatusRecord::getFaceNo, faceNo)
+          .eq(StatusRecord::getType, type)
+          .eq(StatusRecord::getStatus, DeviceStatus.OUTLINE.getValue());
+      return this.list(qw).stream().map(DeviceStateDTO::new).toList();
    }
 
    @Override

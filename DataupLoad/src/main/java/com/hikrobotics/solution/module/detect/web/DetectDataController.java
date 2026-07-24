@@ -54,11 +54,14 @@ public class DetectDataController {
       return this.statusRecordService.receiveStatus(records);
    }
 
-   /** 保留 PSM 其他端点 stub，便于接口对齐 + 后续工单展开。 */
+   /**
+    * 工单 W-DET-03：保留 PSM 反编译端点；{@code @RequestParam} 全部显式声明 {@code name}
+    * 属性，避免依赖编译参数 {@code -parameters}。
+    */
    @GetMapping("/web/detect/detail")
-   public BaseResult searchDetectDetail(@RequestParam Integer faceId,
-                                        @RequestParam String startTime,
-                                        @RequestParam String endTime) {
+   public BaseResult searchDetectDetail(@RequestParam(name = "faceId") Integer faceId,
+                                        @RequestParam(name = "startTime") String startTime,
+                                        @RequestParam(name = "endTime") String endTime) {
       return this.defectRecordService.handleDetectDetailSearch(faceId, startTime, endTime);
    }
 
@@ -70,7 +73,8 @@ public class DetectDataController {
 
    @Deprecated
    @GetMapping("/web/detect/realtime")
-   public BaseResult getRealtimeData(@RequestParam String lineNo, @RequestParam String faceNo) {
+   public BaseResult getRealtimeData(@RequestParam(name = "lineNo") String lineNo,
+                                     @RequestParam(name = "faceNo") String faceNo) {
       return this.defectRecordService.handleRealtimeDetectDataSearch(lineNo, faceNo);
    }
 }

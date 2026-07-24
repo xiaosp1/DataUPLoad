@@ -289,8 +289,8 @@ public class AlarmRecordServiceImpl extends ServiceImpl<AlarmRecordMapper, Alarm
     * return BaseResult.ok().data(data);
     * </pre>
     *
-    * <p>注：{@code searchOffLineClient} 当前 DPL 实现返回 {@code Collections.emptyList()}，
-    * type != 4 分支不会返回真实离线客户端列表；本工单不修改 detect 模块（任务边界）。</p>
+    * <p>注：{@code searchOffLineClient} 在 W-FIX-01 中已 PSM 1:1 实现
+    * （返回 type 匹配且 status=OUTLINE 的 {@code DeviceStateDTO} 列表）。</p>
     */
    @Override
    @SuppressWarnings("unchecked")

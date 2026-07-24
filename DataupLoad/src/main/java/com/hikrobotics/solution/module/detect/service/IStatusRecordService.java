@@ -2,6 +2,7 @@ package com.hikrobotics.solution.module.detect.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.hikrobotics.solution.framework.common.base.BaseResult;
+import com.hikrobotics.solution.module.detect.dto.DeviceStateDTO;
 import com.hikrobotics.solution.module.detect.entity.StatusRecord;
 import java.util.List;
 import java.util.Set;
@@ -39,10 +40,13 @@ public interface IStatusRecordService extends IService<StatusRecord> {
    StatusRecord searchClientStatus(String lineNo, String faceNo);
 
    /**
-    * 离线客户端查询。DataupLoad 当前返回空集即可（handleAlarmSearch 的 type!=4 分支不会
-    * 触发，因为 alarm 入口走 type=4 走 alarm_record 分支）。
+    * 离线客户端查询（W-FIX-01：1:1 抄自 PSM StatusRecordServiceImpl.searchOffLineClient）。
+    *
+    * <p>查询指定 (lineNo, faceNo) 下、type 匹配且 status=OUTLINE 的状态记录，
+    * 转换为 {@link DeviceStateDTO} 列表返回。被
+    * {@code AlarmRecordServiceImpl.handleAlarmSearch}（type != 4 分支）调用。</p>
     */
-   Object searchOffLineClient(String lineNo, String faceNo, Integer type);
+   List<DeviceStateDTO> searchOffLineClient(String lineNo, String faceNo, Integer type);
 
    /**
     * PSM 1:1 — 批量查询客户端状态（StateChangeServiceImpl.getStateStatistics 依赖）。
