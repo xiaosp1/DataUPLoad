@@ -52,6 +52,9 @@ DataupLoad/jdk/
 DataupLoad/backup/
 DataupLoad/*.jar
 
+# Backup directories (PM cleanup artifacts, large binaries)
+backups/
+
 # Lib jars (managed by Maven)
 DataupLoad/lib/
 
