@@ -36,6 +36,13 @@ public class RealTimeDetectData {
     private String startTime;
     private List<DefectCountDTO> defects;
 
+    // ===== W-RT-4: PSM 多出来字段（补齐 KPI 卡显示用） =====
+    // 良品数量 = total - ngCount；服务侧在 handleDetectData 计算后写入，
+    // 上游客户端若不上送则默认 0（不影响 PSM 1:1 字段语义）。
+    private Integer successCount;
+    // 剔除失败率 = removeFail / removeTotal * 100（百分比），0 兜底
+    private Double removeFailRate;
+
     public Integer getTotal() {
         return this.total;
     }
@@ -74,6 +81,23 @@ public class RealTimeDetectData {
 
     public List<DefectCountDTO> getDefects() {
         return this.defects;
+    }
+
+    // ===== W-RT-4 getter/setter =====
+    public Integer getSuccessCount() {
+        return this.successCount;
+    }
+
+    public void setSuccessCount(Integer successCount) {
+        this.successCount = successCount;
+    }
+
+    public Double getRemoveFailRate() {
+        return this.removeFailRate;
+    }
+
+    public void setRemoveFailRate(Double removeFailRate) {
+        this.removeFailRate = removeFailRate;
     }
 
     public void setTotal(Integer total) {
@@ -155,7 +179,19 @@ public class RealTimeDetectData {
                                             if (this$startTime == null ? other$startTime == null : this$startTime.equals(other$startTime)) {
                                                 Object this$defects = this.getDefects();
                                                 Object other$defects = other.getDefects();
-                                                return this$defects == null ? other$defects == null : this$defects.equals(other$defects);
+                                                if (this$defects == null ? other$defects == null : this$defects.equals(other$defects)) {
+                                                    Object this$successCount = this.getSuccessCount();
+                                                    Object other$successCount = other.getSuccessCount();
+                                                    if (this$successCount == null ? other$successCount == null : this$successCount.equals(other$successCount)) {
+                                                        Object this$removeFailRate = this.getRemoveFailRate();
+                                                        Object other$removeFailRate = other.getRemoveFailRate();
+                                                        return this$removeFailRate == null ? other$removeFailRate == null : this$removeFailRate.equals(other$removeFailRate);
+                                                    } else {
+                                                        return false;
+                                                    }
+                                                } else {
+                                                    return false;
+                                                }
                                             } else {
                                                 return false;
                                             }
@@ -213,7 +249,12 @@ public class RealTimeDetectData {
         Object $startTime = this.getStartTime();
         result = result * 59 + ($startTime == null ? 43 : $startTime.hashCode());
         Object $defects = this.getDefects();
-        return result * 59 + ($defects == null ? 43 : $defects.hashCode());
+        result = result * 59 + ($defects == null ? 43 : $defects.hashCode());
+        Object $successCount = this.getSuccessCount();
+        result = result * 59 + ($successCount == null ? 43 : $successCount.hashCode());
+        Object $removeFailRate = this.getRemoveFailRate();
+        result = result * 59 + ($removeFailRate == null ? 43 : $removeFailRate.hashCode());
+        return result;
     }
 
     @Override
@@ -238,6 +279,10 @@ public class RealTimeDetectData {
             + this.getStartTime()
             + ", defects="
             + this.getDefects()
+            + ", successCount="
+            + this.getSuccessCount()
+            + ", removeFailRate="
+            + this.getRemoveFailRate()
             + ")";
     }
 }

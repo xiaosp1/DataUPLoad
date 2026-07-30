@@ -204,9 +204,50 @@ public class DefectRecordServiceImpl
       }
 
       // 3) line.realtime_data 缓存实时数据
+      // W-RT-4：补齐 PSM 多出来的 KPI 字段（successCount / removeFailRate），
+      // 客户端不一定会上送，服务侧兜底计算后写入 JSON，避免前端 KPI 卡恒为 0。
+      this.enrichRealtimeDataKpiFields(form.getRealTimeData());
       line.setRealtimeData(JSONUtil.toJsonStr(form.getRealTimeData()));
       this.lineService.updateById(line);
       return BaseResult.build().ok();
+   }
+
+   /**
+    * W-RT-4：补齐 PSM 多出来的 KPI 字段。
+    * <ul>
+    *   <li>{@code successCount} = total - ngCount；null/越界兜底为 0</li>
+    *   <li>{@code removeFailRate} = removeFail / removeTotal * 100（百分比）；removeTotal=0 兜底 0.0</li>
+    * </ul>
+    * 仅在原值为 null 时计算；上游若显式传值（即使为 0），保留上游值（PSM 1:1 兼容）。
+    */
+   private void enrichRealtimeDataKpiFields(RealTimeDetectData real) {
+      if (real == null) {
+         return;
+      }
+      // successCount
+      if (real.getSuccessCount() == null) {
+         Integer total = real.getTotal();
+         Integer ng = real.getNgCount();
+         int success = 0;
+         if (total != null && ng != null) {
+            success = Math.max(0, total - ng);
+         } else if (total != null) {
+            success = Math.max(0, total);
+         }
+         real.setSuccessCount(success);
+      }
+      // removeFailRate
+      if (real.getRemoveFailRate() == null) {
+         Integer removeTotal = real.getRemoveTotal();
+         Integer removeFail = real.getRemoveFail();
+         double rate = 0.0D;
+         if (removeTotal != null && removeTotal > 0 && removeFail != null) {
+            rate = (removeFail.doubleValue() / removeTotal.doubleValue()) * 100.0D;
+            // 保留 2 位小数，避免浮点尾巴
+            rate = Math.round(rate * 100.0D) / 100.0D;
+         }
+         real.setRemoveFailRate(rate);
+      }
    }
 
    @Override
