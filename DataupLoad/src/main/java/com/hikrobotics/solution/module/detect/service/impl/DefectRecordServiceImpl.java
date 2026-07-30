@@ -114,7 +114,9 @@ public class DefectRecordServiceImpl
    public BaseResult handleDetectData(DetectDataUploadDTO form) {
       Line line = this.lineService.getByLineNoAndFaceNo(form.getLineNo(), form.getFaceNo());
       if (line == null) {
-         return BaseResult.build().error("20204");
+         // W-LIVE-DATA-FIX Bug B：传 lineNo/faceNo 给 i18n message 的 {0}/{1} 占位符，
+         // 否则 MessageFormat 抛 IllegalArgumentException → 又被 GlobalExceptionHandler 兜底为 10500
+         return BaseResult.build().error("20204", form.getLineNo(), form.getFaceNo());
       }
 
       List<DefectCountDTO> defects = form.getTodayData().getDefects();
@@ -429,7 +431,8 @@ public class DefectRecordServiceImpl
    public BaseResult handleRealtimeDetectDataSearch(String lineNo, String faceNo) {
       Line line = this.lineService.getByLineNoAndFaceNo(lineNo, faceNo);
       if (line == null) {
-         return BaseResult.build().error("20204");
+         // W-LIVE-DATA-FIX Bug B：同上，传 lineNo/faceNo 给 i18n 占位符
+         return BaseResult.build().error("20204", lineNo, faceNo);
       }
       BaseResult result = BaseResult.build();
       if (StringUtils.isNotBlank(line.getRealtimeData())) {

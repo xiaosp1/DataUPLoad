@@ -297,7 +297,8 @@ public class LineServiceImpl extends ServiceImpl<LineMapper, Line> implements IL
     public BaseResult delete(Integer id) {
         Line line = this.getById(id);
         if (line == null) {
-            return BaseResult.build().error("20204").log("delete line failed, line not find.", String.valueOf(id));
+            // W-LIVE-DATA-FIX Bug B：传 id（{0}）给 i18n 占位符，否则 MessageFormat 报 IllegalArgumentException
+            return BaseResult.build().error("20204", String.valueOf(id), "-").log("delete line failed, line not find.", String.valueOf(id));
         }
         StatusRecord clientStatusData = this.iStatusRecordService.searchClientStatus(line.getLineNo(), line.getFaceNo());
         if (clientStatusData != null && clientStatusData.getStatus().equals(DeviceStatus.ONLINE.getValue())) {
@@ -436,7 +437,8 @@ public class LineServiceImpl extends ServiceImpl<LineMapper, Line> implements IL
     public BaseResult planPanel(LinePanelQueryDTO form) {
         Line line = this.getById(form.getFaceId());
         if (null == line) {
-            return BaseResult.build().error("20204");
+            // W-LIVE-DATA-FIX Bug B：faceId 是主键 ID，没有 lineNo/faceNo；传 id（{0}）让 i18n 不抛
+            return BaseResult.build().error("20204", String.valueOf(form.getFaceId()), "-");
         }
         LinePanelDTO panel = new LinePanelDTO();
         LocalDateTime localStart = LocalDateTimeUtil.beginOfDay(form.localStartTime());
@@ -561,7 +563,7 @@ public class LineServiceImpl extends ServiceImpl<LineMapper, Line> implements IL
                     .eq(StatusRecord::getFaceNo, line.getFaceNo()));
             return BaseResult.build().data(status);
         }
-        return BaseResult.build().error("20204");
+        return BaseResult.build().error("20204", line.getLineNo(), line.getFaceNo());
     }
 
     // ============================================================

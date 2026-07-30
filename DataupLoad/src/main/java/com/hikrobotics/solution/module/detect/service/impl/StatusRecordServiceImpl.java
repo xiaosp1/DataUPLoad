@@ -15,6 +15,7 @@ import com.hikrobotics.solution.module.detect.enums.DeviceType;
 import com.hikrobotics.solution.module.detect.mapper.StatusRecordMapper;
 import com.hikrobotics.solution.module.detect.service.IStatusRecordService;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
 import org.slf4j.Logger;
@@ -76,10 +77,16 @@ public class StatusRecordServiceImpl
          }
 
          if (old == null) {
+            // W-LIVE-DATA-FIX Bug C：status_record.time NOT NULL，但 mapper INSERT 字段不含 time。
+            // 在 entity 上显式塞 time，service 层补齐 NOT NULL 列，避免 PG 抛
+            // "null value in column 'time' violates not-null constraint" → 500/10500。
+            r.setTime(now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
             r.setCreateTime(now);
             r.setUpdateTime(now);
             this.baseMapper.insert(r);
          } else {
+            // W-LIVE-DATA-FIX Bug C：update 路径也补 time（与 create_time 同源，保持 status_record.time 列语义"上报时间"）
+            r.setTime(now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
             r.setId(old.getId());
             r.setUpdateTime(now);
             this.baseMapper.updateById(r);
