@@ -126,7 +126,7 @@ const zhCN = {
   forbidden: {
     title: '禁止访问',
     subtitle: '您没有权限访问该页面',
-    description: '请联系管理员申请相应权限，或返回首页。',
+    description: '请联系管理员申请相应权限，或返回首页。 肖升平 16653658509',
     backHome: '返回首页',
     contactAdmin: '联系管理员'
   },
@@ -307,6 +307,76 @@ const zhCN = {
     sort: {
       asc: '按时间升序',
       desc: '按时间降序'
+    },
+    // ===== W-DEFECT-CFG 子单 C：报警页子 tab =====
+    tab: {
+      records: '报警记录',
+      defectConfig: '缺陷配置'
+    }
+  },
+
+  // ===== W-DEFECT-CFG 子单 C：缺陷配置子页面 i18n =====
+  defectConfig: {
+    search: {
+      name: '缺陷名称',
+      namePlaceholder: '请输入缺陷名称（模糊）',
+      category: '缺陷类型',
+      categoryPlaceholder: '全部类型'
+    },
+    category: {
+      defect: '缺陷报警',
+      system: '系统报警',
+      device: '设备报警'
+    },
+    table: {
+      index: '#',
+      name: '缺陷名称',
+      type: '缺陷类型',
+      alarmEnable: '推送大屏',
+      soundEnable: '声音报警',
+      sendYkEnable: '推送英科',
+      createTime: '创建时间',
+      action: '操作'
+    },
+    action: {
+      add: '新增缺陷',
+      edit: '编辑缺陷'
+    },
+    form: {
+      name: '缺陷名称',
+      namePlaceholder: '请输入缺陷名称（1-20 字符）',
+      nameRequired: '缺陷名称不能为空',
+      nameLength: '缺陷名称长度需在 1-20 字符',
+      category: '缺陷类型',
+      categoryPlaceholder: '请选择缺陷类型',
+      categoryRequired: '请选择缺陷类型',
+      alarmEnable: '推送大屏',
+      alarmEnableRequired: '请选择是否推送大屏',
+      soundEnable: '声音报警',
+      soundEnableRequired: '请选择是否开启声音',
+      soundEnableHint: '仅当推送大屏开启时有效',
+      sendYkEnable: '推送英科',
+      sendYkEnableRequired: '请选择是否推送英科',
+      sendYkEnableHint: '开启后将通过英科推送到 MES'
+    },
+    confirm: {
+      title: '确认',
+      delete: '确定要删除该缺陷吗？'
+    },
+    apiMsg: {
+      addSuccess: '新增成功',
+      addFailed: '新增失败',
+      addError: '新增异常',
+      editSuccess: '编辑成功',
+      editFailed: '编辑失败',
+      editError: '编辑异常',
+      deleteSuccess: '删除成功',
+      deleteFailed: '删除失败',
+      deleteError: '删除异常'
+    },
+    list: {
+      loadFailed: '缺陷列表加载失败',
+      empty: '暂无缺陷配置'
     }
   },
 
@@ -1095,6 +1165,76 @@ const enUS = {
     sort: {
       asc: 'Time ascending',
       desc: 'Time descending'
+    },
+    // ===== W-DEFECT-CFG 子单 C =====
+    tab: {
+      records: 'Alarm Records',
+      defectConfig: 'Defect Config'
+    }
+  },
+
+  // ===== W-DEFECT-CFG 子单 C =====
+  defectConfig: {
+    search: {
+      name: 'Defect Name',
+      namePlaceholder: 'Enter defect name (fuzzy)',
+      category: 'Category',
+      categoryPlaceholder: 'All categories'
+    },
+    category: {
+      defect: 'Defect',
+      system: 'System',
+      device: 'Device'
+    },
+    table: {
+      index: '#',
+      name: 'Defect Name',
+      type: 'Category',
+      alarmEnable: 'To Screen',
+      soundEnable: 'Sound',
+      sendYkEnable: 'To Yingke',
+      createTime: 'Created',
+      action: 'Actions'
+    },
+    action: {
+      add: 'New Defect',
+      edit: 'Edit Defect'
+    },
+    form: {
+      name: 'Defect Name',
+      namePlaceholder: 'Enter defect name (1-20 chars)',
+      nameRequired: 'Defect name is required',
+      nameLength: 'Name length must be 1-20 chars',
+      category: 'Category',
+      categoryPlaceholder: 'Select category',
+      categoryRequired: 'Category is required',
+      alarmEnable: 'Push to Screen',
+      alarmEnableRequired: 'Choose whether to push to screen',
+      soundEnable: 'Sound Alarm',
+      soundEnableRequired: 'Choose whether to enable sound',
+      soundEnableHint: 'Only effective when screen push is enabled',
+      sendYkEnable: 'Push to Yingke',
+      sendYkEnableRequired: 'Choose whether to push to Yingke',
+      sendYkEnableHint: 'When enabled, push to MES via Yingke'
+    },
+    confirm: {
+      title: 'Confirm',
+      delete: 'Delete this defect?'
+    },
+    apiMsg: {
+      addSuccess: 'Created',
+      addFailed: 'Create failed',
+      addError: 'Create error',
+      editSuccess: 'Updated',
+      editFailed: 'Update failed',
+      editError: 'Update error',
+      deleteSuccess: 'Deleted',
+      deleteFailed: 'Delete failed',
+      deleteError: 'Delete error'
+    },
+    list: {
+      loadFailed: 'Failed to load defect list',
+      empty: 'No defect configuration'
     }
   },
 
@@ -1869,6 +2009,76 @@ const idID = {
     sort: {
       asc: 'Waktu naik',
       desc: 'Waktu turun'
+    },
+    // ===== W-DEFECT-CFG 子单 C =====
+    tab: {
+      records: 'Catatan Alarm',
+      defectConfig: 'Konfigurasi Cacat'
+    }
+  },
+
+  // ===== W-DEFECT-CFG 子单 C =====
+  defectConfig: {
+    search: {
+      name: 'Nama Cacat',
+      namePlaceholder: 'Masukkan nama cacat (fuzzy)',
+      category: 'Tipe Cacat',
+      categoryPlaceholder: 'Semua tipe'
+    },
+    category: {
+      defect: 'Cacat',
+      system: 'Sistem',
+      device: 'Perangkat'
+    },
+    table: {
+      index: '#',
+      name: 'Nama Cacat',
+      type: 'Tipe',
+      alarmEnable: 'Ke Layar',
+      soundEnable: 'Suara',
+      sendYkEnable: 'Ke Yingke',
+      createTime: 'Dibuat',
+      action: 'Aksi'
+    },
+    action: {
+      add: 'Cacat Baru',
+      edit: 'Edit Cacat'
+    },
+    form: {
+      name: 'Nama Cacat',
+      namePlaceholder: 'Masukkan nama cacat (1-20 karakter)',
+      nameRequired: 'Nama cacat wajib diisi',
+      nameLength: 'Panjang nama 1-20 karakter',
+      category: 'Tipe',
+      categoryPlaceholder: 'Pilih tipe',
+      categoryRequired: 'Tipe wajib dipilih',
+      alarmEnable: 'Kirim ke Layar',
+      alarmEnableRequired: 'Pilih apakah kirim ke layar',
+      soundEnable: 'Alarm Suara',
+      soundEnableRequired: 'Pilih apakah aktifkan suara',
+      soundEnableHint: 'Hanya efektif jika kirim ke layar diaktifkan',
+      sendYkEnable: 'Kirim ke Yingke',
+      sendYkEnableRequired: 'Pilih apakah kirim ke Yingke',
+      sendYkEnableHint: 'Jika diaktifkan, kirim ke MES via Yingke'
+    },
+    confirm: {
+      title: 'Konfirmasi',
+      delete: 'Hapus cacat ini?'
+    },
+    apiMsg: {
+      addSuccess: 'Berhasil ditambah',
+      addFailed: 'Gagal menambah',
+      addError: 'Kesalahan tambah',
+      editSuccess: 'Berhasil diperbarui',
+      editFailed: 'Gagal memperbarui',
+      editError: 'Kesalahan perbarui',
+      deleteSuccess: 'Berhasil dihapus',
+      deleteFailed: 'Gagal menghapus',
+      deleteError: 'Kesalahan hapus'
+    },
+    list: {
+      loadFailed: 'Gagal memuat daftar cacat',
+      empty: 'Tidak ada konfigurasi cacat'
     }
   },
 

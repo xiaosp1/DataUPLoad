@@ -13,6 +13,15 @@
       </div>
     </template>
 
+    <!-- W-DEFECT-CFG 子单 C：报警记录查询 + 缺陷配置 二级 tab -->
+    <GlassCard :padding="0">
+      <el-tabs v-model="activeTab" class="alarm-tabs">
+        <!-- ============================================================ -->
+        <!-- Tab 1: 报警记录查询（沿用原 Alarm.vue 全部业务逻辑） -->
+        <!-- ============================================================ -->
+        <el-tab-pane :label="$t('alarm.tab.records')" name="records">
+          <div class="alarm-tab-pane">
+
     <!-- 顶部筛选栏 -->
     <GlassCard>
       <div class="alarm-filter">
@@ -262,6 +271,20 @@
         </GlassButton>
       </template>
     </el-dialog>
+
+          </div>
+        </el-tab-pane>
+
+        <!-- ============================================================ -->
+        <!-- Tab 2: 缺陷配置（W-DEFECT-CFG 子单 C） -->
+        <!-- ============================================================ -->
+        <el-tab-pane :label="$t('alarm.tab.defectConfig')" name="defectConfig">
+          <div class="alarm-tab-pane">
+            <DefectConfig />
+          </div>
+        </el-tab-pane>
+      </el-tabs>
+    </GlassCard>
   </GlassPage>
 </template>
 
@@ -281,6 +304,7 @@ import GlassPage from '../components/GlassPage.vue'
 import GlassCard from '../components/GlassCard.vue'
 import GlassButton from '../components/GlassButton.vue'
 import GlassTable from '../components/GlassTable.vue'
+import DefectConfig from './DefectConfig.vue'
 import {
   listAlarm,
   ignoreAlarm,
@@ -298,6 +322,11 @@ import { createWs, type WsController, type WsState } from '../utils/ws'
 // ---------------------------------------------------------------------------
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
+
+// ---------------------------------------------------------------------------
+// W-DEFECT-CFG 子单 C：子 tab 切换状态（报警记录 / 缺陷配置）
+// ---------------------------------------------------------------------------
+const activeTab = ref<'records' | 'defectConfig'>('records')
 
 // ---------------------------------------------------------------------------
 // 用户态（用于 ws uid）+ 权限 store 同步（补救 D-tier 未做的 user.fetchCurrent → perm.setRoles 链路）
@@ -1039,5 +1068,36 @@ onBeforeUnmount(() => {
 }
 :deep(.alarm-dialog .el-dialog__header) {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+// =============================================================================
+// W-DEFECT-CFG 子单 C：子 tab 玻璃风
+// =============================================================================
+.alarm-tabs {
+  padding: 0 8px;
+
+  :deep(.el-tabs__nav-wrap::after) {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  :deep(.el-tabs__item) {
+    color: var(--text-secondary);
+    font-weight: var(--font-weight-semibold);
+    height: 52px;
+    line-height: 52px;
+    font-size: var(--font-size-base);
+  }
+
+  :deep(.el-tabs__item.is-active) {
+    color: var(--accent);
+  }
+
+  :deep(.el-tabs__active-bar) {
+    background: var(--accent);
+  }
+}
+
+.alarm-tab-pane {
+  padding: 24px 24px 32px;
 }
 </style>
