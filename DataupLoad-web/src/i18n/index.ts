@@ -217,7 +217,11 @@ const zhCN = {
       title: '产线列表',
       total: '共',
       defect: '缺陷',
-      remove: '剔除'
+      remove: '剔除',
+      // ===== W-RT-7: 拖拽排序新增键 =====
+      dragHint: '拖拽调整顺序',
+      reorderSuccess: '排序已保存',
+      reorderFail: '排序失败: {msg}'
     },
     // ===== W-RT-5: 实时页新功能键 =====
     // realtime.ws.*  (W-RT-1 / W-PERF-B 用)
@@ -226,7 +230,7 @@ const zhCN = {
       connecting: '连接中...',
       disconnected: 'WS 已断开 (重连中)'
     },
-    // realtime.detail.*  (W-RT-3 用 — 8 keys)
+    // realtime.detail.*  (W-RT-3 用 — 14 keys)
     detail: {
       production: '生产信息',
       defect: '缺陷网格',
@@ -235,7 +239,13 @@ const zhCN = {
       total: '总数',
       good: '良品',
       bad: '次品',
-      efficiency: '效率'
+      efficiency: '效率',
+      camera: '摄像机',
+      encoder: '编码器',
+      plc: 'PLC',
+      online: '在线',
+      offline: '离线',
+      runtime: '运行时长'
     },
     error: {
       network: '网络异常，请稍后重试',
@@ -355,6 +365,15 @@ const zhCN = {
     sort: {
       asc: '按时间升序',
       desc: '按时间降序'
+    },
+    // ===== W-RT-8 报警徽章悬浮窗 =====
+    hint: {
+      title: '未处理报警',
+      empty: '无未处理报警',
+      viewAll: '查看全部',
+      recent: '最近',
+      dragHint: '可拖动',
+      clickHint: '点击查看详情'
     },
     // ===== W-DEFECT-CFG 子单 C：报警页子 tab =====
     tab: {
@@ -1127,7 +1146,11 @@ const enUS = {
       title: 'Production Lines',
       total: 'Total',
       defect: 'Defect',
-      remove: 'Remove'
+      remove: 'Remove',
+      // ===== W-RT-7: drag-to-reorder keys =====
+      dragHint: 'Drag to reorder',
+      reorderSuccess: 'Order saved',
+      reorderFail: 'Reorder failed: {msg}'
     },
     // ===== W-RT-5: realtime page new feature keys =====
     // realtime.ws.*  (W-RT-1 / W-PERF-B)
@@ -1136,7 +1159,7 @@ const enUS = {
       connecting: 'Connecting...',
       disconnected: 'Disconnected (Reconnecting)'
     },
-    // realtime.detail.*  (W-RT-3 — 8 keys)
+    // realtime.detail.*  (W-RT-3 — 14 keys)
     detail: {
       production: 'Production',
       defect: 'Defect Grid',
@@ -1145,7 +1168,13 @@ const enUS = {
       total: 'Total',
       good: 'Good',
       bad: 'Bad',
-      efficiency: 'Efficiency'
+      efficiency: 'Efficiency',
+      camera: 'Camera',
+      encoder: 'Encoder',
+      plc: 'PLC',
+      online: 'Online',
+      offline: 'Offline',
+      runtime: 'Runtime'
     },
     error: {
       network: 'Network error, please retry',
@@ -1264,6 +1293,15 @@ const enUS = {
     sort: {
       asc: 'Time ascending',
       desc: 'Time descending'
+    },
+    // ===== W-RT-8 Alarm Hint Badge =====
+    hint: {
+      title: 'Pending Alarms',
+      empty: 'No pending alarms',
+      viewAll: 'View All',
+      recent: 'Recent',
+      dragHint: 'Draggable',
+      clickHint: 'Click for details'
     },
     // ===== W-DEFECT-CFG 子单 C =====
     tab: {
@@ -2022,7 +2060,11 @@ const idID = {
       title: 'Daftar Lane',
       total: 'Total',
       defect: 'Cacat',
-      remove: 'Buang'
+      remove: 'Buang',
+      // ===== W-RT-7: kunci seret-untuk-menyusun =====
+      dragHint: 'Seret untuk menyusun ulang',
+      reorderSuccess: 'Urutan disimpan',
+      reorderFail: 'Penyusunan ulang gagal: {msg}'
     },
     // ===== W-RT-5: tombol fitur baru halaman realtime =====
     // realtime.ws.*  (W-RT-1 / W-PERF-B)
@@ -2031,7 +2073,7 @@ const idID = {
       connecting: 'Menghubungkan...',
       disconnected: 'Terputus (Menyambungkan ulang)'
     },
-    // realtime.detail.*  (W-RT-3 — 8 kunci)
+    // realtime.detail.*  (W-RT-3 — 14 kunci)
     detail: {
       production: 'Produksi',
       defect: 'Kisi Cacat',
@@ -2040,7 +2082,13 @@ const idID = {
       total: 'Total',
       good: 'Bagus',
       bad: 'Cacat',
-      efficiency: 'Efisiensi'
+      efficiency: 'Efisiensi',
+      camera: 'Kamera',
+      encoder: 'Encoder',
+      plc: 'PLC',
+      online: 'Online',
+      offline: 'Offline',
+      runtime: 'Durasi'
     },
     error: {
       network: 'Kesalahan jaringan, coba lagi',
@@ -2159,6 +2207,15 @@ const idID = {
     sort: {
       asc: 'Waktu naik',
       desc: 'Waktu turun'
+    },
+    // ===== W-RT-8 Lencana Alarm =====
+    hint: {
+      title: 'Alarm Tertunda',
+      empty: 'Tidak ada alarm tertunda',
+      viewAll: 'Lihat Semua',
+      recent: 'Terkini',
+      dragHint: 'Dapat diseret',
+      clickHint: 'Klik untuk detail'
     },
     // ===== W-DEFECT-CFG 子单 C =====
     tab: {

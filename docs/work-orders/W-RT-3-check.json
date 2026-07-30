@@ -1,0 +1,23 @@
+{
+  "presenceCheck": {
+    "production": true,
+    "defect": true,
+    "device": true,
+    "time": true,
+    "total": true,
+    "good": true,
+    "bad": true,
+    "efficiency": true,
+    "camera": true,
+    "encoder": true,
+    "plc": true,
+    "online": true,
+    "offline": false,
+    "runtime": true
+  },
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 500 ()",
+    "Failed to load resource: the server responded with a status of 404 ()"
+  ],
+  "failedRequests": []
+}
