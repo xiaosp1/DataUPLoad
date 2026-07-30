@@ -72,7 +72,10 @@
       </GlassButton>
     </div>
 
+    <!-- W-PERF-D: 玻璃风骨架屏（首次加载） -->
+    <GlassSkeletonTable v-if="loading && rows.length === 0" :columns="8" :rows="5" />
     <GlassTable
+      v-else
       :data="rows"
       v-loading="loading"
       element-loading-background="rgba(0,0,0,0.35)"
@@ -249,6 +252,7 @@ import type { FormInstance } from 'element-plus'
 import GlassCard from '../components/GlassCard.vue'
 import GlassButton from '../components/GlassButton.vue'
 import GlassTable from '../components/GlassTable.vue'
+import GlassSkeletonTable from '../components/GlassSkeletonTable.vue'
 import {
   listDefect,
   createDefect,

@@ -72,8 +72,10 @@
         <GlassButton variant="primary" @click="openAddDialog">＋ {{ $t('account.action.add') }}</GlassButton>
       </div>
 
+      <!-- W-PERF-D: 玻璃风骨架屏（首次加载） -->
+      <GlassSkeletonTable v-if="loading && list.length === 0" :columns="8" :rows="6" />
       <!-- 表格 -->
-      <GlassTable :data="list" v-loading="loading" class="account-table">
+      <GlassTable v-else :data="list" v-loading="loading" class="account-table">
         <el-table-column :label="$t('account.table.id')" prop="id" width="64" align="center" />
         <el-table-column :label="$t('account.table.username')" prop="username" min-width="120" />
         <el-table-column :label="$t('account.table.realName')" prop="realName" min-width="100">
@@ -301,6 +303,7 @@ import GlassPage from '../components/GlassPage.vue'
 import GlassCard from '../components/GlassCard.vue'
 import GlassButton from '../components/GlassButton.vue'
 import GlassTable from '../components/GlassTable.vue'
+import GlassSkeletonTable from '../components/GlassSkeletonTable.vue'
 import {
   getCurrent,
   listAccount,
@@ -593,6 +596,8 @@ const roleTagType = (role: string): 'primary' | 'success' | 'warning' | 'info' |
 }
 
 onMounted(async () => {
+  // W-PERF-D: 进入页面立即显示骨架屏，避免中间几秒空白
+  loading.value = true
   await loadCurrent()
   await loadRoles()
   await reload()

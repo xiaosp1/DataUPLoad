@@ -12,8 +12,9 @@ import GlassButton from './GlassButton.vue'
 import GlassMenuItem from './GlassMenuItem.vue'
 import GlassTable from './GlassTable.vue'
 import GlassPage from './GlassPage.vue'
+import GlassSkeletonTable from './GlassSkeletonTable.vue'
 
-export { GlassCard, GlassButton, GlassMenuItem, GlassTable, GlassPage }
+export { GlassCard, GlassButton, GlassMenuItem, GlassTable, GlassPage, GlassSkeletonTable }
 
 export type GlassComponents = typeof GlassComponents
 
@@ -25,6 +26,7 @@ const GlassComponents: Plugin = {
     app.component('GlassMenuItem', GlassMenuItem)
     app.component('GlassTable', GlassTable)
     app.component('GlassPage', GlassPage)
+    app.component('GlassSkeletonTable', GlassSkeletonTable)
   }
 }
 

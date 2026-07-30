@@ -92,7 +92,9 @@
     <!-- 操作员表格 -->
     <!-- ================================================================ -->
     <GlassCard :padding="0">
-      <GlassTable v-loading="loading" :data="list" class="user-table">
+      <!-- W-PERF-D: 玻璃风骨架屏（首次加载） -->
+      <GlassSkeletonTable v-if="loading && list.length === 0" :columns="8" :rows="6" />
+      <GlassTable v-else v-loading="loading" :data="list" class="user-table">
         <el-table-column
           :label="$t('user.table.workNo')"
           prop="username"
@@ -371,6 +373,7 @@ import GlassPage from '../components/GlassPage.vue'
 import GlassCard from '../components/GlassCard.vue'
 import GlassButton from '../components/GlassButton.vue'
 import GlassTable from '../components/GlassTable.vue'
+import GlassSkeletonTable from '../components/GlassSkeletonTable.vue'
 import {
   listOperator,
   listLogByUser,

@@ -110,7 +110,9 @@
         </GlassButton>
       </div>
 
-      <GlassTable :data="rows" v-loading="loading" class="log-table">
+      <!-- W-PERF-D: 玻璃风骨架屏（首次加载） -->
+      <GlassSkeletonTable v-if="loading && rows.length === 0" :columns="10" :rows="8" />
+      <GlassTable v-else :data="rows" v-loading="loading" class="log-table">
         <el-table-column type="index" :label="$t('log.table.index')" width="56" align="center" />
         <el-table-column
           :label="$t('log.table.operator')"
@@ -408,7 +410,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useI18n } from 'vue-i18n'
-import { GlassPage, GlassCard, GlassButton, GlassTable } from '../components'
+import { GlassPage, GlassCard, GlassButton, GlassTable, GlassSkeletonTable } from '../components'
 import { listApiLog, type ApiLog, type ApiLogQuery } from '../api/log'
 
 const { t } = useI18n()
