@@ -31,6 +31,9 @@
         </main>
       </div>
     </div>
+
+    <!-- W-RT-8: 报警徽章悬浮窗（玻璃风，可拖动；Teleport-to-body 不受 chrome 限制） -->
+    <AlarmHint v-if="!isScreen" />
   </div>
 </template>
 
@@ -49,6 +52,8 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import Sidebar from './Sidebar.vue'
 import Topbar from './Topbar.vue'
+// W-RT-8: 报警徽章悬浮窗（玻璃风，可拖动 + 角标）
+import AlarmHint from '../components/AlarmHint.vue'
 
 const route = useRoute()
 const isScreen = computed(() => route.path === '/screen' || route.path.startsWith('/screen/'))
