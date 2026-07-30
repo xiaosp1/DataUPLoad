@@ -219,6 +219,24 @@ const zhCN = {
       defect: '缺陷',
       remove: '剔除'
     },
+    // ===== W-RT-5: 实时页新功能键 =====
+    // realtime.ws.*  (W-RT-1 / W-PERF-B 用)
+    ws: {
+      connected: 'WS 已连接',
+      connecting: '连接中...',
+      disconnected: 'WS 已断开 (重连中)'
+    },
+    // realtime.detail.*  (W-RT-3 用 — 8 keys)
+    detail: {
+      production: '生产信息',
+      defect: '缺陷网格',
+      device: '设备状态',
+      time: '时间信息',
+      total: '总数',
+      good: '良品',
+      bad: '次品',
+      efficiency: '效率'
+    },
     error: {
       network: '网络异常，请稍后重试',
       loadLineFailed: '线别数据加载失败'
@@ -1111,6 +1129,24 @@ const enUS = {
       defect: 'Defect',
       remove: 'Remove'
     },
+    // ===== W-RT-5: realtime page new feature keys =====
+    // realtime.ws.*  (W-RT-1 / W-PERF-B)
+    ws: {
+      connected: 'WS Connected',
+      connecting: 'Connecting...',
+      disconnected: 'Disconnected (Reconnecting)'
+    },
+    // realtime.detail.*  (W-RT-3 — 8 keys)
+    detail: {
+      production: 'Production',
+      defect: 'Defect Grid',
+      device: 'Device Status',
+      time: 'Time Info',
+      total: 'Total',
+      good: 'Good',
+      bad: 'Bad',
+      efficiency: 'Efficiency'
+    },
     error: {
       network: 'Network error, please retry',
       loadLineFailed: 'Failed to load lines'
@@ -1987,6 +2023,24 @@ const idID = {
       total: 'Total',
       defect: 'Cacat',
       remove: 'Buang'
+    },
+    // ===== W-RT-5: tombol fitur baru halaman realtime =====
+    // realtime.ws.*  (W-RT-1 / W-PERF-B)
+    ws: {
+      connected: 'WS Terhubung',
+      connecting: 'Menghubungkan...',
+      disconnected: 'Terputus (Menyambungkan ulang)'
+    },
+    // realtime.detail.*  (W-RT-3 — 8 kunci)
+    detail: {
+      production: 'Produksi',
+      defect: 'Kisi Cacat',
+      device: 'Status Perangkat',
+      time: 'Informasi Waktu',
+      total: 'Total',
+      good: 'Bagus',
+      bad: 'Cacat',
+      efficiency: 'Efisiensi'
     },
     error: {
       network: 'Kesalahan jaringan, coba lagi',
