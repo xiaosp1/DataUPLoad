@@ -149,6 +149,22 @@ function post<T>(url: string, body?: unknown, params?: Record<string, unknown>):
     .then((resp) => resp.data)
 }
 
+/**
+ * PUT 透传（与 POST / GET 保持一致；用于 /web/line/order 这种 PSM 原路径是 PUT 的接口）。
+ *
+ * 注：原 PSM LineController.chgLineOrder 的 HTTP method 是 PUT（详见 W-LIN-05）。
+ *     DataupLoad 同时提供了 POST /web/line/chg-line-order 作为别名，
+ *     但 PSM 客户端走 PUT /web/line/order；前端 PUT 调用沿用 PSM 路径，零契约差异。
+ */
+function put<T>(url: string, body?: unknown, params?: Record<string, unknown>): Promise<ApiEnvelope<T>> {
+  return axios
+    .put<ApiEnvelope<T>>(`${API_BASE}${url}`, body, {
+      params,
+      withCredentials: true
+    })
+    .then((resp) => resp.data)
+}
+
 // ---------------------------------------------------------------------------
 // 端点
 // ---------------------------------------------------------------------------
@@ -156,6 +172,34 @@ function post<T>(url: string, body?: unknown, params?: Record<string, unknown>):
 /** 线别列表 */
 export function listLine(): Promise<ApiEnvelope<LineItem[]>> {
   return get<LineItem[]>('/line/list')
+}
+
+/**
+ * W-RT-7: 线别顺序调整（持久化）。
+ *
+ * 后端契约：
+ *   - Method: PUT
+ *   - Path:   /web/line/order
+ *   - Body:   [{ lineId: number, order: number }, ...]
+ *     （**注意**：DTO 字段名是 `lineId` + `order`，不是 `id` + `lineOrder`；
+ *      与 PSM 反编译 com.hikrobotics.solution.module.line.dto.ChgLineOrderDTO 一致）
+ *   - 响应:   { success, code, message, data: null }
+ *
+ * 业务语义（PSM 1:1）：
+ *   1. 入参 size 必须 == line 表总记录数 → 否则错误 20209
+ *   2. lineOrderService.modLineOrder 全删 + 全插：先按 order 升序排序，
+ *      再依次写 orderValue=1..N 到 line_order 表
+ *   3. 任何失败 → 错误 20210
+ *
+ * 注意：调本接口必须传**全部**线别（不仅是改动的），否则会触发 20209。
+ */
+export interface LineOrderItem {
+  lineId: number
+  order: number
+}
+
+export function updateLineOrder(orders: LineOrderItem[]): Promise<ApiEnvelope<null>> {
+  return put<null>('/line/order', orders)
 }
 
 /** 单条实时采集数据（按 lineNo + faceNo） */

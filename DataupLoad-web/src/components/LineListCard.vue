@@ -7,6 +7,7 @@
       - 列表项：序号彩色块 + lineNo-faceNo + 当小时总缺陷数 + 总剔除数
       - 选中态：边框高亮 (蓝绿) + 背景色加深 + 左侧高亮条
       - hover：背景色轻微变化 + 抬升 2px
+      - W-RT-7：HTML5 draggable 拖拽排序 + PUT /web/line/order 持久化
 
     设计对齐 PSM 实时页左侧 `.defect-li-item` + `.li-active`（详见 W-REALTIME-PSM §1.2）；
     UI 严格走自家玻璃风 token，不复用 PSM 控件样式。
@@ -16,6 +17,10 @@
       <div class="line-list-card__title-row">
         <span class="line-list-card__title-icon">🛰️</span>
         <h3 class="line-list-card__title">{{ $t('realtime.lineList.title') }}</h3>
+        <!-- W-RT-7: 拖拽提示 -->
+        <span class="line-list-card__drag-hint" :title="$t('realtime.lineList.dragHint')">
+          ⠿
+        </span>
       </div>
       <span class="line-list-card__count">
         {{ $t('realtime.lineList.total') }}: <b>{{ lineStore.lines.length }}</b>
@@ -34,14 +39,31 @@
     </div>
 
     <!-- 列表主体 -->
-    <ul v-else class="line-list-card__list" role="listbox" :aria-label="$t('realtime.lineList.title')">
+    <ul
+      v-else
+      class="line-list-card__list"
+      role="listbox"
+      :aria-label="$t('realtime.lineList.title')"
+    >
       <li
         v-for="(line, idx) in lineStore.lines"
         :key="line.lineKey"
-        :class="['line-item', { 'line-item--active': line.lineKey === lineStore.selectedLineKey }]"
+        :class="[
+          'line-item',
+          { 'line-item--active': line.lineKey === lineStore.selectedLineKey },
+          { 'line-item--dragging': lineStore.dragFromIdx === idx },
+          { 'line-item--drag-over': lineStore.dragOverIdx === idx && lineStore.dragFromIdx !== idx }
+        ]"
         role="option"
         :aria-selected="line.lineKey === lineStore.selectedLineKey"
+        :draggable="true"
         @click="handleClick(line)"
+        @dragstart="handleDragStart($event, idx)"
+        @dragover.prevent="handleDragOver($event, idx)"
+        @dragenter.prevent="handleDragEnter(idx)"
+        @dragleave="handleDragLeave(idx)"
+        @drop.prevent="handleDrop(idx)"
+        @dragend="handleDragEnd"
       >
         <!-- 选中态左侧高亮条 -->
         <span class="line-item__active-bar" />
@@ -85,10 +107,19 @@
 // W-RT-2 LineListCard
 //  仿 PSM 实时页左侧 `.defect-li-item` + `.li-active` 选中态
 //  数据走 line store（stores/line.ts），点击时 store.select(lineNo) + emit('line-change')
+//
+// W-RT-7: HTML5 draggable 拖拽排序
+//  - dragstart: store.setDragState(fromIdx, fromIdx) + 设置 dataTransfer
+//  - dragover / dragenter: store.setDragState(fromIdx, toIdx)（目标 idx 实时更新）
+//  - drop: 调 store.reorder(fromIdx, toIdx) → 后端持久化 + 失败回滚
+//  - dragend: 兜底清空 drag 状态（drop 未触发时也不会卡住）
 // =============================================================================
+import { ElMessage } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 import { useLineStore, type LineListItem } from '../stores/line'
 
 const lineStore = useLineStore()
+const { t } = useI18n()
 
 const emit = defineEmits<{
   'line-change': [lineNo: string]
@@ -121,6 +152,74 @@ const colorRamp = [
 
 function indexGradient(idx: number): string {
   return colorRamp[idx % colorRamp.length]
+}
+
+// ============================================================================
+// W-RT-7: HTML5 drag-and-drop 事件
+// ============================================================================
+
+/** 拖起：记录源 idx + 设置 dataTransfer（必需，否则 dragover 不触发） */
+function handleDragStart(ev: DragEvent, idx: number): void {
+  if (!ev.dataTransfer) return
+  ev.dataTransfer.effectAllowed = 'move'
+  // 一些浏览器要求 setData 才能触发后续 drop（虽然我们不读它）
+  try {
+    ev.dataTransfer.setData('text/plain', String(idx))
+  } catch {
+    /* ignore: 部分浏览器在严格 CSP 下不允许 setData */
+  }
+  lineStore.setDragState(idx, idx)
+}
+
+/** 悬停：必须 preventDefault 才能触发 drop；并实时更新目标 idx */
+function handleDragOver(ev: DragEvent, idx: number): void {
+  if (!ev.dataTransfer) return
+  ev.dataTransfer.dropEffect = 'move'
+  if (lineStore.dragOverIdx !== idx) {
+    lineStore.setDragState(lineStore.dragFromIdx, idx)
+  }
+}
+
+/**
+ * dragenter：与 dragover 类似，但只在"进入"时触发。
+ * 这里我们让 dragover 主导（更密集的更新），dragenter 只做兜底以防目标 idx 漏更新。
+ */
+function handleDragEnter(idx: number): void {
+  if (lineStore.dragOverIdx !== idx) {
+    lineStore.setDragState(lineStore.dragFromIdx, idx)
+  }
+}
+
+/** dragleave：仅当离开整个列表（鼠标移出 ul）时由 dragend 兜底；单个 li 移出不必处理 */
+function handleDragLeave(_idx: number): void {
+  /* 单项 li 移出不重置 overIdx，避免在子元素间抖动；统一由 dragend 兜底 */
+}
+
+/** 放下：触发 store.reorder（乐观 UI + PUT 后端 + 失败回滚） */
+async function handleDrop(idx: number): Promise<void> {
+  const fromIdx = lineStore.dragFromIdx
+  if (fromIdx < 0) {
+    lineStore.clearDragState()
+    return
+  }
+  try {
+    await lineStore.reorder(fromIdx, idx)
+    // 成功提示（仅在确实发生了位移时弹）
+    if (fromIdx !== idx) {
+      ElMessage.success(t('realtime.lineList.reorderSuccess'))
+    }
+  } catch (err: any) {
+    // 失败提示（store 已经回滚 + reload）
+    const msg = err?.message || String(err) || 'unknown'
+    ElMessage.error(t('realtime.lineList.reorderFail', { msg }))
+  } finally {
+    lineStore.clearDragState()
+  }
+}
+
+/** 拖拽结束（drop 成功 / 取消 / 拖出窗口）：兜底清状态，避免 drag 标记卡住 */
+function handleDragEnd(): void {
+  lineStore.clearDragState()
 }
 </script>
 
@@ -184,6 +283,26 @@ function indexGradient(idx: number): string {
   color: var(--text-primary);
   letter-spacing: 0.2px;
 }
+// W-RT-7: 拖拽提示（玻璃风半透明图标）
+.line-list-card__drag-hint {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: var(--radius-sm);
+  cursor: grab;
+  user-select: none;
+  transition: background var(--transition-base), color var(--transition-base);
+  &:hover {
+    background: rgba(92, 225, 255, 0.10);
+    color: var(--accent);
+  }
+}
 .line-list-card__count {
   font-size: var(--font-size-xs);
   color: var(--text-secondary);
@@ -234,13 +353,14 @@ function indexGradient(idx: number): string {
   border-radius: var(--radius-md);
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid transparent;
-  cursor: pointer;
+  cursor: grab;          // W-RT-7: 提示可拖拽
   user-select: none;
   transition:
     transform var(--transition-fast),
     border-color var(--transition-base),
     background var(--transition-base),
-    box-shadow var(--transition-base);
+    box-shadow var(--transition-base),
+    opacity var(--transition-base);
 
   &:last-child {
     margin-bottom: 0;
@@ -250,6 +370,47 @@ function indexGradient(idx: number): string {
     background: rgba(255, 255, 255, 0.07);
     border-color: rgba(255, 255, 255, 0.14);
     transform: translateY(-1px);
+  }
+
+  // W-RT-7: 拖起时半透明 + cursor 变 grabbing
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+// W-RT-7: 拖起的源项（玻璃风半透明占位）
+.line-item--dragging {
+  opacity: 0.35;
+  background: rgba(92, 225, 255, 0.06);
+  border-color: rgba(92, 225, 255, 0.45);
+  border-style: dashed;
+  cursor: grabbing;
+}
+
+// W-RT-7: 悬停的目标项（玻璃风高亮，提示插入位置）
+.line-item--drag-over {
+  border-color: rgba(95, 217, 127, 0.65);
+  background: linear-gradient(
+    135deg,
+    rgba(95, 217, 127, 0.14) 0%,
+    rgba(92, 225, 255, 0.10) 100%
+  );
+  box-shadow:
+    0 0 0 1px rgba(95, 217, 127, 0.25),
+    0 4px 14px rgba(95, 217, 127, 0.10);
+  transform: translateY(-1px);
+  // 顶部发光线（提示"插到这之前"）
+  &::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: 8px;
+    right: 8px;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #5fd97f, #5ce1ff);
+    box-shadow: 0 0 8px rgba(95, 217, 127, 0.7);
+    pointer-events: none;
   }
 }
 
