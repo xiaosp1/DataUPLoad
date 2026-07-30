@@ -1,0 +1,42 @@
+{
+  "base": "http://127.0.0.1:8080",
+  "timestamp": "2026-07-30T14:56:41.091Z",
+  "checks": [
+    {
+      "n": "zh-CN-list",
+      "name": "[zh-CN] 列表渲染",
+      "ok": true,
+      "info": "rows=1"
+    },
+    {
+      "n": "zh-CN-alert",
+      "name": "[zh-CN] 警告文案 = \"操作历史暂不可用\"",
+      "ok": true,
+      "info": "actual=\"操作历史暂不可用\""
+    },
+    {
+      "n": "en-US-list",
+      "name": "[en-US] 列表渲染",
+      "ok": true,
+      "info": "rows=1"
+    },
+    {
+      "n": "en-US-alert",
+      "name": "[en-US] 警告文案 = \"Operation history temporarily unavailable\"",
+      "ok": true,
+      "info": "actual=\"Operation history temporarily unavailable\""
+    },
+    {
+      "n": "id-ID-list",
+      "name": "[id-ID] 列表渲染",
+      "ok": true,
+      "info": "rows=1"
+    },
+    {
+      "n": "id-ID-alert",
+      "name": "[id-ID] 警告文案 = \"Riwayat operasi sementara tidak tersedia\"",
+      "ok": true,
+      "info": "actual=\"Riwayat operasi sementara tidak tersedia\""
+    }
+  ]
+}

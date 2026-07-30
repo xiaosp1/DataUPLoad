@@ -266,12 +266,23 @@
                 {{ $t('common.loading') }}
               </span>
             </h3>
-            <div v-if="detail.historyLoading" class="user-detail__history-empty">
-              {{ $t('common.loading') }}
+
+            <!-- W-PERF-F: 加载中 - 骨架屏 -->
+            <div v-if="detail.historyLoading" class="user-detail__history-loading">
+              <el-skeleton :rows="3" animated />
             </div>
-            <div v-else-if="detail.historyError" class="user-detail__history-empty">
-              {{ $t('user.detail.noHistory') }}
-            </div>
+
+            <!-- W-PERF-F: 接口失败 - 警告提示（弹窗不阻塞） -->
+            <el-alert
+              v-else-if="detail.historyError"
+              :title="detail.historyError"
+              type="warning"
+              :closable="false"
+              show-icon
+              class="user-detail__history-alert"
+            />
+
+            <!-- W-PERF-F: 成功加载 - 时间线 -->
             <el-timeline v-else-if="detail.history.length > 0">
               <el-timeline-item
                 v-for="(h, i) in detail.history"
@@ -286,9 +297,14 @@
                 </div>
               </el-timeline-item>
             </el-timeline>
-            <div v-else class="user-detail__history-empty">
-              {{ $t('user.detail.noHistory') }}
-            </div>
+
+            <!-- W-PERF-F: 成功加载但无数据 - 空态 -->
+            <el-empty
+              v-else
+              :description="$t('user.detail.noHistory')"
+              :image-size="80"
+              class="user-detail__history-empty-component"
+            />
           </div>
         </div>
       </template>
@@ -403,7 +419,8 @@ const detail = reactive({
   data: null as OperatorInfo | null,
   history: [] as HistoryItem[],
   historyLoading: false,
-  historyError: false
+  // W-PERF-F: 错误信息（字符串，空串=无错误）— 用于 el-alert 标题
+  historyError: '' as string
 })
 
 // ---------------------------------------------------------------------------
@@ -501,22 +518,24 @@ const onReset = () => {
 
 // ---------------------------------------------------------------------------
 // 详情弹窗 — 操作历史
+// W-PERF-F: log/list 当前返回 500，弹窗打开不应被阻塞；失败时优雅降级
 // ---------------------------------------------------------------------------
 const openDetail = async (row: OperatorInfo) => {
   detail.data = row
   detail.history = []
   detail.historyLoading = true
-  detail.historyError = false
-  detail.open = true
+  detail.historyError = ''  // 清空错误
+  detail.open = true        // 弹窗立即打开，不等接口
 
-  // 调 /web/log/list?username=xxx 获取操作历史
+  // 异步拉操作历史（失败不影响弹窗）
   try {
     const r = await listLogByUser({ username: row.username, pageNum: 1, pageSize: 50 })
-    detail.history = r.data?.records || []
+    // r 是 ApiEnvelope<PageResult>，所以 r.data 是分页结果
+    detail.history = r?.data?.records || []
   } catch (err) {
-    // 后端 log/list 可能返回 500，优雅降级
+    // 后端 log/list 可能返回 500，优雅降级显示警告
     console.warn('[userManage] load history failed (expected if log API is incomplete):', err)
-    detail.historyError = true
+    detail.historyError = t('user.detail.logUnavailable')
   } finally {
     detail.historyLoading = false
   }
@@ -907,6 +926,30 @@ onMounted(async () => {
     padding: var(--space-6) 0;
     color: var(--text-secondary);
     font-size: var(--font-size-sm);
+  }
+
+  // W-PERF-F: 骨架屏 / 警告提示 / 空态样式
+  &__history-loading {
+    padding: var(--space-4) 0;
+  }
+
+  &__history-alert {
+    margin: var(--space-3) 0;
+    :deep(.el-alert__title) {
+      color: var(--text-primary);
+      font-weight: var(--font-weight-medium);
+    }
+    :deep(.el-alert__description) {
+      color: var(--text-secondary);
+    }
+  }
+
+  &__history-empty-component {
+    padding: var(--space-4) 0;
+    :deep(.el-empty__description p) {
+      color: var(--text-secondary);
+      font-size: var(--font-size-sm);
+    }
   }
 
   :deep(.el-timeline-item__timestamp) {

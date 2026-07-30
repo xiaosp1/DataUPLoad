@@ -1,0 +1,189 @@
+
+> dataupload-web@0.1.0 build
+> vite build
+
+[36mvite v5.4.21 [32mbuilding for production...[36m[39m
+transforming...
+[plugin:vite:esbuild] [plugin vite:esbuild] src/i18n/index.ts: Duplicate key "chart" in object literal
+168|      },
+169|      chartTitle: '瀹炴椂瓒嬪娍',
+170|      chart: {
+   |      ^
+171|        title: '瀹炴椂瓒嬪娍',
+172|        plan: '璁″垝',
+
+[plugin:vite:esbuild] [plugin vite:esbuild] src/i18n/index.ts: Duplicate key "table" in object literal
+178|      },
+179|      tableTitle: '绾垮埆鐘舵€?,
+180|      table: {
+   |      ^
+181|        title: '绾垮埆鐘舵€?,
+182|        total: '鍏?,
+
+[plugin:vite:esbuild] [plugin vite:esbuild] src/i18n/index.ts: Duplicate key "detail" in object literal
+269|        ignored: '宸插拷鐣?
+270|      },
+271|      detail: {
+   |      ^
+272|        title: '鎶ヨ璇︽儏',
+273|        id: '鎶ヨ ID',
+
+[plugin:vite:esbuild] [plugin vite:esbuild] src/i18n/index.ts: Duplicate key "chart" in object literal
+1030|      },
+1031|      chartTitle: 'Realtime Trend',
+1032|      chart: {
+   |      ^
+1033|        title: 'Realtime Trend',
+1034|        plan: 'Plan',
+
+[plugin:vite:esbuild] [plugin vite:esbuild] src/i18n/index.ts: Duplicate key "table" in object literal
+1040|      },
+1041|      tableTitle: 'Line Status',
+1042|      table: {
+   |      ^
+1043|        title: 'Line Status',
+1044|        total: 'total',
+
+[plugin:vite:esbuild] [plugin vite:esbuild] src/i18n/index.ts: Duplicate key "detail" in object literal
+1130|        ignored: 'Ignored'
+1131|      },
+1132|      detail: {
+   |      ^
+1133|        title: 'Alarm Detail',
+1134|        id: 'Alarm ID',
+
+[plugin:vite:esbuild] [plugin vite:esbuild] src/i18n/index.ts: Duplicate key "chart" in object literal
+1877|      },
+1878|      chartTitle: 'Tren Realtime',
+1879|      chart: {
+   |      ^
+1880|        title: 'Tren Realtime',
+1881|        plan: 'Rencana',
+
+[plugin:vite:esbuild] [plugin vite:esbuild] src/i18n/index.ts: Duplicate key "table" in object literal
+1887|      },
+1888|      tableTitle: 'Status Lane',
+1889|      table: {
+   |      ^
+1890|        title: 'Status Lane',
+1891|        total: 'total',
+
+[plugin:vite:esbuild] [plugin vite:esbuild] src/i18n/index.ts: Duplicate key "detail" in object literal
+1977|        ignored: 'Diabaikan'
+1978|      },
+1979|      detail: {
+   |      ^
+1980|        title: 'Detail Alarm',
+1981|        id: 'ID Alarm',
+
+node_modules/@vueuse/core/dist/index.js (3362:0): A comment
+
+"/* #__PURE__ */"
+
+in "node_modules/@vueuse/core/dist/index.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+node_modules/@vueuse/core/dist/index.js (5780:22): A comment
+
+"/* #__PURE__ */"
+
+in "node_modules/@vueuse/core/dist/index.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+[32m鉁?[39m 2329 modules transformed.
+rendering chunks...
+computing gzip size...
+[2mdist/[22m[32mindex.html                      [39m[1m[2m    0.40 kB[22m[1m[22m[2m 鈹?gzip:   0.27 kB[22m
+[2mdist/[22m[35massets/index-BK3Rol1C.css       [39m[1m[2m  441.89 kB[22m[1m[22m[2m 鈹?gzip:  60.61 kB[22m
+[2mdist/[22m[36massets/interceptor-C4kDg32U.js  [39m[1m[2m    0.35 kB[22m[1m[22m[2m 鈹?gzip:   0.24 kB[22m
+[2mdist/[22m[36massets/index-VhQvTo0Z.js        [39m[1m[33m2,628.63 kB[39m[22m[2m 鈹?gzip: 854.29 kB[22m
+
+(!) Some chunks are larger than 1500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+[32m鉁?built in 18.54s[39m

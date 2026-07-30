@@ -768,7 +768,10 @@ const zhCN = {
       historyTitle: '操作历史',
       noHistory: '暂无操作记录',
       empty: '暂无操作员数据',
-      loadFailed: '加载失败'
+      loadFailed: '加载失败',
+      // ===== W-PERF-F 新增：log/list 失败时优雅降级文案 =====
+      logUnavailable: '操作历史暂不可用',
+      noLogs: '暂无操作记录'
     },
     status: {
       active: '在职',
@@ -1620,7 +1623,10 @@ const enUS = {
       historyTitle: 'Operation History',
       noHistory: 'No operation records',
       empty: 'No operator data',
-      loadFailed: 'Load failed'
+      loadFailed: 'Load failed',
+      // ===== W-PERF-F additions: graceful degradation when log/list fails =====
+      logUnavailable: 'Operation history temporarily unavailable',
+      noLogs: 'No operation records'
     },
     status: {
       active: 'Active',
@@ -2464,7 +2470,10 @@ const idID = {
       historyTitle: 'Riwayat Operasi',
       noHistory: 'Tidak ada catatan operasi',
       empty: 'Tidak ada data operator',
-      loadFailed: 'Gagal memuat'
+      loadFailed: 'Gagal memuat',
+      // ===== W-PERF-F additions: graceful degradation when log/list fails =====
+      logUnavailable: 'Riwayat operasi sementara tidak tersedia',
+      noLogs: 'Tidak ada catatan operasi'
     },
     status: {
       active: 'Aktif',

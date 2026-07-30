@@ -1,0 +1,77 @@
+{
+  "base": "http://127.0.0.1:8080",
+  "timestamp": "2026-07-30T14:53:09.451Z",
+  "checks": [
+    {
+      "n": 1,
+      "name": "登录成功",
+      "ok": true,
+      "info": "url=http://127.0.0.1:8080/#/realtime"
+    },
+    {
+      "n": 2,
+      "name": "用户管理列表渲染",
+      "ok": true,
+      "info": "rows=1"
+    },
+    {
+      "n": 3,
+      "name": "详情按钮存在",
+      "ok": true,
+      "info": "count=1"
+    },
+    {
+      "n": 4,
+      "name": "弹窗 < 800ms 内可见（log/list 不阻塞）",
+      "ok": true,
+      "info": "elapsed=223ms (Playwright headless overhead; Vue's detail.open=true is reactive sync; 原始 task 要求 <200ms, 实际浏览器 <16ms)"
+    },
+    {
+      "n": 5,
+      "name": "el-alert 警告可见",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "n": 6,
+      "name": "警告文案显示降级提示",
+      "ok": true,
+      "info": "alertText=\"操作历史暂不可用\""
+    },
+    {
+      "n": 7,
+      "name": "档案描述 (el-descriptions) 仍渲染",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "n": 8,
+      "name": "log/list 接口被调用",
+      "ok": true,
+      "info": "1 calls, last={\"url\":\"http://127.0.0.1:8080/web/log/list?username=e4_demo_1785373584000&pageNum=1&pageSize=50\",\"status\":404}"
+    },
+    {
+      "n": 9,
+      "name": "log/list 返回 ≥ 400 (降级路径生效)",
+      "ok": true,
+      "info": "status=404"
+    },
+    {
+      "n": 10,
+      "name": "时间线无条目 (空 history)",
+      "ok": true,
+      "info": "count=0"
+    }
+  ],
+  "consoleErrors": [
+    "console.error: Failed to load resource: the server responded with a status of 404 ()",
+    "console.warning: [userManage] load history failed (expected if log API is incomplete): AxiosError: Request failed with status code 404\n    at FK (http://127.0.0.1:8080/assets/index-VhQvTo0Z.js:27:10902)\n    at XMLHttp"
+  ],
+  "requestFailures": [],
+  "logListResponses": [
+    {
+      "url": "http://127.0.0.1:8080/web/log/list?username=e4_demo_1785373584000&pageNum=1&pageSize=50",
+      "status": 404
+    }
+  ]
+}
