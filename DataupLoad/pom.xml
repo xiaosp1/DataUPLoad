@@ -123,6 +123,49 @@
             <systemPath>${project.basedir}/lib/flyway-core-9.5.1.jar</systemPath>
         </dependency>
 
+        <!-- W-BUILD-01 01:21：W-X29 P2 (c882101f) 新增 detect/util/ExcelUtils + detect/excel/DataMergeStrategy
+             依赖 easyexcel-2.2.6 + poi-3.17 (lib/ 已有物理 jar)，但 pom 没声明 → mvn clean package 编译失败
+             (package com.alibaba.excel does not exist / package org.apache.poi.ss.usermodel does not exist)。
+             旧 jar (target/DataupLoad-1.0-SNAPSHOT-20260723010315.jar) 是 W-X29 之前的产物，缺这俩类的 class 文件。
+             同 W-X11b sa-token-oauth2 / flyway-core 模式：system scope + lib/ 物理 jar。
+             一起补上 poi-ooxml + poi-ooxml-schemas + xmlbeans + commons-compress (poi 运行时依赖，
+             已存在于 lib/) 以免 spring-boot:repackage 打包后 NoClassDefFoundError。 -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>easyexcel</artifactId>
+            <version>2.2.6</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/easyexcel-2.2.6.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>3.17</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/poi-3.17.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>3.17</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/poi-ooxml-3.17.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml-schemas</artifactId>
+            <version>3.17</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/poi-ooxml-schemas-3.17.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.xmlbeans</groupId>
+            <artifactId>xmlbeans</artifactId>
+            <version>2.6.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/xmlbeans-2.6.0.jar</systemPath>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
