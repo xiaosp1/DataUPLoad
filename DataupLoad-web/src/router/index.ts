@@ -22,18 +22,7 @@ import UserManage from '../views/UserManage.vue'
 import Screen from '../views/Screen.vue'
 import Forbidden from '../views/Forbidden.vue'
 import { usePermissionStore } from '../stores/permission'
-
-/**
- * 读 cookie 的同名工具（不放 utils 里，路由守卫自身就要用，避免循环依赖）
- * **只**读 satoken，不读 token / 不读 localStorage。
- */
-function getCookie(name: string): string | null {
-  if (typeof document === 'undefined') return null
-  const m = document.cookie.match(
-    new RegExp('(?:^|;\\s*)' + name + '=([^;]*)')
-  )
-  return m ? decodeURIComponent(m[1]) : null
-}
+import { useUserStore } from '../stores/user'
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -141,27 +130,40 @@ const router = createRouter({
  *   3) 有 satoken 但无 meta.permission → /403
  */
 router.beforeEach((to, _from, next) => {
-  const satoken = getCookie('satoken')
+  // W-FRONT-FLASH: 守卫改用 user store 判定登录态，不再直接读 cookie。
+  // 旧版 getCookie('satoken') 在某些时序下偶发失败，导致已登录用户被踢到 /login；
+  // 切到 /#/realtime 后 perm.has() 又因 store 未初始化返回 false，再被踢到 /403。
+  // user store 由 Login.vue / fetchCurrent() 在 main.js 注册 pinia 之后写入，
+  // isLoggedIn = Boolean(id && loaded) 与后端 /web/account/current 一致。
+  let isLoggedIn = false
+  let hasPermission = true
+  try {
+    const userStore = useUserStore()
+    isLoggedIn = userStore.isLoggedIn
+    const perm = usePermissionStore()
+    const need = to.meta.permission
+    if (need && perm) {
+      hasPermission = perm.has(need)
+    }
+  } catch (e) {
+    // store 还未注册等异常：保守放行（顶层 401 拦截会兜底）
+    isLoggedIn = true
+    hasPermission = true
+  }
 
   if (to.meta.public) {
-    if (satoken && to.name === 'Login') {
+    if (isLoggedIn && to.name === 'Login') {
       return next({ name: 'RealTime' })
     }
     return next()
   }
 
-  if (!satoken) {
+  if (!isLoggedIn) {
     return next({ name: 'Login' })
   }
 
-  // 已登录：检查权限
-  const need = to.meta.permission
-  if (need) {
-    const perm = usePermissionStore()
-    // pinia 必须在 app.use(pinia) 之后才能拿到 store；正常情况下 main.js 已先注册
-    if (perm && !perm.has(need)) {
-      return next({ name: 'Forbidden' })
-    }
+  if (!hasPermission) {
+    return next({ name: 'Forbidden' })
   }
 
   return next()

@@ -1,9 +1,8 @@
 <template>
   <!-- W-FRONT-02-E8：大屏模式路由（/screen）→ 隐藏 chrome，纯 router-view 全屏 -->
+  <!-- W-FRONT-FLASH: 去掉 <transition> 包裹，避免守卫误踢 403 时的 fade 动画叠加 framenavigated 形成视觉闪烁 -->
   <router-view v-if="isScreen" v-slot="{ Component }">
-    <transition name="fade-page" mode="out-in">
-      <component :is="Component" />
-    </transition>
+    <component :is="Component" />
   </router-view>
 
   <div v-else class="main-layout">
@@ -25,10 +24,9 @@
         </header>
 
         <main class="main-layout__content">
+          <!-- W-FRONT-FLASH: 去掉 <transition> 包裹，避免 fade 动画叠加 framenavigated 形成视觉闪烁 -->
           <router-view v-slot="{ Component }">
-            <transition name="fade-page" mode="out-in">
-              <component :is="Component" />
-            </transition>
+            <component :is="Component" />
           </router-view>
         </main>
       </div>
@@ -164,19 +162,7 @@ const isScreen = computed(() => route.path === '/screen' || route.path.startsWit
   }
 }
 
-// 路由切换淡入
-.fade-page-enter-active,
-.fade-page-leave-active {
-  transition: opacity var(--transition-base), transform var(--transition-base);
-}
-.fade-page-enter-from {
-  opacity: 0;
-  transform: translateY(4px);
-}
-.fade-page-leave-to {
-  opacity: 0;
-  transform: translateY(-4px);
-}
+// W-FRONT-FLASH: .fade-page-* class 已随 <transition> 一起删除
 
 // 响应式：窄屏隐藏侧栏装饰
 @media (max-width: 768px) {
