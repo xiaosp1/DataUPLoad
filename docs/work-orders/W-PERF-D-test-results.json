@@ -1,0 +1,118 @@
+{
+  "base": "http://127.0.0.1:8080",
+  "date": "2026-07-30T15:32:52.145Z",
+  "loginOk": true,
+  "consoleErrors": [],
+  "passed": 18,
+  "failed": 0,
+  "checks": [
+    {
+      "n": "1",
+      "name": "Login successful",
+      "ok": true,
+      "info": "URL=http://127.0.0.1:8080/#/realtime"
+    },
+    {
+      "n": "2.alarm",
+      "name": "报警记录: skeleton visible on initial load",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "n": "3.alarm",
+      "name": "报警记录: bar count matches (8x5=40)",
+      "ok": true,
+      "info": "bars=40"
+    },
+    {
+      "n": "4.alarm",
+      "name": "报警记录: real table loaded after skeleton",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "n": "5.alarm",
+      "name": "报警记录: skeleton removed after data loaded",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "n": "2.account",
+      "name": "账号管理: skeleton visible on initial load",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "n": "3.account",
+      "name": "账号管理: bar count matches (8x6=48)",
+      "ok": true,
+      "info": "bars=48"
+    },
+    {
+      "n": "4.account",
+      "name": "账号管理: real table loaded after skeleton",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "n": "5.account",
+      "name": "账号管理: skeleton removed after data loaded",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "n": "2.user-manage",
+      "name": "操作员: skeleton visible on initial load",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "n": "3.user-manage",
+      "name": "操作员: bar count matches (8x6=48)",
+      "ok": true,
+      "info": "bars=48"
+    },
+    {
+      "n": "4.user-manage",
+      "name": "操作员: real table loaded after skeleton",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "n": "5.user-manage",
+      "name": "操作员: skeleton removed after data loaded",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "n": "2.log",
+      "name": "操作日志: skeleton visible on initial load",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "n": "3.log",
+      "name": "操作日志: bar count matches (10x8=80)",
+      "ok": true,
+      "info": "bars=80"
+    },
+    {
+      "n": "4.log",
+      "name": "操作日志: real table loaded after skeleton",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "n": "5.log",
+      "name": "操作日志: skeleton removed after data loaded",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "n": "6.defect-config",
+      "name": "缺陷配置 tab: table renders after data loads",
+      "ok": true,
+      "info": "tab=\"缺陷配置\""
+    }
+  ]
+}
