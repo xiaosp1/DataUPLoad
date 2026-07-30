@@ -92,9 +92,18 @@ export function listAlarm(params: ListAlarmParams): Promise<ApiEnvelope<PageResu
  * 报警详情 + 关联设备列表（PSM getAlarmListInfo 1:1）。
  *
  * 与 list 的区别：list-info 返回的是 AlarmRecord + 关联设备；用于详情弹窗。
+ *
+ * W-RT-9: 扩展入参, 额外支持 lineNo / faceNo / type / defectName
+ *   - lineNo + faceNo 是 PSM 工位 ID 在前端的查询名称 (与 faceId 互斥)
+ *   - 后端 list-info 实际是透传到 list (PSM 同款接口), 这几个参数会被接口忽略或作为额外过滤
+ *   - 本期主要靠 startTime/endTime + pageSize:1 拿最近一条; 其它参数作为可选过滤
  */
 export function getAlarmDetail(params: {
   faceId?: number | null
+  lineNo?: string
+  faceNo?: string
+  type?: number | null
+  defectName?: string
   pageNum?: number
   pageSize?: number
   startTime?: string

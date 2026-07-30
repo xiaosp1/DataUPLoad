@@ -14,7 +14,7 @@
       <!-- ====== 中栏：KPI / 图表 / 表格 ====== -->
       <div class="realtime-layout__main">
         <!-- ====== W-RT-3：中栏选中线 4 区面板（顶部） ====== -->
-        <LineDetailPanel :line="currentLine" :line-index="currentLineIndex" />
+        <LineDetailPanel :line="currentLine" :line-index="currentLineIndex" @defect-click="handleDefectClick" />
 
         <!-- ====== 顶部 KPI 8 卡（W-RT-4：PSM 实时页 全部字段） ====== -->
         <div class="realtime-kpi-row">
@@ -186,6 +186,9 @@
         </GlassCard>
       </div>
     </div>
+
+    <!-- ====== W-RT-9: 报警详情弹窗（玻璃风 el-dialog） ====== -->
+    <AlarmDetailDialog v-model="alarmDialogVisible" :alarm="selectedAlarm" />
   </GlassPage>
 </template>
 
@@ -218,6 +221,7 @@ import GlassTable from '../components/GlassTable.vue'
 import GlassButton from '../components/GlassButton.vue'
 import LineListCard from '../components/LineListCard.vue'
 import LineDetailPanel from '../components/LineDetailPanel.vue'
+import AlarmDetailDialog from '../components/AlarmDetailDialog.vue'
 import { useLineStore } from '../stores/line'
 import {
   listAlarm,
@@ -228,6 +232,7 @@ import {
   removeFailRateOf,
   type RealtimeDetectData
 } from '../api/realtime'
+import { getAlarmDetail as fetchAlarmDetail, type AlarmRecord } from '../api/alarm'
 import { screenState, subscribeScreen, type ScreenSnapshot } from '../stores/screen'
 
 // ---------------------------------------------------------------------------
@@ -256,6 +261,87 @@ const wsState = computed(() => screenState.wsState)
 
 // 当前选中行的实时数据（每次 refreshRealtimePoint 写入）
 const selectedRealtime = ref<RealtimeDetectData | null>(null)
+
+// ---------------------------------------------------------------------------
+// W-RT-9: 报警详情弹窗
+//   - 点击中栏缺陷网格某小时格 → handleDefectClick
+//   - 调 /web/alarm/list-info（getAlarmDetail, PSM 同款）查该小时该产线最近一条
+//   - 拿第一条记录 → 打开弹窗
+// ---------------------------------------------------------------------------
+const alarmDialogVisible = ref(false)
+const selectedAlarm = ref<AlarmRecord | null>(null)
+const alarmDialogLoading = ref(false)
+
+async function handleDefectClick(payload: { hour: number; val: number }) {
+  const cur = currentLine.value
+  if (!cur) {
+    ElMessage.warning(t('realtime.error.loadLineFailed'))
+    return
+  }
+  const hour = Number(payload?.hour ?? -1)
+  if (!Number.isFinite(hour) || hour < 0 || hour > 23) return
+
+  alarmDialogLoading.value = true
+  try {
+    // 查所点小时所在区间的报警（前后 30 分钟覆盖小时边界）
+    const today = todayStr()
+    const hourStart = new Date()
+    hourStart.setHours(hour, 0, 0, 0)
+    const hourEnd = new Date(hourStart)
+    hourEnd.setHours(hourEnd.getHours() + 1)
+    const pad2 = (n: number) => (n < 10 ? `0${n}` : `${n}`)
+    const fmt = (d: Date) =>
+      `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(
+        d.getMinutes()
+      )}:${pad2(d.getSeconds())}`
+    // 若选中的小时是未来时间（例如现在 14 点点了 18 点），则跨天取前一天
+    let startDate = today
+    let dayStart: Date
+    let dayEnd: Date
+    if (hour <= new Date().getHours()) {
+      dayStart = hourStart
+      dayEnd = hourEnd
+    } else {
+      // 取昨天的同一小时
+      const yest = new Date()
+      yest.setDate(yest.getDate() - 1)
+      const yestStr = `${yest.getFullYear()}-${pad2(yest.getMonth() + 1)}-${pad2(yest.getDate())}`
+      startDate = yestStr
+      dayStart = new Date(yest.getFullYear(), yest.getMonth(), yest.getDate(), hour, 0, 0)
+      dayEnd = new Date(dayStart)
+      dayEnd.setHours(dayEnd.getHours() + 1)
+    }
+    const startTime = fmt(dayStart)
+    const endTime = fmt(dayEnd)
+    const resp = await fetchAlarmDetail({
+      lineNo: cur.lineNo,
+      faceNo: cur.faceNo,
+      startTime,
+      endTime,
+      pageNum: 1,
+      pageSize: 1
+    })
+    const ok = resp && (resp.success === true || (resp as any).code === 0)
+    if (ok && resp.data) {
+      const records = (resp.data as any).records as AlarmRecord[] | undefined
+      if (Array.isArray(records) && records.length > 0) {
+        selectedAlarm.value = records[0]
+        alarmDialogVisible.value = true
+      } else {
+        ElMessage.info(t('realtime.detail.noAlarmForCell') || `${startDate} ${String(hour).padStart(2, '0')}:00 - 暂无该小时报警`)
+      }
+    } else {
+      ElMessage.warning((resp && (resp.msg || resp.message)) || t('alarm.list.loadFailed'))
+    }
+  } catch (err: any) {
+    console.warn('[realtime] handleDefectClick failed:', err)
+    if (err?.response?.status !== 401) {
+      ElMessage.error(t('alarm.list.loadFailed'))
+    }
+  } finally {
+    alarmDialogLoading.value = false
+  }
+}
 
 // ---------------------------------------------------------------------------
 // 派生：选中线的实时数据（来自 lineStore 一次性 load 时的 realtimeData）

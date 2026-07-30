@@ -245,7 +245,11 @@ const zhCN = {
       plc: 'PLC',
       online: '在线',
       offline: '离线',
-      runtime: '运行时长'
+      runtime: '运行时长',
+      // ===== W-RT-9 =====
+      alarmDialogTitle: '产线报警详情',
+      clickToView: '点击查看详情',
+      noAlarmForCell: '该小时暂无报警'
     },
     error: {
       network: '网络异常，请稍后重试',
@@ -1174,7 +1178,11 @@ const enUS = {
       plc: 'PLC',
       online: 'Online',
       offline: 'Offline',
-      runtime: 'Runtime'
+      runtime: 'Runtime',
+      // ===== W-RT-9 =====
+      alarmDialogTitle: 'Line Alarm Details',
+      clickToView: 'Click to view details',
+      noAlarmForCell: 'No alarms in this hour'
     },
     error: {
       network: 'Network error, please retry',
@@ -2088,7 +2096,11 @@ const idID = {
       plc: 'PLC',
       online: 'Online',
       offline: 'Offline',
-      runtime: 'Durasi'
+      runtime: 'Durasi',
+      // ===== W-RT-9 =====
+      alarmDialogTitle: 'Detail Alarm Lini',
+      clickToView: 'Klik untuk melihat detail',
+      noAlarmForCell: 'Tidak ada alarm pada jam ini'
     },
     error: {
       network: 'Kesalahan jaringan, coba lagi',

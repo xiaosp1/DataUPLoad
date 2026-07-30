@@ -1,0 +1,23 @@
+[1] GET http://127.0.0.1:8080
+    status=200
+[2] Login as super_admin / Abc12345
+[3] post-login URL: http://127.0.0.1:8080/#/realtime
+[4] Navigate to /realtime
+[5] Click first line in left panel
+    clicked: .line-list-card [class*="item"]
+[6] shot1: E:\DEMO\鏁版嵁閲囬泦\docs\work-orders\W-RT-9-01-line-selected.png
+[7] Find defect grid cells
+    defect grid cells: 24
+    clicking hour=0 val="00906"
+[8] shot2: E:\DEMO\鏁版嵁閲囬泦\docs\work-orders\W-RT-9-02-dialog-open.png
+[9] Close dialog
+[10] shot3: E:\DEMO\鏁版嵁閲囬泦\docs\work-orders\W-RT-9-03-dialog-closed.png
+---
+Console errors: 0
+alarm API calls: 3
+  GET /web/alarm/list?pageNum=1&pageSize=5&solve=2&sortType=1 鈫?200
+  GET /web/alarm/list?pageNum=1&pageSize=1&startTime=2026-07-31+00:00:00&endTime=2026-07-31+01:22:28 鈫?200
+  GET /web/alarm/list-info?lineNo=line1A&faceNo=A1&startTime=2026-07-31+00:00:00&endTime=2026-07-31+01:00:00&pageNum=1&pageSize=1 鈫?200
+---
+RESULT_JSON:{"baseUrl":"http://127.0.0.1:8080","dialogOpened":true,"clickedHour":0,"apiCalls":[{"url":"/web/alarm/list?pageNum=1&pageSize=5&solve=2&sortType=1","status":200,"method":"GET"},{"url":"/web/alarm/list?pageNum=1&pageSize=1&startTime=2026-07-31+00:00:00&endTime=2026-07-31+01:22:28","status":200,"method":"GET"},{"url":"/web/alarm/list-info?lineNo=line1A&faceNo=A1&startTime=2026-07-31+00:00:00&endTime=2026-07-31+01:00:00&pageNum=1&pageSize=1","status":200,"method":"GET"}],"fields":{"idText":"851523","uuidText":"b5f000f7-b0bb-4d20-8cca-33adb094f7bf","rowCount":11,"durationText":"22m 37s","imagePlaceholder":"鏆傛棤鍥惧儚","dialogTitle":"浜х嚎鎶ヨ璇︽儏","ignoreBtnVisible":false,"closeBtnVisible":true},"consoleErrors":0,"consoleErrorDetails":[],"screenshots":["E:\\DEMO\\鏁版嵁閲囬泦\\docs\\work-orders\\W-RT-9-01-line-selected.png","E:\\DEMO\\鏁版嵁閲囬泦\\docs\\work-orders\\W-RT-9-02-dialog-open.png","E:\\DEMO\\鏁版嵁閲囬泦\\docs\\work-orders\\W-RT-9-03-dialog-closed.png"]}
+PASS

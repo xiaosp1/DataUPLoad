@@ -1,0 +1,39 @@
+{
+  "baseUrl": "http://127.0.0.1:8080",
+  "dialogOpened": true,
+  "clickedHour": 0,
+  "apiCalls": [
+    {
+      "url": "/web/alarm/list?pageNum=1&pageSize=5&solve=2&sortType=1",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "/web/alarm/list?pageNum=1&pageSize=1&startTime=2026-07-31+00:00:00&endTime=2026-07-31+01:22:28",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "/web/alarm/list-info?lineNo=line1A&faceNo=A1&startTime=2026-07-31+00:00:00&endTime=2026-07-31+01:00:00&pageNum=1&pageSize=1",
+      "status": 200,
+      "method": "GET"
+    }
+  ],
+  "fields": {
+    "idText": "851523",
+    "uuidText": "b5f000f7-b0bb-4d20-8cca-33adb094f7bf",
+    "rowCount": 11,
+    "durationText": "22m 37s",
+    "imagePlaceholder": "暂无图像",
+    "dialogTitle": "产线报警详情",
+    "ignoreBtnVisible": false,
+    "closeBtnVisible": true
+  },
+  "consoleErrors": 0,
+  "consoleErrorDetails": [],
+  "screenshots": [
+    "E:\\DEMO\\数据采集\\docs\\work-orders\\W-RT-9-01-line-selected.png",
+    "E:\\DEMO\\数据采集\\docs\\work-orders\\W-RT-9-02-dialog-open.png",
+    "E:\\DEMO\\数据采集\\docs\\work-orders\\W-RT-9-03-dialog-closed.png"
+  ]
+}

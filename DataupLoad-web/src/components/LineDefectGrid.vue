@@ -32,8 +32,10 @@
           v-for="(val, hour) in cells"
           :key="hour"
           class="ldg-card__cell"
+          :class="{ 'ldg-card__cell--zero': !val }"
           :style="{ background: cellColor(val) }"
-          :title="`${String(hour).padStart(2, '0')}:00 — ${val} defects`"
+          :title="cellTitle(hour, val)"
+          @click="onCellClick(hour, val)"
         >
           <span class="ldg-card__cell-hour">{{ String(hour).padStart(2, '0') }}</span>
           <span class="ldg-card__cell-val">{{ val }}</span>
@@ -45,7 +47,10 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import GlassCard from './GlassCard.vue'
+
+const { t: $t } = useI18n()
 
 const props = withDefaults(defineProps<{
   /** 24 小时缺陷数组（0-23） */
@@ -53,6 +58,27 @@ const props = withDefaults(defineProps<{
 }>(), {
   hourly: () => []
 })
+
+/**
+ * W-RT-9: 单元格点击 → 触发告警详情弹窗
+ *   - hour: 0-23 整点
+ *   - val: 该小时缺陷数（0 = 无缺陷, 跳过）
+ *   - 给父组件 (LineDetailPanel / RealTime.vue) 自取上下文（lineNo/faceNo）
+ */
+const emit = defineEmits<{
+  (e: 'defect-click', payload: { hour: number; val: number }): void
+}>()
+
+function onCellClick(hour: number, val: number) {
+  if (!val || val <= 0) return
+  emit('defect-click', { hour, val })
+}
+
+function cellTitle(hour: number, val: number): string {
+  const hh = String(hour).padStart(2, '0')
+  const tip = $t('realtime.detail.clickToView')
+  return `${hh}:00 — ${val} defects · ${tip}`
+}
 
 /** 24 格；缺位补 0 */
 const cells = computed<number[]>(() => {
@@ -165,14 +191,22 @@ function cellColor(v: number): string {
   border-radius: var(--radius-sm);
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: var(--text-primary);
-  transition: transform var(--transition-fast), border-color var(--transition-base);
-  cursor: default;
+  transition: transform var(--transition-fast), border-color var(--transition-base), box-shadow var(--transition-base);
+  cursor: pointer;
   font-variant-numeric: tabular-nums;
 }
 .ldg-card__cell:hover {
   transform: translateY(-1px);
   border-color: rgba(92, 225, 255, 0.5);
   z-index: 1;
+}
+.ldg-card__cell--zero {
+  cursor: default;
+}
+.ldg-card__cell--zero:hover {
+  transform: none;
+  border-color: rgba(255, 255, 255, 0.08);
+  z-index: auto;
 }
 .ldg-card__cell-hour {
   font-size: 9px;

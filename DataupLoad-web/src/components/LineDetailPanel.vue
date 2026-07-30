@@ -59,7 +59,7 @@
       <LineProductionCard :line="line" />
 
       <!-- ② 缺陷热力图 -->
-      <LineDefectGrid :hourly="hourlyData" />
+      <LineDefectGrid :hourly="hourlyData" @defect-click="(p) => emit('defect-click', p)" />
 
       <!-- ③ 设备状态 -->
       <LineDeviceStatus
@@ -86,6 +86,13 @@ const props = defineProps<{
   line: LineListItem | null
   /** 选中线在列表中的索引（用来渲染序号色块） */
   lineIndex?: number
+}>()
+
+/**
+ * W-RT-9: 把 LineDefectGrid 的 defect-click 中继出去, 给 RealTime.vue 调弹窗
+ */
+const emit = defineEmits<{
+  (e: 'defect-click', payload: { hour: number; val: number }): void
 }>()
 
 const totalNum = computed(() => Number(props.line?.realtime?.total ?? 0))
