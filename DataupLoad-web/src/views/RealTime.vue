@@ -13,6 +13,9 @@
 
       <!-- ====== 中栏：KPI / 图表 / 表格 ====== -->
       <div class="realtime-layout__main">
+        <!-- ====== W-RT-3：中栏选中线 4 区面板（顶部） ====== -->
+        <LineDetailPanel :line="currentLine" :line-index="currentLineIndex" />
+
         <!-- ====== 顶部 KPI 8 卡（W-RT-4：PSM 实时页 全部字段） ====== -->
         <div class="realtime-kpi-row">
           <GlassCard
@@ -214,6 +217,7 @@ import GlassCard from '../components/GlassCard.vue'
 import GlassTable from '../components/GlassTable.vue'
 import GlassButton from '../components/GlassButton.vue'
 import LineListCard from '../components/LineListCard.vue'
+import LineDetailPanel from '../components/LineDetailPanel.vue'
 import { useLineStore } from '../stores/line'
 import {
   listAlarm,
@@ -258,6 +262,14 @@ const selectedRealtime = ref<RealtimeDetectData | null>(null)
 // ---------------------------------------------------------------------------
 const currentLine = computed(() => lineStore.selectedLine)
 const lines = computed(() => lineStore.lines)
+
+/** W-RT-3：选中线在列表中的索引（1-based，给 4 区面板的序号色块用） */
+const currentLineIndex = computed(() => {
+  const cur = currentLine.value
+  if (!cur) return 0
+  const idx = lineStore.lines.findIndex((l) => l.lineKey === cur.lineKey)
+  return idx >= 0 ? idx : 0
+})
 
 // KPI 8 卡（W-RT-2 + W-RT-4：单线别钻取后，展开 PSM 所有 KPI 字段）
 const kpiCards = computed(() => {

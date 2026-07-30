@@ -18,6 +18,7 @@ import com.hikrobotics.solution.module.detect.entity.StatusRecord;
 import com.hikrobotics.solution.module.detect.mapper.StatusRecordMapper;
 import com.hikrobotics.solution.module.detect.service.IStatusRecordService;
 import com.hikrobotics.solution.module.line.event.StateChangeEvent;
+import com.hikrobotics.solution.module.screen.service.IScreenService;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,9 +41,10 @@ public class GlobalTaskManager {
     private IStatusRecordService statusRecordService;
     @Autowired
     private IDefectTypeService defectTypeService;
-    // IScreenService 不存在（DataupLoad 无大屏推送链路，详见 ADR-0006）
-    // @Autowired
-    // private IScreenService screenService;
+    // IScreenService 已就位：DataupLoad 模块 screen 已落地（ADR-0006 closed W-PERF-B）。
+    // 每 5s 调 sendScreenDataInfo() 推送 ScreenDataDTO 到 /ws?type=screen，前端 RealTime 页订阅消费。
+    @Autowired
+    private IScreenService screenService;
     @Autowired
     private IAlarmRecordService alarmRecordService;
     @Value(value = "${alarm.save-all:true}")
@@ -119,14 +121,24 @@ public class GlobalTaskManager {
     }
 
     /*
-     * PSM 原版通过 IScreenService.sendScreenDataInfo() 推送大屏。
-     * DataupLoad 无 screen 模块（ADR-0006），整个方法体留空，仅保留 @Scheduled 占位避免误删。
-     * TODO(ADR-0006): 若 DataupLoad 后续接入大屏推送，恢复 IScreenService 注入并调用 sendScreenDataInfo。
+     * W-PERF-B：实时页接全局 WS 单例（替代 60s polling）。
+     *
+     * 复用 PSM 反编译产物的 @Scheduled(initialDelay=10s, fixedDelay=5s)，调用
+     * {@link IScreenService#sendScreenDataInfo()} 推送 ScreenDataDTO。
+     *
+     * ScreenServiceImpl.sendScreenDataInfo() 内部走 {@code webSocketHandler.broadcastByType(json, "screen")}
+     * 只投递给 type=screen 的客户端，不会污染 alarm / sound 通道。
+     *
+     * 历史：DataupLoad 早期无 screen 模块（ADR-0006 留 @Scheduled 占位）；W-PERF-B 子单正式接通。
      */
     @Scheduled(initialDelay = 10000L, fixedDelay = 5000L)
     public void sendScreen() {
-        // TODO(ADR-0006): DataupLoad 无 IScreenService（PSM com.hikrobotics.solution.module.screen.service.IScreenService 未迁移）。
-        //                  原 PSM 调用：this.screenService.sendScreenDataInfo();
+        try {
+            this.screenService.sendScreenDataInfo();
+        } catch (Exception ex) {
+            // 不让 @Scheduled 中止后续调度（沿用 PSM 反编译风格的吞错策略）
+            log.warn("sendScreen failed: {}", ex.toString());
+        }
     }
 
     /*

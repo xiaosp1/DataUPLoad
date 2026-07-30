@@ -58,7 +58,9 @@ implements IScreenService {
     public void sendScreenDataInfo() {
         ScreenDataDTO screenDataDTO = this.buildScreenData();
         WsMessage wsMessage = WsMessage.build().type(WsTypeEnum.SCREEN.getValue()).data((Object)screenDataDTO);
-        this.webSocketHandler.broadcastByUid(wsMessage.toJsonString(), "web");
+        // W-PERF-B：用 broadcastByType("screen") 仅投递给 type=screen 的客户端，
+        // 避免原 broadcastByUid("web") 把大屏数据广播到 alarm / sound 客户端造成污染。
+        this.webSocketHandler.broadcastByType(wsMessage.toJsonString(), WsTypeEnum.SCREEN.getValue());
     }
 
     private ScreenDataDTO buildScreenData() {
