@@ -1,0 +1,104 @@
+=== Step 1: load /#/login ===
+login h1: "DataupLoad"
+=== Step 2: submit login form ===
+document.cookie after login: satoken=test-dfix-satoken
+hash after login: #/realtime
+=== Step 3: inspect pinia stores ===
+store dump: {
+  "user": {
+    "id": 1,
+    "username": "super_admin",
+    "role": "super_admin",
+    "permission": {
+      "0": "realtime",
+      "1": "alarm",
+      "2": "defect",
+      "3": "account",
+      "4": "systemConfig",
+      "5": "log",
+      "6": "userManage",
+      "7": "screen"
+    },
+    "loaded": true
+  },
+  "perm": {
+    "roles": {
+      "0": "super_admin"
+    },
+    "codes": {
+      "0": "realtime",
+      "1": "alarm",
+      "2": "defect",
+      "3": "account",
+      "4": "systemConfig",
+      "5": "log",
+      "6": "userManage",
+      "7": "screen"
+    },
+    "isSuperAdmin": true
+  }
+}
+=== Step 4: hash-navigate /#/alarm ===
+hash for /#/alarm with super_admin: #/alarm
+=== Step 5: switch role to operator, hash-navigate /#/account ===
+hash for /#/account with operator: #/403
+=== REPORT ===
+{
+  "loginCalled": 1,
+  "currentCalled": 1,
+  "loginH1": "DataupLoad",
+  "afterLoginHash": "(see step 2)",
+  "afterLoginStores": {
+    "user": {
+      "id": 1,
+      "username": "super_admin",
+      "role": "super_admin",
+      "permission": {
+        "0": "realtime",
+        "1": "alarm",
+        "2": "defect",
+        "3": "account",
+        "4": "systemConfig",
+        "5": "log",
+        "6": "userManage",
+        "7": "screen"
+      },
+      "loaded": true
+    },
+    "perm": {
+      "roles": {
+        "0": "super_admin"
+      },
+      "codes": {
+        "0": "realtime",
+        "1": "alarm",
+        "2": "defect",
+        "3": "account",
+        "4": "systemConfig",
+        "5": "log",
+        "6": "userManage",
+        "7": "screen"
+      },
+      "isSuperAdmin": true
+    }
+  },
+  "alarmHash": "(see step 4)",
+  "accountAsOperatorHash": "(see step 5)",
+  "finalHash": "#/403",
+  "finalStores": {
+    "user": {
+      "id": 99,
+      "username": "operator_user",
+      "role": "operator",
+      "loaded": true
+    },
+    "perm": {
+      "roles": {
+        "0": "operator"
+      },
+      "codes": {},
+      "isSuperAdmin": false
+    }
+  },
+  "pageErrors": []
+}

@@ -162,3 +162,46 @@ ADR：`docs/adr/0016-frontend-align-psm-spa-20260725.md`
 ### PM 注意点
 - `hik-res.res-map` 在当前环境静默失效（framework-starter 的 ResourceMapConfig 未被 Spring 注册），暂不修复
 - PSM 老 SPA 业务功能**完全保留**（报警/缺陷/实时数据），只是入口换成 gate-routing
+
+## 当前状态（2026-07-29 18:26）— W-FRONT-02-D PM 验收通过 ✅
+
+- [x] **W-FRONT-02-A** ✅ PM 验收 15/15 PASS（Vite+Vue3+ElementPlus+Pinia 脚手架）
+- [x] **W-FRONT-02-B** ✅ PM 验收 16/16 PASS（设计 token + 5 玻璃组件）
+- [x] **W-FRONT-02-C** ✅ PM 验收 14/14 PASS（Login.vue + 路由守卫去 PSM hack）
+- [x] **W-FRONT-02-D** ✅ PM 验收 15/15 PASS（主布局 + 8 路由 stub + 三语 i18n + 权限）
+  - 11 新文件 + 3 改：MainLayout/Sidebar/Topbar.vue + 8 stub + permission store + router(8+403)+ i18n(643 keys 三语)
+  - 删 i18n/index.js + router/index.js 避免 Vite 双文件冲突
+  - 守卫三层：satoken → /login / login → /realtime / permission → /403
+  - 实测：登录 → 8 路由可点 + 菜单 active 态 + 三语实时切换 + 未登录访问 → /login
+  - 实测：operator 角色访问 /account → /403（权限守卫验证通过）
+  - 服务状态：Vite dev PID 8164 + 后端 port 80 持续运行，未重启
+
+### 已知边界
+- 实测 #4 reload 瞬时回 /403：Pinia 内存态丢失，E 子单接 `fetchCurrent()` 引导解决
+- 唯一控制台错误是 favicon.ico 404（无害）
+
+## 下一步
+
+- 等老板拍板：派 E1-E8 业务对齐期（每张 1.5h 并行），还是直接拍 F 跳过 E（保留 PSM 老 SPA 仅做整体外观升级）
+- D 完成后整体进度：阶段 2（C/D/F/G0）已完成 C+D，F+G0+G 待派
+- 已知风险：F 子单 vite build 需要把 dist/ 拷到 DataupLoad/web/，会**临时覆盖**方案 X-1 的 gate-routing，需要 F → G0 顺序串行
+
+## 当前状态（2026-07-30 09:42）— E1/E2/E4/E5/E7 完工，E3 retry 重启中
+
+- [x] **E1 实时** ✅ 完工 30min（RealTime.vue 26.6KB + realtime.ts 5.6KB + 1 截图 + report）
+- [x] **E2 报警** ✅ 完工 30min（Alarm.vue 35KB + alarm.ts + ws.ts + 5 截图 + report 17KB），发现 2 个 D-tier bug 待修复
+- [x] **E3 缺陷** ⚠️ retry 第一次 12min 死在数据摸底（output 截断），第二次派"纯写视图"worker（不调研不截图）
+- [x] **E4 账号** ✅ 完工 38min（Account.vue 25KB + account.ts + sha256.ts + 8 截图 + report 13KB），ADR-0014 双重哈希验证全过
+- [x] **E5 配置** ✅ 完工 29min（SystemConfig.vue 29.8KB + systemConfig.ts + 10 截图 + report 7KB）
+- [x] **E6 日志** 🔄 running 17min（INTCO-Thinking）
+- [x] **E7 用户** ✅ 完工 22min（UserManage.vue 28KB + userManage.ts + 4 截图 + report），实测发现 `/web/log/list 500` 已优雅降级
+- [ ] **E8 大屏** 🔄 running 14min（INTCO-Thinking）
+- [ ] **E3 retry** 🔄 running（极简 worker，纯写 Defect.vue）
+- [ ] **D-tier bug 修复工单**待派：Login.vue `code === 200` 检查错（应 `code === 0`）+ fetchCurrent 没把 role 写到 permission store（E2 发现）
+
+## 剩余并发槽：5 - 3 = 2
+
+## PM merge 策略（不变）
+- 8/8 完工 → 写总览 report → 一次性 git add + commit（含 A/B/C/D/E1-E8）
+- D-tier bug 修复 → G 阶段处理
+- F 子单（打包部署） + G0（清理老 SPA） 串行

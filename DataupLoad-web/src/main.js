@@ -41,4 +41,8 @@ app.use(pinia)
 app.use(i18n)
 app.use(ElementPlus)
 
+// W-FRONT-02-C: 加载 axios 全局拦截器（401 → /login）
+// 必须在所有 axios 调用之前导入。
+import('./api/interceptor')
+
 app.mount('#app')
