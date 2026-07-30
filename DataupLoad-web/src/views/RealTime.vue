@@ -217,7 +217,6 @@ import LineListCard from '../components/LineListCard.vue'
 import { useLineStore } from '../stores/line'
 import {
   listAlarm,
-  getRealtimeDetect,
   todayStr,
   nowStr,
   deviceOpenTimeOf,
@@ -225,6 +224,7 @@ import {
   removeFailRateOf,
   type RealtimeDetectData
 } from '../api/realtime'
+import { screenState, subscribeScreen, type ScreenSnapshot } from '../stores/screen'
 
 // ---------------------------------------------------------------------------
 // Store
@@ -239,13 +239,16 @@ const todayAlarmLoading = ref(false)
 
 const chartEl = ref<HTMLDivElement | null>(null)
 let chart: echarts.ECharts | null = null
-let refreshTimer: number | null = null
+let unsubscribeScreen: (() => void) | null = null
 
 const chartColors = {
   plan: '#5ce1ff',     // --accent
   actual: '#5fd97f',   // --success
   defect: '#ff5a5f'    // --danger
 }
+
+// WS 连接状态镜像（顶栏 / 调试用）
+const wsState = computed(() => screenState.wsState)
 
 // 当前选中行的实时数据（每次 refreshRealtimePoint 写入）
 const selectedRealtime = ref<RealtimeDetectData | null>(null)
@@ -504,34 +507,47 @@ async function loadAlarms() {
   }
 }
 
-/** 给当前选中线拉一次实时，打到中栏的"最新点"做高亮 */
-async function refreshRealtimePoint() {
+/**
+ * W-PERF-B：从 WS 快照里挑出当前选中线的实时数据，写入 selectedRealtime。
+ *
+ * 服务端 5s/次 推全量 ScreenDataDTO；前端的 /web/detect/realtime REST 调用彻底去掉。
+ * 首屏进入页面时，若 store 已有快照（来自其他 tab 或上一次会话），subscribeScreen
+ * 会立刻回调一次，首屏渲染 ~0ms。
+ */
+function applySnapshotToSelected(snap: ScreenSnapshot) {
+  if (!snap || !Array.isArray(snap.lines) || snap.lines.length === 0) return
   const cur = currentLine.value
-  if (!cur) {
-    selectedRealtime.value = null
-    return
-  }
-  try {
-    const resp = await getRealtimeDetect({ lineNo: cur.lineNo, faceNo: cur.faceNo })
-    if (resp.success && resp.data) {
-      selectedRealtime.value = resp.data
-    }
-  } catch {
-    // 静默失败
+  if (!cur) return
+  const hit = snap.lines.find((ws) => ws.lineNo === cur.lineNo && ws.faceNo === cur.faceNo)
+  if (!hit || !hit.realTimeDetectData) return
+  const rtd = hit.realTimeDetectData
+  selectedRealtime.value = {
+    total: Number(rtd.total ?? 0),
+    ngCount: Number(rtd.ngCount ?? 0),
+    removeTotal: Number(rtd.removeTotal ?? 0),
+    removeFail: Number(rtd.removeFail ?? 0),
+    efficiency: Number(rtd.efficiency ?? 0),
+    totalNgRate: Number(rtd.totalNgRate ?? 0),
+    occupancy: Number(rtd.occupancy ?? 0),
+    occupancyRate: Number(rtd.occupancyRate ?? 0),
+    startTime: rtd.startTime,
+    defects: Array.isArray(rtd.defects) ? rtd.defects : []
   }
 }
 
-/** 左栏选中变化：刷新该线的实时点 + 重绘图 + 更新表格 */
+/** 左栏选中变化：清旧实时数据；WS 推送会带新选中线的实时过来 */
 function handleLineChange(_lineKey: string) {
   selectedRealtime.value = null  // 切线后先清，避免显示上一条线数据
-  refreshRealtimePoint()
   nextTick(renderChart)
+  // 如果 store 里已有快照，立刻补一次（避免等 5s）
+  if (screenState.snapshot) applySnapshotToSelected(screenState.snapshot)
 }
 
 async function refreshAll() {
   await lineStore.load(true)
   await loadAlarms()
-  await refreshRealtimePoint()
+  // 不再调 /web/detect/realtime；WS 推送会带实时数据过来
+  // 若 WS 还没推送（订阅时 store 也没快照），等下一次推送
   await nextTick()
   renderChart()
 }
@@ -684,21 +700,18 @@ watch(
 onMounted(async () => {
   await lineStore.load(true)
   await loadAlarms()
-  await refreshRealtimePoint()
   await nextTick()
   renderChart()
   window.addEventListener('resize', handleResize)
-  // 每 60s 自动刷新一次 KPI + 实时点
-  refreshTimer = window.setInterval(() => {
-    refreshAll()
-  }, 60_000)
+  // W-PERF-B: 订阅全局 WS 单例，5s/次 推送实时数据，替代原 60s polling
+  unsubscribeScreen = subscribeScreen((snap) => applySnapshotToSelected(snap))
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', handleResize)
-  if (refreshTimer) {
-    window.clearInterval(refreshTimer)
-    refreshTimer = null
+  if (unsubscribeScreen) {
+    try { unsubscribeScreen() } catch { /* ignore */ }
+    unsubscribeScreen = null
   }
   if (chart) {
     chart.dispose()

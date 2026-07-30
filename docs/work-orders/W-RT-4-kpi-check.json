@@ -1,0 +1,23 @@
+{
+  "kpiCheck": {
+    "productTotal": true,
+    "efficiency": true,
+    "occupancy": true,
+    "occupancyRate": true,
+    "failCount": true,
+    "failRate": true,
+    "successCount": true,
+    "removeFailNum": true,
+    "deviceOpenTime": true,
+    "removeTotal": true,
+    "removeFailRate": true
+  },
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 500 ()",
+    "Failed to load resource: the server responded with a status of 404 ()"
+  ],
+  "failedRequests": [
+    "HTTP 500 http://127.0.0.1:8080/favicon.ico",
+    "HTTP 404 http://127.0.0.1:8080/favicon.ico"
+  ]
+}

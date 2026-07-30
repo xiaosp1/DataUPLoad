@@ -60,6 +60,38 @@ export interface RealtimeDetectData {
   occupancyRate: number
   startTime?: string
   defects?: DetectDefect[]
+  // ===== W-RT-4: PSM 多出来字段（后端兜底计算，写入 JSON） =====
+  /** 良品数量 = total - ngCount */
+  successCount?: number
+  /** 剔除失败率 = removeFail / removeTotal * 100（百分比，0 兜底） */
+  removeFailRate?: number
+}
+
+/** 从 startTime (HH:mm:ss) 派生 deviceOpenTime (HH:mm) */
+export function deviceOpenTimeOf(d: RealtimeDetectData | null | undefined): string {
+  if (!d?.startTime) return '--:--'
+  // startTime 形如 "HH:mm:ss" 或 "HH:mm"，取前 5 字符
+  const m = /^(\d{1,2}:\d{2})/.exec(String(d.startTime))
+  return m ? m[1] : d.startTime
+}
+
+/** 良品数量兜底 */
+export function successCountOf(d: RealtimeDetectData | null | undefined): number {
+  if (!d) return 0
+  if (d.successCount !== undefined && d.successCount !== null) return d.successCount
+  const total = Number(d.total || 0)
+  const ng = Number(d.ngCount || 0)
+  return Math.max(0, total - ng)
+}
+
+/** 剔除失败率兜底（百分比） */
+export function removeFailRateOf(d: RealtimeDetectData | null | undefined): number {
+  if (!d) return 0
+  if (d.removeFailRate !== undefined && d.removeFailRate !== null) return d.removeFailRate
+  const rt = Number(d.removeTotal || 0)
+  const rf = Number(d.removeFail || 0)
+  if (rt <= 0) return 0
+  return Math.round((rf / rt) * 10000) / 100
 }
 
 /** 报警条目 */
