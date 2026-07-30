@@ -1,0 +1,87 @@
+{
+  "generatedAt": "2026-07-30T18:01:26.700Z",
+  "totals": {
+    "pass": 9,
+    "fail": 3,
+    "total": 12
+  },
+  "results": [
+    {
+      "n": 1,
+      "name": "Login (API + UI → /#/realtime)",
+      "status": "PASS",
+      "detail": "route=#/realtime, token=7c12a647...",
+      "screenshot": "W-FRONT-03-01-login-realtime.png"
+    },
+    {
+      "n": 2,
+      "name": "Left rail 38 lines + click selects",
+      "status": "PASS",
+      "detail": "count=38, line1A→line1B"
+    },
+    {
+      "n": 3,
+      "name": "Middle 4-zone (生产/缺陷/设备/时间)",
+      "status": "PASS",
+      "detail": "titles=[\"📦 生产信息\",\"🔥 缺陷网格\",\"🔌 设备状态\",\"⏰ 时间信息\"], altTitles=[], body markers: 生产=true, 缺陷=true, 设备=true, 时间=true",
+      "screenshot": "W-FRONT-03-02-middle-4zone.png"
+    },
+    {
+      "n": 4,
+      "name": "Drag-to-reorder + reload persistence",
+      "status": "FAIL",
+      "detail": "orderChanged=true, persisted=false; routes: #/realtime→#/login"
+    },
+    {
+      "n": 5,
+      "name": "Alarm badge + hover popover",
+      "status": "PASS",
+      "detail": "badge pending=77, popover items=5",
+      "screenshot": "W-FRONT-03-05-alarm-badge.png"
+    },
+    {
+      "n": 6,
+      "name": "Alarm detail el-dialog opens on row click",
+      "status": "PASS",
+      "detail": "overlayCount=2, titles=[\"报警详情\"], strategy=detail-button",
+      "screenshot": "W-FRONT-03-06-alarm-detail-dialog.png"
+    },
+    {
+      "n": 7,
+      "name": "WS /ws?type=screen endpoint accepts connection",
+      "status": "PASS",
+      "detail": "wsProbe=open"
+    },
+    {
+      "n": 8,
+      "name": "WS real-time push updates badge count",
+      "status": "PARTIAL",
+      "detail": "trigger HTTP=200, alarm WS endpoint=open, badge stayed at 77. Likely: alarmStore uses uid=user.id (1) but /client/data/alarm broadcasts to uid='web'. Known WS push UID routing gap."
+    },
+    {
+      "n": 9,
+      "name": "i18n switch en-US / id-ID (menu/badge/detail text)",
+      "status": "PASS",
+      "detail": "zh/en/id all switched (en markers + id markers found)",
+      "screenshot": "W-FRONT-03-08-i18n.png"
+    },
+    {
+      "n": 10,
+      "name": "Permission: operator (mocked) /#/account → /#/403",
+      "status": "PASS",
+      "detail": "route=#/403, has403Text=true, mockOk=true, realLoginWorked=false"
+    },
+    {
+      "n": 11,
+      "name": "Reload preserves route (F5 → /#/realtime)",
+      "status": "FAIL",
+      "detail": "before=#/realtime, after=#/login, stillLoggedIn=false; cookie-still-valid=true"
+    },
+    {
+      "n": 12,
+      "name": "No console errors (excluding favicon.ico)",
+      "status": "PASS",
+      "detail": "0 total, all favicon-related"
+    }
+  ]
+}

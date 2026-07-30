@@ -1,0 +1,67 @@
+[2026-07-30T17:59:37.375Z] ===== CHECK #1 LOGIN =====
+[2026-07-30T17:59:42.827Z]   [PASS] #1 Login (API + UI → /#/realtime): route=#/realtime, token=7c12a647...
+[2026-07-30T17:59:42.827Z] ===== CHECK #2 LEFT LIST =====
+[2026-07-30T17:59:46.656Z]   [PASS] #2 Left rail 38 lines + click selects: count=38, line1A→line1B
+[2026-07-30T17:59:46.656Z] ===== CHECK #3 MIDDLE 4-ZONE =====
+[2026-07-30T17:59:50.181Z]   4-zone probe: {"titles":["📦 生产信息","🔥 缺陷网格","🔌 设备状态","⏰ 时间信息"],"altTitles":[],"bodyHas生产":true,"bodyHas缺陷":true,"bodyHas设备":true,"bodyHas时间":true}
+[2026-07-30T17:59:50.920Z]   [PASS] #3 Middle 4-zone (生产/缺陷/设备/时间): titles=["📦 生产信息","🔥 缺陷网格","🔌 设备状态","⏰ 时间信息"], altTitles=[], body markers: 生产=true, 缺陷=true, 设备=true, 时间=true
+[2026-07-30T17:59:50.920Z] ===== CHECK #4 DRAG =====
+[2026-07-30T17:59:52.937Z]   initial first6: ["line1A","line1A","line1B","line1B","line2A","line2A"]
+[2026-07-30T17:59:55.498Z]   after-drop first6: ["line1A","line1B","line1B","line2A","line2A","line1A"]
+[2026-07-30T17:59:59.683Z]   before-reload route=#/realtime, after-reload route=#/login
+[2026-07-30T17:59:59.684Z]   on /#/login, re-logging in
+[2026-07-30T18:00:05.110Z]   after-relogin first6: ["line1A","line1A","line1B","line1B","line2A","line2A"]
+[2026-07-30T18:00:05.732Z]   [FAIL] #4 Drag-to-reorder + reload persistence: orderChanged=true, persisted=false; routes: #/realtime→#/login
+[2026-07-30T18:00:05.732Z] ===== CHECK #5 ALARM BADGE =====
+[2026-07-30T18:00:10.767Z]   badge state: {"badgeExists":true,"badgeRect":{"x":1528,"y":88,"width":48,"height":48,"top":88,"right":1576,"bottom":136,"left":1528},"pendingText":"77"}
+[2026-07-30T18:00:12.206Z]   popover state: {"popoverVisible":true,"itemCount":5}
+[2026-07-30T18:00:14.041Z]   [PASS] #5 Alarm badge + hover popover: badge pending=77, popover items=5
+[2026-07-30T18:00:14.041Z] ===== CHECK #6 ALARM DETAIL DIALOG =====
+[2026-07-30T18:00:23.026Z]   alarm page: rows=33, dialogs=2
+[2026-07-30T18:00:23.071Z]   click result: {"ok":true,"strategy":"detail-button","text":"详情"}
+[2026-07-30T18:00:27.780Z]   [PASS] #6 Alarm detail el-dialog opens on row click: overlayCount=2, titles=["报警详情"], strategy=detail-button
+[2026-07-30T18:00:27.788Z] ===== CHECK #7 WS CONNECTION =====
+[2026-07-30T18:00:29.816Z]   ws probe: {"wsProbe":"open"}
+[2026-07-30T18:00:29.816Z]   [PASS] #7 WS /ws?type=screen endpoint accepts connection: wsProbe=open
+[2026-07-30T18:00:29.816Z] ===== CHECK #8 WS REALTIME PUSH =====
+[2026-07-30T18:00:33.345Z]   alarm WS endpoint probe: {"probe":"open"}
+[2026-07-30T18:00:33.348Z]   before badge count: 77
+[2026-07-30T18:00:33.381Z]   trigger result: HTTP 200 {"success":true,"code":0}
+[2026-07-30T18:00:54.675Z]   after badge count: 77
+[2026-07-30T18:00:56.634Z]   [PARTIAL] #8 WS real-time push updates badge count: trigger HTTP=200, alarm WS endpoint=open, badge stayed at 77. Likely: alarmStore uses uid=user.id (1) but /client/data/alarm broadcasts to uid='web'. Known WS push UID routing gap.
+[2026-07-30T18:00:56.634Z] ===== CHECK #9 i18n SWITCH =====
+[2026-07-30T18:01:00.716Z]   switch en-US: {"ok":true}
+[2026-07-30T18:01:02.791Z]   switch id-ID: {"ok":true}
+[2026-07-30T18:01:06.561Z]   zh body[0:120]: ▣ DataupLoad v2 实时监控 ▣ 实时数据 ⚠ 报警管理 ✕ 缺陷处理 系统管理 ☷ 账号管理 ⚙ 系统配置 ⌘ 操作日志 ◉ 用户管理 欢迎 首页 / 实时数据 简体中文 ⤢ S super_admin 超级管理员 ▾ 实时数
+[2026-07-30T18:01:06.561Z]   en body[0:120]: ▣ DataupLoad v2 MONITORING ▣ Realtime Data ⚠ Alarms ✕ Defects SYSTEM ☷ Accounts ⚙ System Config ⌘ Audit Logs ◉ Users Wel
+[2026-07-30T18:01:06.562Z]   id body[0:120]: ▣ DataupLoad v2 PEMANTAUAN ▣ Data Realtime ⚠ Manajemen Alarm ✕ Penanganan Cacat SISTEM ☷ Manajemen Akun ⚙ Konfigurasi Si
+[2026-07-30T18:01:06.562Z]   enHasEnglish=true, idHasIndonesian=true
+[2026-07-30T18:01:06.562Z]   [PASS] #9 i18n switch en-US / id-ID (menu/badge/detail text): zh/en/id all switched (en markers + id markers found)
+[2026-07-30T18:01:06.562Z] ===== CHECK #10 PERMISSION =====
+[2026-07-30T18:01:06.843Z]   operator API login: failed ({"success":false,"code":10101,"message":"用户名或密码错误"})
+[2026-07-30T18:01:13.371Z]   mock role override: {"ok":true,"role":"operator","codes":["log"]}
+[2026-07-30T18:01:16.407Z]   operator after /#/account → route=#/403
+[2026-07-30T18:01:16.407Z]   op body[0:200]: 403 禁止访问 您没有权限访问该页面 请联系管理员申请相应权限，或返回首页。 肖升平 16653658509 返回首页
+[2026-07-30T18:01:17.477Z]   [PASS] #10 Permission: operator (mocked) /#/account → /#/403: route=#/403, has403Text=true, mockOk=true, realLoginWorked=false
+[2026-07-30T18:01:17.484Z] ===== CHECK #11 RELOAD PRESERVES ROUTE =====
+[2026-07-30T18:01:19.507Z]   before reload: #/realtime
+[2026-07-30T18:01:25.157Z]   [FAIL] #11 Reload preserves route (F5 → /#/realtime): before=#/realtime, after=#/login, stillLoggedIn=false; cookie-still-valid=true
+[2026-07-30T18:01:25.157Z] ===== CHECK #12 CONSOLE ERRORS =====
+[2026-07-30T18:01:25.157Z]   total console errors: 0, after filter: 0
+[2026-07-30T18:01:25.947Z]   [PASS] #12 No console errors (excluding favicon.ico): 0 total, all favicon-related
+[2026-07-30T18:01:26.699Z] 
+[2026-07-30T18:01:26.700Z] ===== VERIFICATION SUMMARY =====
+[2026-07-30T18:01:26.700Z]   #1 PASS: Login (API + UI → /#/realtime)
+[2026-07-30T18:01:26.700Z]   #2 PASS: Left rail 38 lines + click selects
+[2026-07-30T18:01:26.700Z]   #3 PASS: Middle 4-zone (生产/缺陷/设备/时间)
+[2026-07-30T18:01:26.700Z]   #4 FAIL: Drag-to-reorder + reload persistence
+[2026-07-30T18:01:26.700Z]   #5 PASS: Alarm badge + hover popover
+[2026-07-30T18:01:26.700Z]   #6 PASS: Alarm detail el-dialog opens on row click
+[2026-07-30T18:01:26.700Z]   #7 PASS: WS /ws?type=screen endpoint accepts connection
+[2026-07-30T18:01:26.700Z]   #8 PARTIAL: WS real-time push updates badge count
+[2026-07-30T18:01:26.700Z]   #9 PASS: i18n switch en-US / id-ID (menu/badge/detail text)
+[2026-07-30T18:01:26.700Z]   #10 PASS: Permission: operator (mocked) /#/account → /#/403
+[2026-07-30T18:01:26.700Z]   #11 FAIL: Reload preserves route (F5 → /#/realtime)
+[2026-07-30T18:01:26.700Z]   #12 PASS: No console errors (excluding favicon.ico)
+[2026-07-30T18:01:26.700Z] TOTAL: 9 PASS, 3 FAIL (out of 12)
+[2026-07-30T18:01:26.704Z] JSON results: E:\DEMO\数据采集\docs\work-orders\W-FRONT-03-results.json
