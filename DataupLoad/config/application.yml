@@ -11,6 +11,14 @@ spring:
     active: prod
   application:
     name: DataupLoad
+  # W-PERF-E：HTTP UTF-8 编码修复（中文乱码）
+  # StringHttpMessageConverter / 资源文件读取强制 UTF-8，
+  # 与 server.servlet.encoding 互为兜底。
+  http:
+    encoding:
+      charset: UTF-8
+      force: true
+      enabled: true
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
