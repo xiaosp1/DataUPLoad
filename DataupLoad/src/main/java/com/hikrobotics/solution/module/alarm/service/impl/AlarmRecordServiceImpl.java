@@ -400,6 +400,19 @@ public class AlarmRecordServiceImpl extends ServiceImpl<AlarmRecordMapper, Alarm
     * PM 锋卫 2026-07-23 14:25 派工：入口先判 {@code alarm.global-enabled}（默认 true）。
     * 当 {@code false} 时报警直接 return {@code BaseResult.build().ok()}，既不落 PG 也不推 yk / WebSocket；
     * 用于老板紧急关停（老板指令时 PM 派工单改 {@code alarm.global-enabled: false}）。
+    *
+    * <h2>W-DEFECT-CFG 子单 B — 细粒度推送开关</h2>
+    * <p>
+    * 原版仅在 {@code isInterestingDefect=true}（即报警消息包含已知缺陷名）时才推 WS / yk，
+    * 其余系统/设备/未登记缺陷报警一律 drop。
+    * 本工单按任务简报要求：
+    * <ul>
+    *   <li>**始终保存** alarm_record（让"破洞未登记的设备告警"也有据可查）；</li>
+    *   <li>查 {@code defect_type} by (defectName, type)；</li>
+    *   <li>未找到：使用默认行为（推大屏 + 推声音，**不**推英科）；</li>
+    *   <li>找到：按 alarm_enable / send_yk_enable / sound_enable 决定推不推；</li>
+    *   <li>把 3 个布尔塞进 {@link PushAlarmEvent}，让 YK 订阅者按 ykPublish 决定是否真推。</li>
+    * </ul>
     */
    @Override
    public BaseResult add(AlarmDTO form) {
@@ -415,63 +428,121 @@ public class AlarmRecordServiceImpl extends ServiceImpl<AlarmRecordMapper, Alarm
 
       Map<String, DefectType> sortDefectTypeByName = Maps.newHashMap();
       this.defectTypeService.listByAttribute(form.getType(), DefectType::getCategory).forEach(type -> sortDefectTypeByName.put(type.getName(), type));
-      boolean isInterestingDefect = false;
-      if (CollectionUtils.isNotEmpty(sortDefectTypeByName)) {
-         String message = form.getMessage();
-         String defectName = null;
+      String message = form.getMessage();
+      String defectName = null;
 
-         for (DefectAlarmConfig.DefectTypeConfig config : this.alarmConfig.getConfig()) {
-            if (config.getType().toUpperCase().equals(alarmType.name())) {
-               message = ReUtil.get(config.getTemplate(), form.getMessage(), 0);
+      for (DefectAlarmConfig.DefectTypeConfig config : this.alarmConfig.getConfig()) {
+         if (config.getType().toUpperCase().equals(alarmType.name())) {
+            message = ReUtil.get(config.getTemplate(), form.getMessage(), 0);
 
-               for (String name : sortDefectTypeByName.keySet()) {
-                  if (message.contains(name)) {
-                     defectName = name;
-                     if (alarmType == AlarmTypeEnum.DEFECT) {
-                        message = StrUtil.format(DEFECT_ALARM_MSG_TEMP, defectName);
-                     }
-                     isInterestingDefect = true;
-                     break;
+            for (String name : sortDefectTypeByName.keySet()) {
+               if (message.contains(name)) {
+                  defectName = name;
+                  if (alarmType == AlarmTypeEnum.DEFECT) {
+                     message = StrUtil.format(DEFECT_ALARM_MSG_TEMP, defectName);
                   }
+                  break;
                }
             }
          }
-
-         if (isInterestingDefect) {
-            // 把同一 (defectName + lineNo + faceNo + type) 下未处理的旧报警置为已忽略
-            LambdaUpdateWrapper<AlarmRecord> uw = Wrappers.<AlarmRecord>lambdaUpdate()
-               .eq(AlarmRecord::getDefectName, defectName)
-               .eq(AlarmRecord::getLineNo, form.getLineNo())
-               .eq(AlarmRecord::getType, form.getType())
-               .eq(AlarmRecord::getFaceNo, form.getFaceNo())
-               .eq(AlarmRecord::getSolve, AlarmSolvedEnum.UNSOLVED.getValue())
-               .set(AlarmRecord::getSolve, AlarmSolvedEnum.IGNORE.getValue());
-            this.update(uw);
-
-            AlarmRecord alarm = BeanUtil.copyProperties(form, AlarmRecord.class);
-            alarm.setSolve(AlarmSolvedEnum.UNSOLVED.getValue())
-               .setMessage(message)
-               .setDefectName(defectName);
-            alarm.setDefectType(sortDefectTypeByName.get(defectName));
-            this.save(alarm);
-            this.sendAlarmMessage(alarm);
-         }
       }
 
-      if (!isInterestingDefect) {
-         log.warn("current alarm is not interesting defect.[form={}]", form);
+      // ====== W-DEFECT-CFG 子单 B：按 (defectName, type) 查 defect_type 决定 3 个推送开关 ======
+      // 与 listByAttribute 不同：直接 (name, type) 二元组精确查询。
+      // 若 defectName 为 null（系统/设备报警或非已登记缺陷），按"查不到"处理 → 默认行为。
+      DefectType defectType = defectName == null
+         ? null
+         : this.defectTypeService.getByNameAndType(defectName, form.getType());
+
+      // screenPublish：默认 true（向前兼容 PSM 老行为）；找到时按 alarm_enable
+      boolean screenPublish = (defectType == null) || Objects.equals(defectType.getAlarmEnable(), StateEnum.YES.getValue());
+      // ykPublish：默认 false（向前兼容 PSM 老行为：不推英科，安全默认）；找到时按 send_yk_enable
+      boolean ykPublish = defectType != null && Objects.equals(defectType.getSendYkEnable(), StateEnum.YES.getValue());
+      // soundPublish：默认 true（向前兼容 PSM 老行为）；找到时按 sound_enable
+      boolean soundPublish = (defectType == null) || Objects.equals(defectType.getSoundEnable(), StateEnum.YES.getValue());
+
+      if (defectName != null) {
+         // 把同一 (defectName + lineNo + faceNo + type) 下未处理的旧报警置为已忽略（仅对已知缺陷去重）
+         LambdaUpdateWrapper<AlarmRecord> uw = Wrappers.<AlarmRecord>lambdaUpdate()
+            .eq(AlarmRecord::getDefectName, defectName)
+            .eq(AlarmRecord::getLineNo, form.getLineNo())
+            .eq(AlarmRecord::getType, form.getType())
+            .eq(AlarmRecord::getFaceNo, form.getFaceNo())
+            .eq(AlarmRecord::getSolve, AlarmSolvedEnum.UNSOLVED.getValue())
+            .set(AlarmRecord::getSolve, AlarmSolvedEnum.IGNORE.getValue());
+         this.update(uw);
+      }
+
+      AlarmRecord alarm = BeanUtil.copyProperties(form, AlarmRecord.class);
+      alarm.setSolve(AlarmSolvedEnum.UNSOLVED.getValue())
+         .setMessage(message)
+         .setDefectName(defectName);
+      alarm.setDefectType(defectType);
+      this.save(alarm);
+
+      // sendAlarmMessage 内部根据 screenPublish/soundPublish/ykPublish 决定推送
+      this.sendAlarmMessage(alarm, screenPublish, ykPublish, soundPublish);
+
+      if (defectName == null) {
+         log.warn("alarm has no matched defect_name, using default push.[form={}, screenPublish={}, ykPublish={}, soundPublish={}]",
+            form, screenPublish, ykPublish, soundPublish);
+      } else if (defectType == null) {
+         log.warn("defect_type not configured for (name={}, type={}), using default push.[screenPublish={}, ykPublish={}, soundPublish={}]",
+            defectName, form.getType(), screenPublish, ykPublish, soundPublish);
+      } else {
+         log.info("alarm pushed with fine-grained flags.[name={}, type={}, screenPublish={}, ykPublish={}, soundPublish={}]",
+            defectName, form.getType(), screenPublish, ykPublish, soundPublish);
       }
       return BaseResult.build();
    }
 
    /**
-    * 报警发送 / 推送 yk（PSM sendAlarmMessage + isIgnore BUG 修复）。
+    * 报警发送 / 推送 yk（PSM sendAlarmMessage + isIgnore BUG 修复 + W-DEFECT-CFG 子单 B 细粒度推送）。
     * <p>
     * DataupLoad 修复点：调用 {@link IIgnoreAlarmService#isIgnore(Integer, String, String, String)}
     * 实际查询 ignore_alarm 表，而非 PSM 原版硬编码 {@code boolean isIgnore = false;}。
+    *
+    * <h2>W-DEFECT-CFG 子单 B — 细粒度推送开关</h2>
+    * <p>
+    * 三个开关 {@code screenPublish / ykPublish / soundPublish} 已由 {@link #add(AlarmDTO)}
+    * 算好（基于 defect_type 查表 + 默认值兜底），本方法只负责按开关放行：
+    * <ul>
+    *   <li>{@code screenPublish=true} → 调 {@link #sendAlarmTextMessage()} 推大屏</li>
+    *   <li>{@code soundPublish=true} + UNSOLVED → 调 {@link #sendAlarmSoundWsMessage(int)} 推声音</li>
+    *   <li>{@code ykPublish=true} → 发布 {@link PushAlarmEvent}，由 YK 订阅者按 {@code yk.uploadEnabled} 二次放行</li>
+    * </ul>
+    *
+    * <p>isIgnore（白名单）逻辑保留：被忽略的报警**不**推大屏 + 声音 + 英科，仍记录 alarm_record。</p>
+    *
+    * <p>{@link #deal(String)} 链路调用本方法（无参三开关）时，使用
+    * {@code screenPublish=true / ykPublish=defectType.sendYkEnable / soundPublish=defectType.soundEnable}，
+    * 与 PSM 原版行为 1:1 对齐。</p>
     */
    @Override
    public void sendAlarmMessage(AlarmRecord alarm) {
+      // 无参版本：按 defectType 直查（保持 PSM 兼容，deal() 链路沿用）
+      DefectType defectType = alarm.getDefectType();
+      boolean screenPublish = defectType != null
+         && Objects.equals(defectType.getAlarmEnable(), StateEnum.YES.getValue());
+      boolean ykPublish = defectType != null
+         && Objects.equals(defectType.getSendYkEnable(), StateEnum.YES.getValue());
+      boolean soundPublish = defectType != null
+         && Objects.equals(defectType.getSoundEnable(), StateEnum.YES.getValue());
+      this.sendAlarmMessage(alarm, screenPublish, ykPublish, soundPublish);
+   }
+
+   /**
+    * W-DEFECT-CFG 子单 B：3 个布尔由 {@link #add(AlarmDTO)} 算出后传入，按开关放行。
+    *
+    * <p>为什么把判定放 add() 而非 sendAlarmMessage？add() 是入口，能同时拿到
+    * (defectName, type) → getByNameAndType(...) 的查表结果；sendAlarmMessage
+    * 也可独立查 defect_type（deal() 链路复用），但 add() 已经查过，传进来避免
+    * 二次查询浪费 + 双源不一致（前端刚改 alarm_enable=0，缓存里可能还是老值）。</p>
+    */
+   public void sendAlarmMessage(AlarmRecord alarm,
+                                boolean screenPublish,
+                                boolean ykPublish,
+                                boolean soundPublish) {
       DefectType defectType = alarm.getDefectType();
       // ====== W-B04 BUG FIX START ======
       // PSM 反编译产物：boolean isIgnore = false; ← 白名单永远失效
@@ -479,24 +550,28 @@ public class AlarmRecordServiceImpl extends ServiceImpl<AlarmRecordMapper, Alarm
       boolean isIgnore = this.ignoreAlarmService.isIgnore(
          alarm.getType(), alarm.getDefectName(), alarm.getLineNo(), alarm.getFaceNo());
       // ====== W-B04 BUG FIX END ======
-      if (defectType != null
-         && Objects.equals(defectType.getAlarmEnable(), StateEnum.YES.getValue())
-         && !isIgnore) {
+
+      if (screenPublish && !isIgnore) {
          this.sendAlarmTextMessage();
-         if (Objects.equals(defectType.getSoundEnable(), StateEnum.YES.getValue())
+         if (soundPublish
             && Objects.equals(alarm.getSolve(), AlarmSolvedEnum.UNSOLVED.getValue())) {
-            // ====== W-ALM-05：激活 soundEnable 推送分支 ======
+            // ====== W-ALM-05 + W-DEFECT-CFG：soundPublish 决定是否推声音 ======
             // 之前（W-ALM-02）：log.debug 跳过（system_config 未启用）。
-            // 现在：直接调 sendAlarmSoundWsMessage，uri/interval/playCount 走 AlarmConstants 兜底。
-            // defectType 自身仅作"是否推送"的开关；推送内容来自 Constants，避免引入 ISystemConfigService。
+            // 现在：soundPublish=true 时调 sendAlarmSoundWsMessage，uri/interval/playCount 走 AlarmConstants 兜底。
             this.sendAlarmSoundWsMessage(AlarmConstants.SOUND_PLAY_DEFAULT_COUNT);
          }
+      } else if (soundPublish
+         && !screenPublish
+         && Objects.equals(alarm.getSolve(), AlarmSolvedEnum.UNSOLVED.getValue())) {
+         // soundPublish 单独开启的边角：若 PSM 老版本兼容到此分支，仍推声音（不依赖 screenPublish）
+         this.sendAlarmSoundWsMessage(AlarmConstants.SOUND_PLAY_DEFAULT_COUNT);
       }
 
-      if (!isIgnore
-         && defectType != null
-         && Objects.equals(defectType.getSendYkEnable(), StateEnum.YES.getValue())) {
-         EventUtil.publish(new PushAlarmEvent(this, alarm));
+      if (!isIgnore && ykPublish) {
+         EventUtil.publish(new PushAlarmEvent(this, alarm,
+            Boolean.valueOf(screenPublish),
+            Boolean.valueOf(ykPublish),
+            Boolean.valueOf(soundPublish)));
       }
    }
 
