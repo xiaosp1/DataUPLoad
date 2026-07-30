@@ -1,153 +1,194 @@
 <template>
   <GlassPage :title="$t('realtime.title')" :subtitle="$t('realtime.subtitle')">
-    <!-- ====== 顶部 KPI 4 卡 ====== -->
-    <div class="realtime-kpi-row">
-      <GlassCard
-        v-for="(kpi, idx) in kpiCards"
-        :key="kpi.key"
-        class="realtime-kpi"
-        :hover="true"
-      >
-        <div class="realtime-kpi__inner" :data-tone="kpi.tone">
-          <div class="realtime-kpi__head">
-            <span class="realtime-kpi__label">{{ kpi.label }}</span>
-            <span class="realtime-kpi__icon" v-html="kpi.icon" />
-          </div>
-          <div class="realtime-kpi__value">
-            <template v-if="kpi.loading">
-              <span class="realtime-kpi__skeleton">···</span>
-            </template>
-            <template v-else>
-              <span class="realtime-kpi__num">{{ kpi.value }}</span>
-              <span v-if="kpi.unit" class="realtime-kpi__unit">{{ kpi.unit }}</span>
-            </template>
-          </div>
-          <div class="realtime-kpi__hint">
-            <template v-if="kpi.loading">—</template>
-            <template v-else>{{ kpi.hint }}</template>
-          </div>
-        </div>
-      </GlassCard>
-    </div>
+    <!--
+      W-RT-2 主布局
+        左侧 280px:  LineListCard 线别列表卡片（玻璃风）
+        中栏 1fr:    KPI 4 卡 + 折线图 + 线别状态表（数据随 leftCard selected 切换）
+    -->
+    <div class="realtime-layout">
+      <!-- ====== 左栏：线别列表 ====== -->
+      <aside class="realtime-layout__left">
+        <LineListCard @line-change="handleLineChange" />
+      </aside>
 
-    <!-- ====== 中间折线图 ====== -->
-    <GlassCard class="realtime-chart-card">
-      <div class="realtime-chart__header">
-        <div>
-          <h3 class="realtime-chart__title">{{ $t('realtime.chart.title') }}</h3>
-          <p class="realtime-chart__sub">{{ chartSubtitle }}</p>
-        </div>
-        <div class="realtime-chart__controls">
-          <el-select
-            v-model="selectedLineIds"
-            multiple
-            collapse-tags
-            collapse-tags-tooltip
-            :placeholder="$t('realtime.chart.allLines')"
-            class="realtime-chart__select"
-            size="default"
-            :max-collapse-tags="2"
-            @change="handleLineChange"
+      <!-- ====== 中栏：KPI / 图表 / 表格 ====== -->
+      <div class="realtime-layout__main">
+        <!-- ====== 顶部 KPI 8 卡（W-RT-4：PSM 实时页 全部字段） ====== -->
+        <div class="realtime-kpi-row">
+          <GlassCard
+            v-for="(kpi, idx) in kpiCards"
+            :key="kpi.key"
+            class="realtime-kpi"
+            :hover="true"
           >
-            <el-option
-              v-for="line in lines"
-              :key="line.id"
-              :label="lineLabel(line)"
-              :value="line.id"
-            />
-          </el-select>
-          <GlassButton variant="default" size="small" @click="refreshAll">
-            {{ $t('common.refresh') }}
-          </GlassButton>
-        </div>
-      </div>
-
-      <!-- 图例手动呈现，让玻璃风更顺 -->
-      <div class="realtime-chart__legend">
-        <span class="realtime-chart__legend-item">
-          <span class="dot" :style="{ background: chartColors.plan }" />
-          {{ $t('realtime.chart.plan') }}
-        </span>
-        <span class="realtime-chart__legend-item">
-          <span class="dot" :style="{ background: chartColors.actual }" />
-          {{ $t('realtime.chart.actual') }}
-        </span>
-        <span class="realtime-chart__legend-item">
-          <span class="dot" :style="{ background: chartColors.defect }" />
-          {{ $t('realtime.chart.defect') }}
-        </span>
-      </div>
-
-      <div ref="chartEl" class="realtime-chart__canvas" />
-
-      <div v-if="chartEmpty" class="realtime-chart__empty">
-        <span class="realtime-chart__empty-icon">📭</span>
-        <span>{{ $t('common.noData') || '暂无数据' }}</span>
-      </div>
-    </GlassCard>
-
-    <!-- ====== 底部线别状态表 ====== -->
-    <GlassCard class="realtime-table-card">
-      <div class="realtime-table__header">
-        <h3 class="realtime-table__title">{{ $t('realtime.table.title') }}</h3>
-        <span class="realtime-table__count">
-          {{ $t('realtime.table.total') }}: <b>{{ tableRows.length }}</b>
-        </span>
-      </div>
-
-      <GlassTable v-if="tableRows.length > 0" :data="tableRows" stripe>
-        <el-table-column :label="$t('realtime.table.line')" min-width="160">
-          <template #default="{ row }">
-            <div class="line-cell">
-              <span class="line-cell__bullet" :data-state="row.stateKey" />
-              <div class="line-cell__meta">
-                <span class="line-cell__name">{{ row.lineName }}</span>
-                <span class="line-cell__sub">{{ row.lineNo }}:{{ row.faceNo }}</span>
+            <div class="realtime-kpi__inner" :data-tone="kpi.tone">
+              <div class="realtime-kpi__head">
+                <span class="realtime-kpi__label">{{ kpi.label }}</span>
+                <span class="realtime-kpi__icon" v-html="kpi.icon" />
+              </div>
+              <div class="realtime-kpi__value">
+                <template v-if="kpi.loading">
+                  <span class="realtime-kpi__skeleton">···</span>
+                </template>
+                <template v-else>
+                  <span class="realtime-kpi__num">{{ kpi.value }}</span>
+                  <span v-if="kpi.unit" class="realtime-kpi__unit">{{ kpi.unit }}</span>
+                </template>
+              </div>
+              <div class="realtime-kpi__hint">
+                <template v-if="kpi.loading">—</template>
+                <template v-else>{{ kpi.hint }}</template>
               </div>
             </div>
-          </template>
-        </el-table-column>
-        <el-table-column :label="$t('realtime.table.status')" width="120">
-          <template #default="{ row }">
-            <span class="state-pill" :data-state="row.stateKey">{{ row.stateLabel }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column :label="$t('realtime.table.output')" width="120" align="right">
-          <template #default="{ row }">
-            <span class="num-cell">{{ formatNum(row.output) }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column :label="$t('realtime.table.defect')" width="120" align="right">
-          <template #default="{ row }">
-            <span class="num-cell num-cell--danger">{{ formatNum(row.defect) }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column :label="$t('realtime.table.progress')" min-width="220">
-          <template #default="{ row }">
-            <div class="progress-cell">
-              <el-progress
-                :percentage="row.progressPercent"
-                :stroke-width="8"
-                :show-text="false"
-                :color="progressColor(row.progressPercent)"
-              />
-              <span class="progress-cell__num">{{ row.progressPercent }}%</span>
-            </div>
-          </template>
-        </el-table-column>
-      </GlassTable>
+          </GlassCard>
+        </div>
 
-      <div v-else class="realtime-table__empty">
-        <span class="realtime-table__empty-icon">📭</span>
-        <span>{{ $t('common.noData') || '暂无数据' }}</span>
+        <!-- ====== 开机时间 宽卡（全宽 1 行 + 剔除总数/剔除失败率 子指标） ====== -->
+        <GlassCard class="realtime-kpi realtime-kpi--wide" :hover="true">
+          <div class="realtime-kpi-wide" :data-tone="deviceOpenTimeCard.tone">
+            <div class="realtime-kpi-wide__head">
+              <span class="realtime-kpi-wide__label">
+                <span class="realtime-kpi-wide__icon">⏱️</span>
+                {{ deviceOpenTimeCard.label }}
+              </span>
+              <span class="realtime-kpi-wide__line">{{ deviceOpenTimeCard.lineLabel }}</span>
+            </div>
+            <div class="realtime-kpi-wide__body">
+              <template v-if="deviceOpenTimeCard.loading">
+                <span class="realtime-kpi-wide__skeleton">···</span>
+              </template>
+              <template v-else>
+                <div class="realtime-kpi-wide__clock">
+                  <span class="realtime-kpi-wide__num">{{ deviceOpenTimeCard.time }}</span>
+                </div>
+                <div class="realtime-kpi-wide__sub">
+                  <div class="realtime-kpi-wide__sub-item">
+                    <span class="realtime-kpi-wide__sub-label">{{ $t('realtime.kpi.removeTotal') }}</span>
+                    <span class="realtime-kpi-wide__sub-val">{{ formatNum(deviceOpenTimeCard.removeTotal) }}</span>
+                    <span class="realtime-kpi-wide__sub-unit">pcs</span>
+                  </div>
+                  <div class="realtime-kpi-wide__sub-item">
+                    <span class="realtime-kpi-wide__sub-label">{{ $t('realtime.kpi.removeFailRate') }}</span>
+                    <span class="realtime-kpi-wide__sub-val">{{ deviceOpenTimeCard.removeFailRate.toFixed(2) }}</span>
+                    <span class="realtime-kpi-wide__sub-unit">%</span>
+                  </div>
+                  <div class="realtime-kpi-wide__sub-item">
+                    <span class="realtime-kpi-wide__sub-label">{{ $t('realtime.kpi.removeFailNum') }}</span>
+                    <span class="realtime-kpi-wide__sub-val">{{ formatNum(deviceOpenTimeCard.removeFail) }}</span>
+                    <span class="realtime-kpi-wide__sub-unit">pcs</span>
+                  </div>
+                </div>
+              </template>
+            </div>
+            <div class="realtime-kpi__hint">
+              <template v-if="deviceOpenTimeCard.loading">—</template>
+              <template v-else>{{ deviceOpenTimeCard.hint }}</template>
+            </div>
+          </div>
+        </GlassCard>
+
+        <!-- ====== 中间折线图 ====== -->
+        <GlassCard class="realtime-chart-card">
+          <div class="realtime-chart__header">
+            <div>
+              <h3 class="realtime-chart__title">{{ $t('realtime.chart.title') }}</h3>
+              <p class="realtime-chart__sub">{{ chartSubtitle }}</p>
+            </div>
+            <div class="realtime-chart__controls">
+              <GlassButton variant="default" size="small" @click="refreshAll">
+                {{ $t('common.refresh') }}
+              </GlassButton>
+            </div>
+          </div>
+
+          <!-- 图例手动呈现，让玻璃风更顺 -->
+          <div class="realtime-chart__legend">
+            <span class="realtime-chart__legend-item">
+              <span class="dot" :style="{ background: chartColors.plan }" />
+              {{ $t('realtime.chart.plan') }}
+            </span>
+            <span class="realtime-chart__legend-item">
+              <span class="dot" :style="{ background: chartColors.actual }" />
+              {{ $t('realtime.chart.actual') }}
+            </span>
+            <span class="realtime-chart__legend-item">
+              <span class="dot" :style="{ background: chartColors.defect }" />
+              {{ $t('realtime.chart.defect') }}
+            </span>
+          </div>
+
+          <div ref="chartEl" class="realtime-chart__canvas" />
+
+          <div v-if="chartEmpty" class="realtime-chart__empty">
+            <span class="realtime-chart__empty-icon">📭</span>
+            <span>{{ $t('common.noData') || '暂无数据' }}</span>
+          </div>
+        </GlassCard>
+
+        <!-- ====== 底部线别状态表 ====== -->
+        <GlassCard class="realtime-table-card">
+          <div class="realtime-table__header">
+            <h3 class="realtime-table__title">{{ $t('realtime.table.title') }}</h3>
+            <span class="realtime-table__count">
+              {{ $t('realtime.table.total') }}: <b>{{ tableRows.length }}</b>
+            </span>
+          </div>
+
+          <GlassTable v-if="tableRows.length > 0" :data="tableRows" stripe>
+            <el-table-column :label="$t('realtime.table.line')" min-width="160">
+              <template #default="{ row }">
+                <div class="line-cell">
+                  <span class="line-cell__bullet" :data-state="row.stateKey" />
+                  <div class="line-cell__meta">
+                    <span class="line-cell__name">{{ row.lineName }}</span>
+                    <span class="line-cell__sub">{{ row.lineNo }}:{{ row.faceNo }}</span>
+                  </div>
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column :label="$t('realtime.table.status')" width="120">
+              <template #default="{ row }">
+                <span class="state-pill" :data-state="row.stateKey">{{ row.stateLabel }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column :label="$t('realtime.table.output')" width="120" align="right">
+              <template #default="{ row }">
+                <span class="num-cell">{{ formatNum(row.output) }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column :label="$t('realtime.table.defect')" width="120" align="right">
+              <template #default="{ row }">
+                <span class="num-cell num-cell--danger">{{ formatNum(row.defect) }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column :label="$t('realtime.table.progress')" min-width="220">
+              <template #default="{ row }">
+                <div class="progress-cell">
+                  <el-progress
+                    :percentage="row.progressPercent"
+                    :stroke-width="8"
+                    :show-text="false"
+                    :color="progressColor(row.progressPercent)"
+                  />
+                  <span class="progress-cell__num">{{ row.progressPercent }}%</span>
+                </div>
+              </template>
+            </el-table-column>
+          </GlassTable>
+
+          <div v-else class="realtime-table__empty">
+            <span class="realtime-table__empty-icon">📭</span>
+            <span>{{ $t('common.noData') || '暂无数据' }}</span>
+          </div>
+        </GlassCard>
       </div>
-    </GlassCard>
+    </div>
   </GlassPage>
 </template>
 
 <script setup lang="ts">
 // =============================================================================
-// W-FRONT-02-E1 实时数据看板业务实现
+// W-FRONT-02-E1 实时数据看板业务实现 (W-RT-2: 接入左侧线别卡片)
 //
 // 数据源（后端真实端点，已 curl 验证）：
 //   - GET /web/line/list                  → 线别列表 + realtimeData(JSON 字符串)
@@ -155,9 +196,15 @@
 //   - GET /web/plan?pageNum=&pageSize=    → 当日计划（分页）
 //   - GET /web/alarm/list?pageNum=&pageSize= → 当日报警（分页）
 //
-// 折线图数据来源：聚合 /web/line/list.realtimeData 的 total/ngCount/efficiency，
-// 再叠加 24 个 5 分钟点的伪时序（用 detect/realtime 单次快照填充整条曲线 + 当下节点），
-// 保证画面稳定可见；同时调 /web/detect/realtime 给"最近一个点"打实时高亮。
+// 折线图数据来源：聚合选中线的 realtime.total/ngCount/efficiency，
+// 用 detect/realtime 单次快照 + 24 个 5 分钟点的伪时序（让画面稳定可见），
+// 同时调 /web/detect/realtime 给"最近一个点"打实时高亮。
+//
+// W-RT-2 改动：
+//   - 左栏新增 LineListCard，store 用 lineStore
+//   - 选中切换时，KPI / chart / table 全部走 lineStore.selectedLine 单线数据
+//   - 顶部 "全部线别" KPI（在线线别 / 聚合产量 / 聚合缺陷）改为当前选中线
+//   - 报警 KPI 仍走全量 /web/alarm/list（不绑线，跨线 KPI）
 // =============================================================================
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
@@ -166,34 +213,27 @@ import GlassPage from '../components/GlassPage.vue'
 import GlassCard from '../components/GlassCard.vue'
 import GlassTable from '../components/GlassTable.vue'
 import GlassButton from '../components/GlassButton.vue'
+import LineListCard from '../components/LineListCard.vue'
+import { useLineStore } from '../stores/line'
 import {
-  listLine,
   listAlarm,
   getRealtimeDetect,
-  parseRealtimeData,
   todayStr,
   nowStr,
-  type LineItem,
+  deviceOpenTimeOf,
+  successCountOf,
+  removeFailRateOf,
   type RealtimeDetectData
 } from '../api/realtime'
 
 // ---------------------------------------------------------------------------
+// Store
+// ---------------------------------------------------------------------------
+const lineStore = useLineStore()
+
+// ---------------------------------------------------------------------------
 // 状态
 // ---------------------------------------------------------------------------
-interface UiLine {
-  id: number
-  name: string
-  lineNo: string
-  faceNo: string
-  realtime: RealtimeDetectData | null
-  raw: LineItem
-}
-
-const lines = ref<UiLine[]>([])
-const linesLoading = ref(false)
-
-const selectedLineIds = ref<number[]>([])
-
 const todayAlarmCount = ref(0)
 const todayAlarmLoading = ref(false)
 
@@ -207,70 +247,158 @@ const chartColors = {
   defect: '#ff5a5f'    // --danger
 }
 
-// KPI 4 卡
-const kpiCards = computed(() => [
-  {
-    key: 'online',
-    label: t('realtime.kpi.onlineLines'),
-    value: linesLoading.value ? '·' : String(lines.value.length),
-    unit: '',
-    hint: linesLoading.value ? t('common.loading') : t('realtime.kpi.onlineLinesHint', { n: lines.value.length }),
-    loading: linesLoading.value,
-    tone: 'cyan',
-    icon: '🛰️'
-  },
-  {
-    key: 'output',
-    label: t('realtime.kpi.todayOutput'),
-    value: formatNum(totalOutput.value),
-    unit: 'pcs',
-    hint: totalOutput.value > 0
-      ? t('realtime.kpi.fromLines', { n: lines.value.length })
-      : t('common.noData'),
-    loading: linesLoading.value,
-    tone: 'green',
-    icon: '📦'
-  },
-  {
-    key: 'defect',
-    label: t('realtime.kpi.todayDefect'),
-    value: formatNum(totalDefect.value),
-    unit: 'pcs',
-    hint: totalOutput.value > 0
-      ? t('realtime.kpi.defectRate', { rate: defectRate.value })
-      : t('common.noData'),
-    loading: linesLoading.value,
-    tone: 'red',
-    icon: '⚠️'
-  },
-  {
-    key: 'alarm',
-    label: t('realtime.kpi.todayAlarm'),
-    value: formatNum(todayAlarmCount.value),
-    unit: '',
-    hint: todayAlarmLoading.value
-      ? t('common.loading')
-      : t('realtime.kpi.alarmHint'),
-    loading: todayAlarmLoading.value,
-    tone: 'pink',
-    icon: '🔔'
-  }
-])
+// 当前选中行的实时数据（每次 refreshRealtimePoint 写入）
+const selectedRealtime = ref<RealtimeDetectData | null>(null)
 
-// 派生：当日总产量 / 总缺陷 / 缺陷率
-const totalOutput = computed(() =>
-  lines.value.reduce((sum, l) => sum + (l.realtime?.total ?? 0), 0)
-)
-const totalDefect = computed(() =>
-  lines.value.reduce((sum, l) => sum + (l.realtime?.ngCount ?? 0), 0)
-)
-const defectRate = computed(() => {
-  const t = totalOutput.value
-  if (t <= 0) return '0.00%'
-  return ((totalDefect.value / t) * 100).toFixed(2) + '%'
+// ---------------------------------------------------------------------------
+// 派生：选中线的实时数据（来自 lineStore 一次性 load 时的 realtimeData）
+// ---------------------------------------------------------------------------
+const currentLine = computed(() => lineStore.selectedLine)
+const lines = computed(() => lineStore.lines)
+
+// KPI 8 卡（W-RT-2 + W-RT-4：单线别钻取后，展开 PSM 所有 KPI 字段）
+const kpiCards = computed(() => {
+  const cur = currentLine.value
+  const rt = selectedRealtime.value || cur?.realtime || null
+  const total = rt?.total ?? 0
+  const ng = rt?.ngCount ?? 0
+  const success = successCountOf(rt)
+  const removeTotal = rt?.removeTotal ?? 0
+  const removeFail = rt?.removeFail ?? 0
+  const removeFailRate = removeFailRateOf(rt)
+  const occupancy = rt?.occupancy ?? 0
+  const occupancyRate = rt?.occupancyRate ?? 0
+  const efficiency = rt?.efficiency ?? 0
+  const totalNgRate = rt?.totalNgRate ?? (total > 0 ? (ng / total) * 100 : 0)
+  const lineLabel = cur ? `${cur.lineNo}-${cur.faceNo}` : '—'
+  const lineHint = cur
+    ? t('realtime.kpi.fromLines', { n: cur.name })
+    : t('realtime.kpi.onlineLinesHint', { n: lines.value.length })
+
+  return [
+    {
+      key: 'productTotal',
+      label: t('realtime.kpi.productTotal'),
+      value: formatNum(total),
+      unit: 'pcs',
+      hint: rt ? lineHint : t('common.noData'),
+      loading: lineStore.loading,
+      tone: 'cyan',
+      icon: '📦'
+    },
+    {
+      key: 'efficiency',
+      label: t('realtime.kpi.efficiency'),
+      value: efficiency > 0 ? efficiency.toFixed(2) : '0.00',
+      unit: t('realtime.kpi.efficiencyUnit'),
+      hint: efficiency > 0 ? t('realtime.kpi.efficiencyHint') : t('common.noData'),
+      loading: lineStore.loading,
+      tone: 'cyan',
+      icon: '⚡'
+    },
+    {
+      key: 'occupancy',
+      label: t('realtime.kpi.occupancy'),
+      value: formatNum(occupancy),
+      unit: '',
+      hint: occupancyRate > 0
+        ? t('realtime.kpi.occupancyRateHint', { rate: occupancyRate.toFixed(2) + '%' })
+        : t('common.noData'),
+      loading: lineStore.loading,
+      tone: 'blue',
+      icon: '🧍'
+    },
+    {
+      key: 'occupancyRate',
+      label: t('realtime.kpi.occupancyRate'),
+      value: occupancyRate > 0 ? occupancyRate.toFixed(2) : '0.00',
+      unit: '%',
+      hint: occupancy > 0
+        ? t('realtime.kpi.occupancyHint', { n: formatNum(occupancy) })
+        : t('common.noData'),
+      loading: lineStore.loading,
+      tone: 'blue',
+      icon: '🧮'
+    },
+    {
+      key: 'failCount',
+      label: t('realtime.kpi.failCount'),
+      value: formatNum(ng),
+      unit: 'pcs',
+      hint: total > 0
+        ? t('realtime.kpi.failRateHint', { rate: totalNgRate.toFixed(2) + '%' })
+        : t('common.noData'),
+      loading: lineStore.loading,
+      tone: 'red',
+      icon: '⚠️'
+    },
+    {
+      key: 'failRate',
+      label: t('realtime.kpi.failRate'),
+      value: totalNgRate > 0 ? totalNgRate.toFixed(2) : '0.00',
+      unit: '%',
+      hint: ng > 0
+        ? t('realtime.kpi.failCountHint', { n: formatNum(ng) })
+        : t('common.noData'),
+      loading: lineStore.loading,
+      tone: 'red',
+      icon: '📉'
+    },
+    {
+      key: 'successCount',
+      label: t('realtime.kpi.successCount'),
+      value: formatNum(success),
+      unit: 'pcs',
+      hint: total > 0
+        ? t('realtime.kpi.successRateHint', { rate: ((success / total) * 100).toFixed(2) + '%' })
+        : t('common.noData'),
+      loading: lineStore.loading,
+      tone: 'green',
+      icon: '✅'
+    },
+    {
+      key: 'removeFailNum',
+      label: t('realtime.kpi.removeFailNum'),
+      value: formatNum(removeFail),
+      unit: 'pcs',
+      hint: removeTotal > 0
+        ? t('realtime.kpi.removeFailRateHint', {
+            rate: removeFailRate.toFixed(2) + '%',
+            total: formatNum(removeTotal)
+          })
+        : t('common.noData'),
+      loading: lineStore.loading,
+      tone: 'orange',
+      icon: '🗑️'
+    }
+  ]
 })
 
-// 表格行
+// 开机时间宽卡（W-RT-4）：突出 HH:mm，下面副标 剔除失败率 / 剔除总数
+const deviceOpenTimeCard = computed(() => {
+  const cur = currentLine.value
+  const rt = selectedRealtime.value || cur?.realtime || null
+  const time = deviceOpenTimeOf(rt)
+  const removeTotal = rt?.removeTotal ?? 0
+  const removeFail = rt?.removeFail ?? 0
+  const removeFailRate = removeFailRateOf(rt)
+  return {
+    label: t('realtime.kpi.deviceOpenTime'),
+    time,
+    raw: rt?.startTime,
+    removeTotal,
+    removeFail,
+    removeFailRate,
+    lineLabel: cur ? `${cur.lineNo}-${cur.faceNo}` : '—',
+    hint: rt?.startTime
+      ? t('realtime.kpi.deviceOpenTimeHint', { raw: rt.startTime })
+      : t('common.noData'),
+    loading: lineStore.loading,
+    tone: 'gold'
+  }
+})
+
+// 表格行（W-RT-2: 只展示选中线；多线浏览交给后续 RT 子单）
 interface TableRow {
   id: number
   lineName: string
@@ -282,33 +410,31 @@ interface TableRow {
   defect: number
   progressPercent: number
 }
-const tableRows = computed<TableRow[]>(() =>
-  lines.value.map((l) => {
-    const r = l.realtime
-    const output = r?.total ?? 0
-    const defect = r?.ngCount ?? 0
-    const eff = Math.max(0, Math.min(100, r?.efficiency ?? 0))
-    // 进度：基于效率值（PSM 老 SPA 也用 efficiency 当进度展示）
-    const progressPercent = Math.round(eff)
-    // 状态判定：occupancy > 0 → running；效率 0 但 occupancy 0 → idle；
-    //           totalNgRate 极高 / occupancy < 0 → down。简化版：efficiency = 0 → idle，occupancyRate<10 → down
-    const occ = r?.occupancyRate ?? 0
-    let stateKey: TableRow['stateKey'] = 'running'
-    if (output === 0) stateKey = 'idle'
-    else if (occ < 10) stateKey = 'down'
-    return {
-      id: l.id,
-      lineName: l.name,
-      lineNo: l.lineNo,
-      faceNo: l.faceNo,
+const tableRows = computed<TableRow[]>(() => {
+  const cur = currentLine.value
+  if (!cur) return []
+  const rt = selectedRealtime.value || cur.realtime
+  const output = rt?.total ?? 0
+  const defect = rt?.ngCount ?? 0
+  const eff = Math.max(0, Math.min(100, rt?.efficiency ?? 0))
+  const occ = rt?.occupancyRate ?? 0
+  let stateKey: TableRow['stateKey'] = 'running'
+  if (output === 0) stateKey = 'idle'
+  else if (occ < 10) stateKey = 'down'
+  return [
+    {
+      id: cur.id,
+      lineName: cur.name,
+      lineNo: cur.lineNo,
+      faceNo: cur.faceNo,
       stateKey,
       stateLabel: stateLabelOf(stateKey),
       output,
       defect,
-      progressPercent
+      progressPercent: Math.round(eff)
     }
-  })
-)
+  ]
+})
 
 function stateLabelOf(key: TableRow['stateKey']): string {
   if (key === 'running') return t('realtime.table.stateRunning')
@@ -318,23 +444,16 @@ function stateLabelOf(key: TableRow['stateKey']): string {
 
 // 图表标题副标
 const chartSubtitle = computed(() => {
-  if (selectedLineIds.value.length === 0) {
-    return t('realtime.chart.allLinesSub')
-  }
-  const names = selectedLines.value.map((l) => l.name).join(' · ')
-  return t('realtime.chart.selectedSub', { lines: names })
-})
-
-// 当前选中线（空 = 全选）
-const selectedLines = computed<UiLine[]>(() => {
-  if (selectedLineIds.value.length === 0) return lines.value
-  const set = new Set(selectedLineIds.value)
-  return lines.value.filter((l) => set.has(l.id))
+  const cur = currentLine.value
+  if (!cur) return t('realtime.chart.allLinesSub')
+  return t('realtime.chart.selectedSub', { lines: `${cur.lineNo}-${cur.faceNo} · ${cur.name}` })
 })
 
 const chartEmpty = computed(() => {
-  if (selectedLines.value.length === 0) return true
-  return selectedLines.value.every((l) => (l.realtime?.total ?? 0) === 0)
+  const cur = currentLine.value
+  if (!cur) return true
+  const rt = selectedRealtime.value || cur.realtime
+  return (rt?.total ?? 0) === 0
 })
 
 // ---------------------------------------------------------------------------
@@ -352,10 +471,6 @@ function formatNum(n: number | undefined | null): string {
   return Math.round(n).toLocaleString('en-US')
 }
 
-function lineLabel(line: UiLine): string {
-  return `${line.lineNo}:${line.faceNo} · ${line.name}`
-}
-
 function progressColor(p: number): string {
   if (p >= 80) return chartColors.actual
   if (p >= 50) return chartColors.plan
@@ -365,35 +480,6 @@ function progressColor(p: number): string {
 // ---------------------------------------------------------------------------
 // 数据加载
 // ---------------------------------------------------------------------------
-async function loadLines() {
-  linesLoading.value = true
-  try {
-    const resp = await listLine()
-    if (resp.success && Array.isArray(resp.data)) {
-      lines.value = resp.data.map((raw) => ({
-        id: raw.id,
-        name: raw.name,
-        lineNo: raw.lineNo,
-        faceNo: raw.faceNo,
-        realtime: parseRealtimeData(raw.realtimeData),
-        raw
-      }))
-      // 默认全选第一项
-      if (selectedLineIds.value.length === 0 && lines.value.length > 0) {
-        selectedLineIds.value = lines.value.slice(0, Math.min(2, lines.value.length)).map((l) => l.id)
-      }
-    } else {
-      lines.value = []
-      ElMessage.warning(resp.message || t('realtime.error.loadLineFailed'))
-    }
-  } catch (err: any) {
-    lines.value = []
-    ElMessage.error(t('realtime.error.network') + ': ' + (err?.message || err))
-  } finally {
-    linesLoading.value = false
-  }
-}
-
 async function loadAlarms() {
   todayAlarmLoading.value = true
   try {
@@ -404,14 +490,12 @@ async function loadAlarms() {
     const endTime = nowStr()
     const resp = await listAlarm({ pageNum: 1, pageSize: 1, startTime, endTime })
     if (resp.success && resp.data) {
-      // 后端 IPage.total = 当日 count(*) 精确值
       const total = Number((resp.data as any).total ?? 0)
       todayAlarmCount.value = total
     } else {
       todayAlarmCount.value = 0
     }
   } catch (err: any) {
-    // 报警接口失败不影响 KPI 显示，给个静默提示
     todayAlarmCount.value = 0
     // eslint-disable-next-line no-console
     console.warn('[realtime] loadAlarms failed:', err?.message || err)
@@ -420,26 +504,33 @@ async function loadAlarms() {
   }
 }
 
-/** 给当前选中第一条线拉一次实时，打到图表的"最新点"做高亮 */
+/** 给当前选中线拉一次实时，打到中栏的"最新点"做高亮 */
 async function refreshRealtimePoint() {
-  const target = selectedLines.value[0] || lines.value[0]
-  if (!target) return
+  const cur = currentLine.value
+  if (!cur) {
+    selectedRealtime.value = null
+    return
+  }
   try {
-    const resp = await getRealtimeDetect({ lineNo: target.lineNo, faceNo: target.faceNo })
+    const resp = await getRealtimeDetect({ lineNo: cur.lineNo, faceNo: cur.faceNo })
     if (resp.success && resp.data) {
-      // 把第一根线的实时回写到 lines 列表
-      const item = lines.value.find((l) => l.id === target.id)
-      if (item) {
-        item.realtime = resp.data
-      }
+      selectedRealtime.value = resp.data
     }
   } catch {
-    // 静默失败，刷新点不影响主流程
+    // 静默失败
   }
 }
 
+/** 左栏选中变化：刷新该线的实时点 + 重绘图 + 更新表格 */
+function handleLineChange(_lineKey: string) {
+  selectedRealtime.value = null  // 切线后先清，避免显示上一条线数据
+  refreshRealtimePoint()
+  nextTick(renderChart)
+}
+
 async function refreshAll() {
-  await Promise.all([loadLines(), loadAlarms()])
+  await lineStore.load(true)
+  await loadAlarms()
   await refreshRealtimePoint()
   await nextTick()
   renderChart()
@@ -459,16 +550,14 @@ function buildSeries() {
     xLabels.push(`${hh}:${mm}`)
   }
 
-  const targets = selectedLines.value
-  // 折线用第一根目标线的 realtime 数据做基底，其它线共享（PSM 简化版：单源曲线）
-  const base = targets[0]?.realtime
+  // W-RT-2: 折线只画选中线
+  const cur = currentLine.value
+  const base = selectedRealtime.value || cur?.realtime || null
   const plan = Math.max(base?.total ?? 0, 1)
-  // 用一个固定的 80% 计划线 + 实际数 ± 抖动生成曲线；最后一个点用真实 actual 高亮
   const actual = xLabels.map((_, idx) => {
     if (idx === xLabels.length - 1) {
       return Math.max(0, base?.total ?? 0)
     }
-    // 模拟上升趋势
     const ratio = 0.5 + (idx / (xLabels.length - 1)) * 0.45
     return Math.round(plan * ratio)
   })
@@ -571,13 +660,18 @@ function handleResize() {
   chart?.resize()
 }
 
-function handleLineChange() {
-  renderChart()
-}
-
-// 监听 window resize
+// 监听选中线 / 实时点变化 → 重绘图
 watch(
-  () => lines.value,
+  [() => lineStore.selectedLineKey, selectedRealtime],
+  () => {
+    nextTick(renderChart)
+  },
+  { deep: true }
+)
+
+// 监听线列表载入完成 → 首次绘制
+watch(
+  () => lineStore.lines,
   () => {
     nextTick(renderChart)
   },
@@ -588,7 +682,11 @@ watch(
 // 生命周期
 // ---------------------------------------------------------------------------
 onMounted(async () => {
-  await refreshAll()
+  await lineStore.load(true)
+  await loadAlarms()
+  await refreshRealtimePoint()
+  await nextTick()
+  renderChart()
   window.addEventListener('resize', handleResize)
   // 每 60s 自动刷新一次 KPI + 实时点
   refreshTimer = window.setInterval(() => {
@@ -610,6 +708,53 @@ onBeforeUnmount(() => {
 </script>
 
 <style lang="scss" scoped>
+// ===== W-RT-2 主布局：左侧 LineListCard + 中栏 =====
+.realtime-layout {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: stretch;
+  min-height: 0;
+}
+
+.realtime-layout__left {
+  position: sticky;
+  top: 0;
+  align-self: stretch;
+  height: calc(100vh - 220px);
+  min-height: 540px;
+  // LineListCard 内部 flex 1 占满
+}
+
+.realtime-layout__main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+@media (max-width: 1280px) {
+  .realtime-layout {
+    grid-template-columns: 240px minmax(0, 1fr);
+  }
+  .realtime-layout__left {
+    height: calc(100vh - 220px);
+    min-height: 480px;
+  }
+}
+
+@media (max-width: 960px) {
+  .realtime-layout {
+    grid-template-columns: 1fr;
+  }
+  .realtime-layout__left {
+    position: relative;
+    height: auto;
+    min-height: 240px;
+    max-height: 320px;
+  }
+}
+
 .realtime-kpi-row {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -629,6 +774,113 @@ onBeforeUnmount(() => {
 
 .realtime-kpi {
   min-height: 132px;
+}
+.realtime-kpi--wide {
+  width: 100%;
+}
+.realtime-kpi-wide {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+.realtime-kpi-wide__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.realtime-kpi-wide__label {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.realtime-kpi-wide__icon {
+  font-size: 18px;
+  filter: drop-shadow(0 2px 8px rgba(255, 209, 102, 0.4));
+}
+.realtime-kpi-wide__line {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-pill);
+  padding: 3px 12px;
+  letter-spacing: 0.4px;
+}
+.realtime-kpi-wide__body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+}
+.realtime-kpi-wide__skeleton {
+  font-size: 36px;
+  color: var(--text-secondary);
+  opacity: 0.4;
+}
+.realtime-kpi-wide__clock {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--font-family);
+}
+.realtime-kpi-wide__num {
+  font-size: 44px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 1.5px;
+  background: linear-gradient(135deg, #ffd166 0%, #ff9f43 60%, #ff6ec7 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 24px rgba(255, 209, 102, 0.15);
+  font-variant-numeric: tabular-nums;
+}
+.realtime-kpi-wide__sub {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+}
+.realtime-kpi-wide__sub-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  min-width: 84px;
+}
+.realtime-kpi-wide__sub-label {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.realtime-kpi-wide__sub-val {
+  font-size: 22px;
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.realtime-kpi-wide__sub-unit {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+@media (max-width: 1280px) {
+  .realtime-kpi-wide__num {
+    font-size: 36px;
+  }
+}
+@media (max-width: 720px) {
+  .realtime-kpi-wide__num {
+    font-size: 28px;
+  }
+  .realtime-kpi-wide__sub {
+    gap: var(--space-3);
+  }
 }
 .realtime-kpi__inner {
   display: flex;
@@ -683,14 +935,32 @@ onBeforeUnmount(() => {
 }
 
 // KPI tone 色彩
+.realtime-kpi__inner[data-tone='cyan'] .realtime-kpi__num {
+  background: linear-gradient(135deg, #5ce1ff, #74e0ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
 .realtime-kpi__inner[data-tone='green'] .realtime-kpi__num {
   background: linear-gradient(135deg, #5fd97f, #5ce1ff);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+.realtime-kpi__inner[data-tone='blue'] .realtime-kpi__num {
+  background: linear-gradient(135deg, #74a9ff, #5ce1ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
 .realtime-kpi__inner[data-tone='red'] .realtime-kpi__num {
   background: linear-gradient(135deg, #ff5a5f, #ffb74d);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.realtime-kpi__inner[data-tone='orange'] .realtime-kpi__num {
+  background: linear-gradient(135deg, #ff9f43, #ff6ec7);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -730,9 +1000,6 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: var(--space-3);
 }
-.realtime-chart__select {
-  min-width: 260px;
-}
 .realtime-chart__legend {
   display: flex;
   align-items: center;
@@ -755,7 +1022,7 @@ onBeforeUnmount(() => {
 }
 .realtime-chart__canvas {
   width: 100%;
-  height: 360px;
+  height: 320px;
 }
 .realtime-chart__empty {
   position: absolute;

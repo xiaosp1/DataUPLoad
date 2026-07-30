@@ -164,7 +164,30 @@ const zhCN = {
       onlineLinesHint: '当前活跃产线 / 面',
       fromLines: '聚合自 {n} 条产线',
       defectRate: '缺陷率 {rate}',
-      alarmHint: '今日新增告警'
+      alarmHint: '今日新增告警',
+      // ===== W-RT-4: PSM 多出来的 KPI 字段（11 个 key） =====
+      productTotal: '生产总数',
+      efficiency: '实时效率',
+      efficiencyUnit: '个/分',
+      efficiencyHint: '当前产线节拍',
+      occupancy: '上座数量',
+      occupancyRate: '上座率',
+      occupancyRateHint: '上座率 {rate}',
+      occupancyHint: '上座数 {n}',
+      failCount: '次品数量',
+      failRate: '次品率',
+      failRateHint: '次品率 {rate}',
+      failCountHint: '次品数 {n}',
+      successCount: '良品数量',
+      successRateHint: '良品率 {rate}',
+      removeTotal: '剔除总数',
+      removeFailNum: '剔除失败数',
+      removeFailRate: '剔除失败率',
+      removeFailRateHint: '剔除失败率 {rate}',
+      removeFailHint: '剔除 {num} 颗 / 失败率 {rate}',
+      deviceOpenTime: '开机时间',
+      deviceOpenTimeHint: '原始数据：{raw}',
+      selectedLine: '已选：{line}'
     },
     chartTitle: '实时趋势',
     chart: {
@@ -188,6 +211,13 @@ const zhCN = {
       stateRunning: '运行',
       stateIdle: '停机',
       stateDown: '故障'
+    },
+    // ===== W-RT-2 左栏线别列表卡片 =====
+    lineList: {
+      title: '产线列表',
+      total: '共',
+      defect: '缺陷',
+      remove: '剔除'
     },
     error: {
       network: '网络异常，请稍后重试',
@@ -1026,7 +1056,30 @@ const enUS = {
       onlineLinesHint: 'active lines / faces',
       fromLines: 'aggregated from {n} lines',
       defectRate: 'defect rate {rate}',
-      alarmHint: 'new alarms today'
+      alarmHint: 'new alarms today',
+      // ===== W-RT-4: extra KPI keys (11 fields) =====
+      productTotal: 'Total Output',
+      efficiency: 'Realtime Efficiency',
+      efficiencyUnit: 'pcs/min',
+      efficiencyHint: 'current line cadence',
+      occupancy: 'Occupancy',
+      occupancyRate: 'Occupancy Rate',
+      occupancyRateHint: 'occupancy {rate}',
+      occupancyHint: 'occupancy count {n}',
+      failCount: 'Defect Count',
+      failRate: 'Defect Rate',
+      failRateHint: 'defect rate {rate}',
+      failCountHint: 'defect count {n}',
+      successCount: 'Good Count',
+      successRateHint: 'good rate {rate}',
+      removeTotal: 'Removed Total',
+      removeFailNum: 'Remove Failures',
+      removeFailRate: 'Remove Fail Rate',
+      removeFailRateHint: 'fail rate {rate}',
+      removeFailHint: 'removed {num} / fail rate {rate}',
+      deviceOpenTime: 'Device Start Time',
+      deviceOpenTimeHint: 'raw: {raw}',
+      selectedLine: 'selected: {line}'
     },
     chartTitle: 'Realtime Trend',
     chart: {
@@ -1050,6 +1103,13 @@ const enUS = {
       stateRunning: 'Running',
       stateIdle: 'Idle',
       stateDown: 'Fault'
+    },
+    // ===== W-RT-2 Line list card =====
+    lineList: {
+      title: 'Production Lines',
+      total: 'Total',
+      defect: 'Defect',
+      remove: 'Remove'
     },
     error: {
       network: 'Network error, please retry',
@@ -1873,7 +1933,30 @@ const idID = {
       onlineLinesHint: 'lanes / face aktif',
       fromLines: 'agregat dari {n} lanes',
       defectRate: 'tingkat cacat {rate}',
-      alarmHint: 'alarm baru hari ini'
+      alarmHint: 'alarm baru hari ini',
+      // ===== W-RT-4: extra KPI keys (11 fields) =====
+      productTotal: 'Total Produksi',
+      efficiency: 'Efisiensi Realtime',
+      efficiencyUnit: 'pcs/menit',
+      efficiencyHint: 'irama lane saat ini',
+      occupancy: 'Jumlah Occupancy',
+      occupancyRate: 'Tingkat Occupancy',
+      occupancyRateHint: 'occupancy {rate}',
+      occupancyHint: 'occupancy {n}',
+      failCount: 'Jumlah Cacat',
+      failRate: 'Tingkat Cacat',
+      failRateHint: 'tingkat cacat {rate}',
+      failCountHint: 'cacat {n}',
+      successCount: 'Jumlah Bagus',
+      successRateHint: 'tingkat bagus {rate}',
+      removeTotal: 'Total Pembuangan',
+      removeFailNum: 'Gagal Buang',
+      removeFailRate: 'Tingkat Gagal Buang',
+      removeFailRateHint: 'tingkat gagal {rate}',
+      removeFailHint: 'buang {num} / gagal {rate}',
+      deviceOpenTime: 'Waktu Mulai Perangkat',
+      deviceOpenTimeHint: 'mentah: {raw}',
+      selectedLine: 'dipilih: {line}'
     },
     chartTitle: 'Tren Realtime',
     chart: {
@@ -1897,6 +1980,13 @@ const idID = {
       stateRunning: 'Berjalan',
       stateIdle: 'Berhenti',
       stateDown: 'Gangguan'
+    },
+    // ===== W-RT-2 Daftar lane (kartu daftar line) =====
+    lineList: {
+      title: 'Daftar Lane',
+      total: 'Total',
+      defect: 'Cacat',
+      remove: 'Buang'
     },
     error: {
       network: 'Kesalahan jaringan, coba lagi',
