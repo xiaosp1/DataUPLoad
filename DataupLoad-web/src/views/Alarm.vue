@@ -369,7 +369,8 @@ async function syncPermissionFromCurrentUser() {
 type TimeRangeKey = '1h' | '24h' | '7d' | 'custom'
 
 const filter = reactive({
-  timeRangeKey: '7d' as TimeRangeKey,
+  // W-PERF-C: 默认 1h（~500 行）而非 7d（~80000 行），缩短首屏等待
+  timeRangeKey: '1h' as TimeRangeKey,
   customRange: ['', ''] as [string, string],
   lineIds: [] as number[], // cascader 选中的 id 路径
   type: null as number | null,
@@ -498,7 +499,8 @@ function onQuery() {
 }
 
 function onReset() {
-  filter.timeRangeKey = '24h'
+  // W-PERF-C: 重置也保持 1h 默认（首屏快）
+  filter.timeRangeKey = '1h'
   filter.customRange = ['', '']
   filter.lineIds = []
   filter.type = null

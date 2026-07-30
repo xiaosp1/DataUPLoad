@@ -1,0 +1,13 @@
+[1] POST /web/auth/login ...
+    response: {"success":true,"data":{"id":1,"username":"super_admin","role":"super_admin","permission":["user","log","app-account"],"...
+[2] satoken: bf17df66... (len=36)
+    wrote: E:\DEMO\鏁版嵁閲囬泦\DataupLoad\web\js\w-perf-c-alarm.html
+    wrote: E:\DEMO\鏁版嵁閲囬泦\DataupLoad\web\js\w-perf-c-realtime.html
+[edge] http://127.0.0.1:8080/js/w-perf-c-alarm.html 鈫?E:\DEMO\鏁版嵁閲囬泦\docs\work-orders\W-PERF-C-alarm.png (budget=30000ms)
+    exit=0 signal=null
+    bytes=644678
+[edge] http://127.0.0.1:8080/js/w-perf-c-realtime.html 鈫?E:\DEMO\鏁版嵁閲囬泦\docs\work-orders\W-PERF-C-realtime.png (budget=40000ms)
+    exit=0 signal=null
+    bytes=644678
+---
+RESULT_JSON:{"alarmScreenshotBytes":644678,"realtimeScreenshotBytes":644678,"alarmExists":true,"realtimeExists":true}

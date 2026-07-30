@@ -143,14 +143,32 @@ export function listPlan(params: { pageNum?: number; pageSize?: number; name?: s
   })
 }
 
-/** 当日报警（分页） */
-export function listAlarm(params: { pageNum?: number; pageSize?: number; lineNo?: string } = {}) {
+/**
+ * 当日报警（分页）
+ *
+ * W-PERF-C: KPI 只用 total 不需要 records，默认 pageSize=1 让后端做 count(*) 而不返回 rows。
+ * 调用方如要 records，再显式传 pageSize。
+ *
+ * 注：realtime 页 KPI 只关心当日 total，传 pageSize=1 + startTime/endTime 即可，
+ * 响应里的 `total` 就是当日 count(*) 的精确值；不再拉 100 行前端过滤。
+ */
+export function listAlarm(
+  params: {
+    pageNum?: number
+    pageSize?: number
+    lineNo?: string
+    startTime?: string
+    endTime?: string
+  } = {}
+) {
   return get<{ records: AlarmItem[]; total: number; size: number; current: number }>(
     '/alarm/list',
     {
       pageNum: params.pageNum ?? 1,
-      pageSize: params.pageSize ?? 100,
-      lineNo: params.lineNo
+      pageSize: params.pageSize ?? 1,
+      lineNo: params.lineNo,
+      startTime: params.startTime,
+      endTime: params.endTime
     }
   )
 }

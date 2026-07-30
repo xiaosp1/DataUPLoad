@@ -1,0 +1,35 @@
+{
+  "r7d": {
+    "label": "7d (pageSize=20)",
+    "times": [
+      22,
+      18,
+      15,
+      16,
+      5
+    ],
+    "avg": 15
+  },
+  "r1h": {
+    "label": "1h (pageSize=20)",
+    "times": [
+      11,
+      6,
+      9,
+      8,
+      7
+    ],
+    "avg": 8
+  },
+  "rSz1": {
+    "label": "realtime KPI (pageSize=1, today)",
+    "times": [
+      10,
+      3,
+      3,
+      3,
+      10
+    ],
+    "avg": 6
+  }
+}

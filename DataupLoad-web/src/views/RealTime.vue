@@ -174,7 +174,6 @@ import {
   todayStr,
   nowStr,
   type LineItem,
-  type AlarmItem,
   type RealtimeDetectData
 } from '../api/realtime'
 
@@ -398,12 +397,16 @@ async function loadLines() {
 async function loadAlarms() {
   todayAlarmLoading.value = true
   try {
+    // W-PERF-C: 用 todayStart/todayEnd 当日区间 + pageSize=1，
+    // 直接拿后端 total（精确 KPI），不再拉 100 行前端过滤（既慢又不准）。
     const today = todayStr()
-    const resp = await listAlarm({ pageNum: 1, pageSize: 100 })
+    const startTime = `${today} 00:00:00`
+    const endTime = nowStr()
+    const resp = await listAlarm({ pageNum: 1, pageSize: 1, startTime, endTime })
     if (resp.success && resp.data) {
-      const records: AlarmItem[] = Array.isArray(resp.data.records) ? resp.data.records : []
-      // 简单过滤：time 以今天日期开头（后端 time 格式 "yyyy-MM-dd HH:mm:ss"）
-      todayAlarmCount.value = records.filter((a) => a?.time?.startsWith(today)).length
+      // 后端 IPage.total = 当日 count(*) 精确值
+      const total = Number((resp.data as any).total ?? 0)
+      todayAlarmCount.value = total
     } else {
       todayAlarmCount.value = 0
     }

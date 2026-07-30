@@ -1,0 +1,60 @@
+# W-PERF-C — curl benchmark log
+# Test date: 2026-07-30 22:43 (Asia/Shanghai)
+# Backend: 127.0.0.1:8080 (already running)
+# Auth: super_admin via /web/auth/login → cookie satoken=...
+# Compare: 7d default (BEFORE) vs 1h default (AFTER) + pageSize=1 realtime KPI
+
+================================================================
+A) 7d baseline (BEFORE — pageSize=20, pageNum=1)
+   GET /web/alarm/list?pageNum=1&pageSize=20&startTime=2026-07-23%2022:42:xx&endTime=2026-07-30%2022:42:xx
+================================================================
+Run 1: TIME=0.453706s HTTP=200 SIZE=7381
+Run 2: TIME=0.526686s HTTP=200 SIZE=7381
+Run 3: TIME=0.491635s HTTP=200 SIZE=7381
+Run 4: TIME=0.462235s HTTP=200 SIZE=7381
+Run 5: TIME=0.388476s HTTP=200 SIZE=7381
+   AVG ≈ 464ms   MIN=388ms   MAX=526ms
+
+================================================================
+B) 1h default (AFTER W-PERF-C — pageSize=20, pageNum=1)
+   GET /web/alarm/list?pageNum=1&pageSize=20&startTime=2026-07-30%2021:42:xx&endTime=2026-07-30%2022:42:xx
+================================================================
+Run 1: TIME=0.018462s HTTP=200 SIZE=7376
+Run 2: TIME=0.016205s HTTP=200 SIZE=7376
+Run 3: TIME=0.027204s HTTP=200 SIZE=7376
+Run 4: TIME=0.028246s HTTP=200 SIZE=7376
+Run 5: TIME=0.016389s HTTP=200 SIZE=7376
+   AVG ≈ 21ms   MIN=16ms   MAX=28ms
+   >>> TARGET < 200ms: PASS (10x under target) <<<
+   >>> 7d→1h speedup: 22x <<<
+
+================================================================
+C) Realtime KPI pageSize=1 (AFTER W-PERF-C — pageSize=1, today range)
+   GET /web/alarm/list?pageNum=1&pageSize=1&startTime=2026-07-30%2000:00:00&endTime=2026-07-30%20HH:mm:ss
+   Response data.total = 15211 (precise count)
+================================================================
+Run 1: TIME=0.020689s HTTP=200 SIZE=536
+Run 2: TIME=0.024619s HTTP=200 SIZE=536
+Run 3: TIME=0.018979s HTTP=200 SIZE=536
+Run 4: TIME=0.024556s HTTP=200 SIZE=536
+Run 5: TIME=0.042908s HTTP=200 SIZE=536
+   AVG ≈ 26ms   MIN=19ms   MAX=43ms
+   >>> Payload 536 bytes (vs ~7400 bytes for pageSize=100) <<<
+
+================================================================
+Sample response for (C) — total=15211 (today's alarm count):
+================================================================
+{
+  "success": true,
+  "data": {
+    "records": [ { "id": 839293, ... } ],
+    "total": 15211,
+    "size": 1,
+    "current": 1,
+    "orders": [],
+    "optimizeCountSql": true,
+    "searchCount": true,
+    "pages": 15211
+  },
+  "code": 0
+}
