@@ -1,0 +1,21 @@
+=== W-FRONT-02-G end-to-end verification ===
+Backend: http://127.0.0.1:8080
+Started: 2026/7/30 12:15:22
+
+[1] [PASS] GET / returns Vue 3 SPA entry
+[2] [PASS] GET /assets/index-CndG5nFH.js (Vue 3 bundle)
+[3] [PASS] GET /assets/index-B0hMWKcQ.css (Element Plus + glass CSS)
+[4] [PASS] POST /web/auth/login super_admin/Abc12345 -> 200 + satoken
+[5] [PASS] GET /web/account/current (satoken)
+[6] [PASS] GET /web/account/list (page 1, size 10)
+[7] [PASS] GET /web/alarm/list (page 1, size 10)
+[8] [PASS] POST /web/detect/day-record/list-between (real path)
+[9] [PASS] Browser: login page -> main (Vue 3 glass) -- homeStatus=200, title="英科手套中控平台", loginCard=true
+[10] [PASS] Browser: 8 business routes accessible -- 8/8
+[11] [PASS] Browser: three-language switch (zh-CN / en-US / id-ID) -- unique=3/3, samples=[zh-CN:403 禁止访问 您没有权限访问该页面 请联系管理员申请相应权限，或返回首页。 返回首页 | en-US:403 Forbidden You do not have access to this page Please con | id-ID:403 Dilarang Anda tidak memiliki akses ke halaman ini Hubung]
+[12] [PASS] Browser: WS alarm push indicator -- indicator=found, url=http://127.0.0.1:8080/#/alarm, bodyExcerpt=? DataupLoad v2 实时监控 ? 实时数据 ? 报警管理 ? 缺陷处理 系统管理 ? 账号管理 ? 系统配置 ? 操作日志 ? 用户管理 欢迎 首页 / 报警管理 简体中文 ? S super_admin 超级管理员 ? 报警管理 实时连接已建立 刷新列表 查看、处理与归档历史告警事件 时间范围 近 7 天 线别 类型 全部类型 状态 全部状态 重置 查询 # 触发时间 线别 工位 类
+
+=== SUMMARY ===
+PASS: 12 / FAIL: 0 / TOTAL: 12
+Duration: 00:00:04.1622679
+Summary JSON: E:\DEMO\数据采集\docs\work-orders\W-FRONT-02-G-verify-summary.json

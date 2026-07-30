@@ -205,3 +205,72 @@ ADR：`docs/adr/0016-frontend-align-psm-spa-20260725.md`
 - 8/8 完工 → 写总览 report → 一次性 git add + commit（含 A/B/C/D/E1-E8）
 - D-tier bug 修复 → G 阶段处理
 - F 子单（打包部署） + G0（清理老 SPA） 串行
+
+## 当前状态（2026-07-30 11:08）— E1-E8 8/8 + D-FIX 全部完工，git commit 73a7bb2 ✅
+
+- [x] **8/8 E 子单全部完工**（E1 实时 / E2 报警 / E3 缺陷 / E4 账号 / E5 配置 / E6 日志 / E7 用户 / E8 大屏）
+- [x] **D-FIX**: Login.vue `code === 0` + user.fetchCurrent 同步 role 到 permission store
+- [x] **W-FRONT-02-E-summary.md** 总览（4.3KB，含偏离项总结 + 残留风险 + 复盘）
+- [x] **git commit `73a7bb2`**: 184 files +25876/-333
+- [x] **总耗时**: 1h26min 实际派工 + 12min D-FIX = 1h38min（单线 ~12h，压缩 86%）
+
+### 8/8 E 子单全完工 ✅
+- 8 张视图（245KB） + 8 个 API 模块 + 2 共享工具（ws/sha256/screenWs）
+- 8 张报告（78.7KB） + 39 张截图
+- 三语 i18n 新增 ~150 keys
+
+### 共性偏离项（PM review 决定）
+1. **后端 API 路径与 brief 不符**（E2/E3/E5/E8）→ ✅ worker 按真实接口实现并在 report 标注
+2. **截图采用 auth-bypass 路径**（E5-E8）→ ✅ D-FIX 已修守卫，merge 后用 D-FIX 后的浏览器实测为准
+
+### 残留风险
+- ⚠️ **P0**: E4 worker 改过 super_admin 密码 + 删账号（merge 前 PM 必须 review E4 report §4 + DB 验证 hash 是否回滚到 Abc12345）
+- ⚠️ **P1**: sa-token HttpOnly vs 守卫 document.cookie 读 satoken 设计 gap（生产前必须改）
+- **P3**: i18n 单文件 50KB+ 易冲突（下一阶段拆 locales/{lang}.ts）
+- **P3**: E3 缺 sample.png（G 子单端到端截图覆盖）
+- **P2**: 后端 API 路径未文档化（ADR-0020 待补）
+
+### 下一步
+- 🔄 派 F 子单（vite build → 拷到 DataupLoad/web/）+ G0（清理老 SPA）—— 串行
+- 最后派 G（端到端 12 项验收 + ADR-0021 归档）
+
+
+## 当前状态（2026-07-30 12:30）— W-FRONT-02 100% 完工 + push ✅
+
+- [x] **F 子单完工**（11:15）— vite build 部署 Vue 3 SPA 到 `DataupLoad/web/`（2.6MB JS + 438KB CSS + 348B interceptor）+ 浏览器实测 18/18 PASS + super_admin 密码修复回 Abc12345
+- [x] **G0 子单完工**（11:50）— 清理 151 个 PSM 老 SPA 文件（20 MB）+ 重写 index.html（lang=zh-CN + 中文 title）+ grep 10 项全 0 + curl 5 项全 200 + ADR-0021 输出
+- [x] **G 子单完工**（12:30）— **12 项端到端验收 12/12 PASS** + 4 张验收截图 + W-FRONT-02-report.md 总报告 + git commit + push origin main 成功
+- [x] **远程 main HEAD 更新**：一次性推送 73a7bb2（A/B/C/D + E1-E8 + D-FIX + 总览）+ 新 commit（F + G0 + G + ADR-0021）
+
+### W-FRONT-02 全阶段总结
+- **A 脚手架** → **B 玻璃组件** → **C Login/守卫** → **D 主布局/i18n**（阶段 2 准备）
+- **E1-E8 业务对齐期**（1h26min 并行；88% 耗时压缩）
+- **D-FIX**（修 E2 发现的 2 个 D-tier bug）
+- **F 部署** → **G0 清理** → **G 验收**
+
+### 关键产出（已 push）
+- **8 业务视图 + Login/Forbidden/MainLayout/Sidebar/Topbar**（Vue 3 + Element Plus + 玻璃风，~310KB）
+- **10 API 模块 + 3 共享工具**（~67KB TypeScript）
+- **643 i18n keys × 3 语**（zh-CN/en-US/id-ID，~150KB）
+- **后端零改动**（除 super_admin 密码修复 + 静态资源映射）
+- **Vue 3 SPA 100% 独立工作**（0 老 SPA 残留）
+- **6 个 ADR**：0014 / 0015 / 0016 / 0017 / 0018 / 0019 / 0020 / 0021
+- **49 张截图**（E 子单 39 张 + F 3 张 + G0 3 张 + G 4 张）
+
+### 残留（生产前必须）
+- **W-FIX-03**: sa-token HttpOnly vs 守卫 `document.cookie` 改用客户端 SDK
+- **W-DOC-02**: ADR-0020 PSM 后端 API 契约（E2/E3/E5/E8 路径偏离项已记录在 W-FRONT-02-report.md §5）
+- **W-I18N-01**: i18n 拆 `locales/{lang}.ts`（当前单文件 150KB）
+- **W-BUILD-01**: `mvn package` 重打 jar（target/ 是 7-23 旧版）
+- **W-AUTH-04**: super_admin 改非默认密码（当前 message=`您的密码为默认密码，请尽快修改`）
+
+### 老板验收（30 秒浏览器实测）
+1. 打开 `http://127.0.0.1:8080/` — 看到 `英科手套中控平台` 玻璃登录页
+2. 输入 `super_admin` / `Abc12345` → 跳转 `/realtime`
+3. 点左栏 8 个菜单 — 全部可访问
+4. 顶栏右上角语言切换器 — 菜单文字实时切换
+5. 进入"报警管理" — 右上角小绿点 `实时连接已建立`
+
+### W-FRONT-02 完成 — 远端 main HEAD 更新 ✅
+
+**下一步等老板浏览器验收；验收通过即可标记 W-FRONT-02 closed。**

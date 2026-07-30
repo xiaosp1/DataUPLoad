@@ -1,0 +1,42 @@
+[
+  {
+    "Pattern": "index.f19ecd42",
+    "Hits": 0
+  },
+  {
+    "Pattern": "index-legacy",
+    "Hits": 0
+  },
+  {
+    "Pattern": "vendor.89afe428",
+    "Hits": 0
+  },
+  {
+    "Pattern": "vendor-legacy",
+    "Hits": 0
+  },
+  {
+    "Pattern": "polyfills-legacy",
+    "Hits": 0
+  },
+  {
+    "Pattern": "browser.js",
+    "Hits": 0
+  },
+  {
+    "Pattern": "AI.png",
+    "Hits": 0
+  },
+  {
+    "Pattern": "syncTokenToLocalStorage",
+    "Hits": 0
+  },
+  {
+    "Pattern": "bootMainStage",
+    "Hits": 0
+  },
+  {
+    "Pattern": "document.cookie=\"token (PSM hack)",
+    "Hits": 0
+  }
+]

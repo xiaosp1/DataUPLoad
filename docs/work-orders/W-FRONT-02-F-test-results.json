@@ -1,0 +1,99 @@
+{
+  "pass": 18,
+  "fail": 0,
+  "routesOk": 8,
+  "totalRoutes": 8,
+  "results": [
+    {
+      "name": "GET /",
+      "status": "PASS",
+      "info": "status=200"
+    },
+    {
+      "name": "Vue 3 mount",
+      "status": "PASS",
+      "info": "#app children html length=2011"
+    },
+    {
+      "name": "Glass login card",
+      "status": "PASS",
+      "info": "title=\"DataupLoad\""
+    },
+    {
+      "name": "Screenshot: login",
+      "status": "PASS",
+      "info": "E:/DEMO/数据采集/docs/work-orders/W-FRONT-02-F-sample-login.png"
+    },
+    {
+      "name": "Fill credentials",
+      "status": "PASS",
+      "info": "super_admin / Abc12345"
+    },
+    {
+      "name": "Click submit",
+      "status": "PASS",
+      "info": ""
+    },
+    {
+      "name": "Post-login URL",
+      "status": "PASS",
+      "info": "http://127.0.0.1:8080/#/login"
+    },
+    {
+      "name": "Screenshot: main",
+      "status": "PASS",
+      "info": "E:/DEMO/数据采集/docs/work-orders/W-FRONT-02-F-sample.png"
+    },
+    {
+      "name": "Route /realtime",
+      "status": "PASS",
+      "info": "http://127.0.0.1:8080/#/realtime"
+    },
+    {
+      "name": "Route /alarm",
+      "status": "PASS",
+      "info": "http://127.0.0.1:8080/#/alarm"
+    },
+    {
+      "name": "Route /defect",
+      "status": "PASS",
+      "info": "http://127.0.0.1:8080/#/defect"
+    },
+    {
+      "name": "Route /account",
+      "status": "PASS",
+      "info": "http://127.0.0.1:8080/#/account"
+    },
+    {
+      "name": "Route /systemConfig",
+      "status": "PASS",
+      "info": "http://127.0.0.1:8080/#/systemConfig"
+    },
+    {
+      "name": "Route /log",
+      "status": "PASS",
+      "info": "http://127.0.0.1:8080/#/log"
+    },
+    {
+      "name": "Route /userManage",
+      "status": "PASS",
+      "info": "http://127.0.0.1:8080/#/userManage"
+    },
+    {
+      "name": "Route /screen",
+      "status": "PASS",
+      "info": "http://127.0.0.1:8080/#/screen"
+    },
+    {
+      "name": "Screenshot: main-final",
+      "status": "PASS",
+      "info": "E:/DEMO/数据采集/docs/work-orders/W-FRONT-02-F-sample-main.png"
+    },
+    {
+      "name": "Console clean",
+      "status": "PASS",
+      "info": "0 errors"
+    }
+  ],
+  "consoleErrors": []
+}

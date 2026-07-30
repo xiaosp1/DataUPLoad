@@ -1,0 +1,52 @@
+{
+  "status": 200,
+  "title": "英科手套中控平台",
+  "lang": "zh-CN",
+  "appChildrenLen": 2011,
+  "postLoginUrl": "http://127.0.0.1:8080/#/realtime",
+  "consoleErrors": 0,
+  "consoleErrorDetails": [],
+  "requestFailures": 0,
+  "routeResults": [
+    {
+      "route": "alarm",
+      "ok": true,
+      "url": "http://127.0.0.1:8080/#/alarm"
+    },
+    {
+      "route": "defect",
+      "ok": true,
+      "url": "http://127.0.0.1:8080/#/defect"
+    },
+    {
+      "route": "account",
+      "ok": true,
+      "url": "http://127.0.0.1:8080/#/account"
+    },
+    {
+      "route": "systemConfig",
+      "ok": true,
+      "url": "http://127.0.0.1:8080/#/systemConfig"
+    },
+    {
+      "route": "log",
+      "ok": true,
+      "url": "http://127.0.0.1:8080/#/log"
+    },
+    {
+      "route": "userManage",
+      "ok": true,
+      "url": "http://127.0.0.1:8080/#/userManage"
+    },
+    {
+      "route": "screen",
+      "ok": true,
+      "url": "http://127.0.0.1:8080/#/screen"
+    }
+  ],
+  "screenshots": [
+    "E:\\DEMO\\数据采集\\docs\\work-orders\\W-FRONT-02-G0-sample.png",
+    "E:\\DEMO\\数据采集\\docs\\work-orders\\W-FRONT-02-G0-sample-main.png",
+    "E:\\DEMO\\数据采集\\docs\\work-orders\\W-FRONT-02-G0-sample-realtime.png"
+  ]
+}

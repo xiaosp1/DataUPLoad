@@ -1,0 +1,72 @@
+﻿{
+    "pass":  12,
+    "fail":  0,
+    "total":  12,
+    "startedAt":  "2026-07-30T12:15:22.8036157+08:00",
+    "endedAt":  "2026-07-30T12:15:26.9658836+08:00",
+    "durationSec":  4,
+    "backend":  "http://127.0.0.1:8080",
+    "loginInfo":  "status=200",
+    "results":  [
+                    {
+                        "N":  1,
+                        "Name":  "GET / returns Vue 3 SPA entry",
+                        "OK":  true
+                    },
+                    {
+                        "N":  2,
+                        "Name":  "GET /assets/index-CndG5nFH.js (Vue 3 bundle)",
+                        "OK":  true
+                    },
+                    {
+                        "N":  3,
+                        "Name":  "GET /assets/index-B0hMWKcQ.css (Element Plus + glass CSS)",
+                        "OK":  true
+                    },
+                    {
+                        "N":  4,
+                        "Name":  "POST /web/auth/login super_admin/Abc12345 -\u003e 200 + satoken",
+                        "OK":  true
+                    },
+                    {
+                        "N":  5,
+                        "Name":  "GET /web/account/current (satoken)",
+                        "OK":  true
+                    },
+                    {
+                        "N":  6,
+                        "Name":  "GET /web/account/list (page 1, size 10)",
+                        "OK":  true
+                    },
+                    {
+                        "N":  7,
+                        "Name":  "GET /web/alarm/list (page 1, size 10)",
+                        "OK":  true
+                    },
+                    {
+                        "N":  8,
+                        "Name":  "POST /web/detect/day-record/list-between (real path)",
+                        "OK":  true
+                    },
+                    {
+                        "N":  9,
+                        "Name":  "Browser: login page -\u003e main (Vue 3 glass)",
+                        "OK":  true
+                    },
+                    {
+                        "N":  10,
+                        "Name":  "Browser: 8 business routes accessible",
+                        "OK":  true
+                    },
+                    {
+                        "N":  11,
+                        "Name":  "Browser: three-language switch (zh-CN / en-US / id-ID)",
+                        "OK":  true
+                    },
+                    {
+                        "N":  12,
+                        "Name":  "Browser: WS alarm push indicator",
+                        "OK":  true
+                    }
+                ]
+}

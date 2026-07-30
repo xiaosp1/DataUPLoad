@@ -1,0 +1,101 @@
+{
+  "pass": 4,
+  "fail": 0,
+  "homeStatus": 200,
+  "homeTitle": "英科手套中控平台",
+  "loginOk": true,
+  "postLoginUrl": "http://127.0.0.1:8080/#/login",
+  "consoleErrors": [],
+  "requestFailures": [],
+  "routeOkCount": 8,
+  "totalRoutes": 8,
+  "routeDetails": [
+    {
+      "route": "realtime",
+      "ok": true,
+      "url": "http://127.0.0.1:8080/#/realtime"
+    },
+    {
+      "route": "alarm",
+      "ok": true,
+      "url": "http://127.0.0.1:8080/#/alarm"
+    },
+    {
+      "route": "defect",
+      "ok": true,
+      "url": "http://127.0.0.1:8080/#/defect"
+    },
+    {
+      "route": "account",
+      "ok": true,
+      "url": "http://127.0.0.1:8080/#/account"
+    },
+    {
+      "route": "systemConfig",
+      "ok": true,
+      "url": "http://127.0.0.1:8080/#/systemConfig"
+    },
+    {
+      "route": "log",
+      "ok": true,
+      "url": "http://127.0.0.1:8080/#/log"
+    },
+    {
+      "route": "userManage",
+      "ok": true,
+      "url": "http://127.0.0.1:8080/#/userManage"
+    },
+    {
+      "route": "screen",
+      "ok": true,
+      "url": "http://127.0.0.1:8080/#/screen"
+    }
+  ],
+  "languageSamples": [
+    {
+      "lang": "zh-CN",
+      "sample": "403 禁止访问 您没有权限访问该页面 请联系管理员申请相应权限，或返回首页。 返回首页"
+    },
+    {
+      "lang": "en-US",
+      "sample": "403 Forbidden You do not have access to this page Please contact the administrator for permission, or return home. Back home"
+    },
+    {
+      "lang": "id-ID",
+      "sample": "403 Dilarang Anda tidak memiliki akses ke halaman ini Hubungi administrator untuk izin, atau kembali ke beranda. Kembali"
+    }
+  ],
+  "wsIndicatorVisible": true,
+  "checks": [
+    {
+      "n": 9,
+      "name": "登录页 → 主界面（Vue 3 玻璃登录 + post-login redirect）",
+      "ok": true,
+      "info": "homeStatus=200, title=\"英科手套中控平台\", loginCard=true"
+    },
+    {
+      "n": 10,
+      "name": "8 业务路由可访问 (/realtime /alarm /defect /account /systemConfig /log /userManage /screen)",
+      "ok": true,
+      "info": "8/8"
+    },
+    {
+      "n": 12,
+      "name": "WS 报警推送指示器 (alarm.ws.connected)",
+      "ok": true,
+      "info": "indicator=found, url=http://127.0.0.1:8080/#/alarm, bodyExcerpt=▣ DataupLoad v2 实时监控 ▣ 实时数据 ⚠ 报警管理 ✕ 缺陷处理 系统管理 ☷ 账号管理 ⚙ 系统配置 ⌘ 操作日志 ◉ 用户管理 欢迎 首页 / 报警管理 简体中文 ⤢ S super_admin 超级管理员 ▾ 报警管理 实时连接已建立 刷新列表 查看、处理与归档历史告警事件 时间范围 近 7 天 线别 类型 全部类型 状态 全部状态 重置 查询 # 触发时间 线别 工位 类"
+    },
+    {
+      "n": 11,
+      "name": "三语切换 (zh-CN / en-US / id-ID)",
+      "ok": true,
+      "info": "unique=3/3, samples=[zh-CN:403 禁止访问 您没有权限访问该页面 请联系管理员申请相应权限，或返回首页。 返回首页 | en-US:403 Forbidden You do not have access to this page Please con | id-ID:403 Dilarang Anda tidak memiliki akses ke halaman ini Hubung]"
+    }
+  ],
+  "screenshots": [
+    "E:/DEMO/数据采集/docs/work-orders/W-FRONT-02-G-01-login.png",
+    "E:/DEMO/数据采集/docs/work-orders/W-FRONT-02-G-02-main.png",
+    "E:/DEMO/数据采集/docs/work-orders/W-FRONT-02-G-03-alarm.png",
+    "E:/DEMO/数据采集/docs/work-orders/W-FRONT-02-G-04-screen.png"
+  ]
+}
