@@ -1,0 +1,23 @@
+[2026-07-31T00:37:45.245Z] ===== CHECK #5 FIRST PAINT TIMING =====
+[2026-07-31T00:37:45.556Z]   first paint 310ms (status=200)
+[2026-07-31T00:37:45.556Z]   [PASS] #5 First paint < 1500ms (reload 守卫 await fetchCurrent 不阻塞): firstPaint=310ms, status=200
+[2026-07-31T00:37:46.064Z] ===== CHECK #1 LOGIN =====
+[2026-07-31T00:37:49.726Z]   [PASS] #1 Login → /#/realtime: route=#/realtime, token=7c12a647...
+[2026-07-31T00:37:49.726Z] ===== CHECK #2 RELOAD PRESERVES REALTIME =====
+[2026-07-31T00:37:51.243Z]   before reload: #/realtime
+[2026-07-31T00:37:55.859Z]   [PASS] #2 F5 on /#/realtime → stays on /#/realtime (守卫 await fetchCurrent 修复): before=#/realtime, after=#/realtime
+[2026-07-31T00:37:55.859Z] ===== CHECK #3 RELOAD PRESERVES ALARM =====
+[2026-07-31T00:37:58.599Z]   before reload: #/alarm
+[2026-07-31T00:38:04.017Z]   [PASS] #3 F5 on /#/alarm → stays on /#/alarm: before=#/alarm, after=#/alarm
+[2026-07-31T00:38:04.017Z] ===== CHECK #4 RELOAD WITH INVALID COOKIE =====
+[2026-07-31T00:38:04.031Z]   cookies cleared
+[2026-07-31T00:38:08.656Z]   [PASS] #4 Reload with invalid cookie → redirects to /#/login (守卫正确拦截): route=#/login, hasLoginForm=true
+[2026-07-31T00:38:08.656Z] 
+[2026-07-31T00:38:08.656Z] ===== VERIFICATION SUMMARY =====
+[2026-07-31T00:38:08.656Z]   #5 PASS: First paint < 1500ms (reload 守卫 await fetchCurrent 不阻塞)
+[2026-07-31T00:38:08.656Z]   #1 PASS: Login → /#/realtime
+[2026-07-31T00:38:08.656Z]   #2 PASS: F5 on /#/realtime → stays on /#/realtime (守卫 await fetchCurrent 修复)
+[2026-07-31T00:38:08.656Z]   #3 PASS: F5 on /#/alarm → stays on /#/alarm
+[2026-07-31T00:38:08.656Z]   #4 PASS: Reload with invalid cookie → redirects to /#/login (守卫正确拦截)
+[2026-07-31T00:38:08.656Z] TOTAL: 5 PASS, 0 FAIL (out of 5)
+[2026-07-31T00:38:08.659Z] JSON results: E:\DEMO\数据采集\docs\work-orders\W-FRONT-04-C-results.json

@@ -128,8 +128,12 @@ const router = createRouter({
  *   1) public 路由放行；已登录访问 /login 跳 /realtime
  *   2) 非 public 无 satoken → /login
  *   3) 有 satoken 但无 meta.permission → /403
+ *
+ * W-FRONT-04-C: 守卫改成 async,首次 boot 时 (!loaded) await fetchCurrent
+ * 把登录态从后端同步到 pinia,避免 reload 后被踢到 /#/login (#11 FAIL)。
+ * fetchCurrent 失败 (401 / 网络错) 由 axios 全局拦截器统一跳 /login,守卫不用管。
  */
-router.beforeEach((to, _from, next) => {
+router.beforeEach(async (to, _from, next) => {
   // W-FRONT-FLASH: 守卫改用 user store 判定登录态，不再直接读 cookie。
   // 旧版 getCookie('satoken') 在某些时序下偶发失败，导致已登录用户被踢到 /login；
   // 切到 /#/realtime 后 perm.has() 又因 store 未初始化返回 false，再被踢到 /403。
@@ -139,6 +143,16 @@ router.beforeEach((to, _from, next) => {
   let hasPermission = true
   try {
     const userStore = useUserStore()
+    // W-FRONT-04-C: 首次 boot 等待 fetchCurrent 把登录态从后端同步过来。
+    // 如果 cookie 有效,fetchCurrent 会写 loaded=true → 守卫放行;
+    // 如果 cookie 失效,axios 拦截器 401 → 跳 /#/login,守卫无需处理。
+    if (!userStore.loaded) {
+      try {
+        await userStore.fetchCurrent()
+      } catch {
+        // fetchCurrent 失败时 (拦截器已跳登录) 继续走守卫判断
+      }
+    }
     isLoggedIn = userStore.isLoggedIn
     const perm = usePermissionStore()
     const need = to.meta.permission

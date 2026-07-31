@@ -1,0 +1,41 @@
+{
+  "generatedAt": "2026-07-31T00:38:08.656Z",
+  "totals": {
+    "pass": 5,
+    "fail": 0,
+    "total": 5
+  },
+  "results": [
+    {
+      "n": 5,
+      "name": "First paint < 1500ms (reload 守卫 await fetchCurrent 不阻塞)",
+      "status": "PASS",
+      "detail": "firstPaint=310ms, status=200"
+    },
+    {
+      "n": 1,
+      "name": "Login → /#/realtime",
+      "status": "PASS",
+      "detail": "route=#/realtime, token=7c12a647...",
+      "screenshot": "W-FRONT-04-C-01-login-realtime.png"
+    },
+    {
+      "n": 2,
+      "name": "F5 on /#/realtime → stays on /#/realtime (守卫 await fetchCurrent 修复)",
+      "status": "PASS",
+      "detail": "before=#/realtime, after=#/realtime"
+    },
+    {
+      "n": 3,
+      "name": "F5 on /#/alarm → stays on /#/alarm",
+      "status": "PASS",
+      "detail": "before=#/alarm, after=#/alarm"
+    },
+    {
+      "n": 4,
+      "name": "Reload with invalid cookie → redirects to /#/login (守卫正确拦截)",
+      "status": "PASS",
+      "detail": "route=#/login, hasLoginForm=true"
+    }
+  ]
+}

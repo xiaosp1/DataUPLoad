@@ -14,8 +14,20 @@ import { onBeforeUnmount, onMounted } from 'vue'
 import { connectScreenSingleton, disconnectScreenSingleton } from './stores/screen'
 // W-RT-8: 报警徽章数据源（AlarmHint 依赖；与 screen 同款全局单例）
 import { connectAlarmSingleton, disconnectAlarmSingleton } from './stores/alarm'
+// W-FRONT-04-C: reload 路由守卫兜底 — onMounted 里也 await fetchCurrent
+import { useUserStore } from './stores/user'
 
-onMounted(() => {
+onMounted(async () => {
+  // W-FRONT-04-C: 首屏兜底同步登录态。守卫 beforeEach 也会 await,
+  // 但 onMounted 在路由第一次解析后才触发,做二次保险。401 由 axios 拦截器跳 /login。
+  try {
+    const userStore = useUserStore()
+    if (!userStore.loaded) {
+      await userStore.fetchCurrent()
+    }
+  } catch {
+    // ignore — 拦截器已处理
+  }
   connectScreenSingleton()
   connectAlarmSingleton()
 })
