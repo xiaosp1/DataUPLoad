@@ -1,0 +1,1 @@
+import{a as e}from"./index-B5YyeeGj.js";const o="/login";e.interceptors.request.use(s=>s,s=>Promise.reject(s));e.interceptors.response.use(s=>s,s=>{var t;return((t=s==null?void 0:s.response)==null?void 0:t.status)===401&&((window.location.hash||"").includes(`#${o}`)||(window.location.href=`${window.location.pathname}#${o}`)),Promise.reject(s)});

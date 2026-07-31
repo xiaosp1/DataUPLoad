@@ -11,5 +11,10 @@
     </root>
     <logger name="com.hikrobotics" level="INFO"/>
     <logger name="org.springframework" level="INFO"/>
-    <logger name="com.baomidou.mybatisplus" level="INFO"/>
+    <logger name="com.baomidou.mybatisplus" level="DEBUG"/>
+    <logger name='com.hikrobotics.solution.framework.component.account.mapper' level='DEBUG'/>
 </configuration>
+
+
+
+

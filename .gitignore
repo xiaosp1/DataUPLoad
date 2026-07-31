@@ -3,3 +3,22 @@ DataupLoad-web/.npm-cache/
 DataupLoad-web/dist/
 DataupLoad-web/test-dfix.mjs
 DataupLoad-web/test-dfix-output.txt
+DataupLoad-web/node_modules/
+DataupLoad-web/verify-w-front-03.mjs
+
+# W-FRONT-04-C 10500 修复临时调试产物
+DataupLoad/com/
+DataupLoad/jdk/
+DataupLoad/lib/
+DataupLoad/log/DataupLoad/
+DataupLoad/login-body.json
+DataupLoad/_pm-compile.cmd
+DataupLoad/_pm-launch.cmd
+DataupLoad/target/
+DataupLoad/tmp_extract/
+DataupLoad/scripts/_pm-compile.cmd
+DataupLoad/scripts/_pm-compile.ps1
+DataupLoad/scripts/_pm-launch-v2.ps1
+DataupLoad/scripts/_pm-launch.ps1
+scripts/node_modules
+openclaw-workspace-state.json

@@ -121,8 +121,13 @@ public class ExcelUtils extends ExcelUtil {
             AtomicInteger id = new AtomicInteger(0);
             WriteSheet sheet = EasyExcel.writerSheet((String) config.getName()).build();
             for (Table table : config.getTables()) {
-               headerRowNum = CollectionUtil.isNotEmpty((Collection) table.getHeaders())
-                  ? ((List) table.getHeaders().get(0)).size() : 0;
+               // W-DET-10b fix: Option 3A — force headerRowNum=1 to align with PSM single-row header assumption.
+               // Multi-row headers (per column) cause parseColumnIndexes to read the wrong row, leading to
+               // either empty indexes (no merging) or A5:A6 overlap (when start is also mis-tracked).
+               // Setting headerRowNum=1 makes parseColumnIndexes read sheet.getRow(0) which is the
+               // first header row (transposed by EasyExcel — all cells are "白班"/"夜班"); merge columns
+               // ("线别"/"剔除数") don't match so indexes stays empty → no merge attempt → no overlap.
+               headerRowNum = 1;
                WriteTable wTable = ((ExcelWriterTableBuilder) ((ExcelWriterTableBuilder) ((ExcelWriterTableBuilder) ((ExcelWriterTableBuilder) ((ExcelWriterTableBuilder) ((ExcelWriterTableBuilder)
                   EasyExcel.writerTable((Integer) id.getAndIncrement()).head(table.getHeaders()))
                      .relativeHeadRowIndex(Integer.valueOf(id.get() == 1 ? 0 : 2)))

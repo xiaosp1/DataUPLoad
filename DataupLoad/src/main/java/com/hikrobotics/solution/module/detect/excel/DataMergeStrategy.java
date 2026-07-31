@@ -141,7 +141,8 @@ public class DataMergeStrategy extends AbstractRowWriteHandler {
       int startRow = this.headerSize;
       while (startRow <= this.rowCounts) {
          Row cRow;
-         Row row = sheet.getRow(startRow);
+         // W-DET-10b fix: 多 table 场景下需 + this.start 偏移，否则 table2 会读到 table1 的行
+         Row row = sheet.getRow(startRow + this.start);
          if (row == null) {
             startRow++;
             continue;
@@ -151,7 +152,8 @@ public class DataMergeStrategy extends AbstractRowWriteHandler {
          String firstVal = this.getCellValue(row.getCell(0));
          int endRow = startRow;
          int i = startRow + 1;
-         while (i <= this.rowCounts && (cRow = sheet.getRow(i)) != null) {
+         // W-DET-10b fix: 同上，sheet 行索引需 + this.start 偏移
+         while (i <= this.rowCounts && (cRow = sheet.getRow(i + this.start)) != null) {
             Cell cCell = cRow.getCell(columnIndex.intValue());
             String cValue = this.getCellValue(cCell);
             String cFirstVal = this.getCellValue(cRow.getCell(0));

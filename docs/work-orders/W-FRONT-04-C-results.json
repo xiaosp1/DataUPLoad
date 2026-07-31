@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-31T00:38:08.656Z",
+  "generatedAt": "2026-07-31T05:42:55.311Z",
   "totals": {
     "pass": 5,
     "fail": 0,
@@ -10,13 +10,13 @@
       "n": 5,
       "name": "First paint < 1500ms (reload 守卫 await fetchCurrent 不阻塞)",
       "status": "PASS",
-      "detail": "firstPaint=310ms, status=200"
+      "detail": "firstPaint=1219ms, status=200"
     },
     {
       "n": 1,
       "name": "Login → /#/realtime",
       "status": "PASS",
-      "detail": "route=#/realtime, token=7c12a647...",
+      "detail": "route=#/realtime, token=744fdd8e...",
       "screenshot": "W-FRONT-04-C-01-login-realtime.png"
     },
     {

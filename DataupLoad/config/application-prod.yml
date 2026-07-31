@@ -4,6 +4,12 @@ server:
     threads:
       max: 1000
 
+# W-AUTH-01 P1 修复：framework-starter 的 message bundle 在 i18n/framework/messages.properties，
+# Spring Boot 默认 basename=messages 找不到，导致 LocaleUtil.getMsg() 抛 NoSuchMessageException
+# 触发 10101/20204 等错误码时 BaseResult 序列化失败 → HTTP 500。
+# 必须把 basename 指向 framework-starter 实际位置。
+spring.messages.basename: i18n/framework/messages
+
 # yk（鹰科）模块 - PSM 同款配置，老板说报警通过 yk 推 MES，MES 转飞书
 # 2026-07-22 18:01 PM 老板下令熔断：yk 推送关闭（报警继续落 PG）
 # 2026-07-22 21:20 PM 老板拍板同意 enable=true 推 1 条测试
@@ -90,8 +96,14 @@ hik-security:
       - /client/**
       - /web/upload/file
       - /web/defect**
+      - /web/detect/**
+      # W-AUTH-01 反转：放开 account 体系后必须白名单
+      - /web/auth/**
+      - /web/account/**
   oauth:
     # framework-starter 必需 OAuth2Properties bean（W-B05 修复：缺此段启动报 UnsatisfiedDependency）
+    # W-AUTH-01：登录链路走 sa-token（LoginController.login + StpUtil.login），
+    # 不依赖 OAuth2 access_token；enable=false 保持现状避免 redis 依赖
     enable: false
     token-timeout: 7200
     scope-map: []
@@ -118,8 +130,16 @@ mybatis-plus:
   configuration:
     settings:
       useCursorFetch: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  # W-FRONT-04-C 10500 修复：framework-starter jar 里 AccountMapper.xml 在 framework/mapper/，
+  # interface AccountDAO 在 framework/component/account/mapper/。Spring 默认的 classpath*:com/**/mapper/*.xml
+  # 在某些时序下扫不到 jar 内的嵌套 zipEntry。显式指向文件系统路径确保加载。
+  # 同时清空默认配置防止重复扫描。
+  mapper-locations:
+    - file:./target/classes/mapper/*.xml
 
 # 加密狗：按 ADR-0004 不移植
 dongle:
   enabled: false
+
 

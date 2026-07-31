@@ -1,4 +1,4 @@
-# W-FRONT-02-C PM verify script (去 PSM 守卫 hack)
+﻿# W-FRONT-02-C PM verify script (去 PSM 守卫 hack)
 
 $ErrorActionPreference = 'Continue'
 $pass = 0
@@ -64,13 +64,13 @@ Check 'NO document.cookie="token hack' ($tokenHackHits.Count -eq 0) 'should be 0
 $syncHits = GrepRecursive -Pattern 'syncTokenToLocalStorage' -Dir (Join-Path $root 'src')
 Check 'NO syncTokenToLocalStorage function' ($syncHits.Count -eq 0) 'should be 0 hits'
 
-$getTokenHits = GrepRecursive -Pattern "getCookie\(['"'"'"]token['"'"'"]\)" -Dir (Join-Path $root 'src')
+$getTokenHits = GrepRecursive -Pattern "getCookie\('token'\)" -Dir (Join-Path $root 'src')
 Check 'NO getCookie(token) — must use satoken' ($getTokenHits.Count -eq 0) 'should be 0 hits'
 
 # 11 router beforeEach 读 satoken
 $routerContent = ''
 if (SafeExists $routerFile) { $routerContent = SafeRead $routerFile }
-Check 'router beforeEach reads satoken' ($routerContent -match "getCookie\(['"'"'"]satoken['"'"'"]\)") 'should use getCookie(''satoken'')'
+Check 'router beforeEach reads satoken' ($routerContent -match "getCookie\('satoken'\)") 'should use getCookie(''satoken'')'
 
 # 12 withCredentials
 $authContent = ''
