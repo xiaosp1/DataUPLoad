@@ -22,10 +22,10 @@ echo   ROOT: %ROOT%
 echo ==========================================
 echo.
 
-REM ---------- 1. check JDK ----------
+REM ---------- 1. check JDK (prefer java.exe, hik-java.exe as fallback) ----------
 set JAVAEXE=
 if exist "%SERVER%\jdk\bin\java.exe" set JAVAEXE=%SERVER%\jdk\bin\java.exe
-if exist "%SERVER%\jdk\bin\hik-java.exe" set JAVAEXE=%SERVER%\jdk\bin\hik-java.exe
+if not defined JAVAEXE if exist "%SERVER%\jdk\bin\hik-java.exe" set JAVAEXE=%SERVER%\jdk\bin\hik-java.exe
 if not defined JAVAEXE (
   echo [ERROR] JDK not found: %SERVER%\jdk\bin\
   goto :end
