@@ -434,6 +434,11 @@ public class AlarmRecordServiceImpl extends ServiceImpl<AlarmRecordMapper, Alarm
       for (DefectAlarmConfig.DefectTypeConfig config : this.alarmConfig.getConfig()) {
          if (config.getType().toUpperCase().equals(alarmType.name())) {
             message = ReUtil.get(config.getTemplate(), form.getMessage(), 0);
+            // null-safe：template 正则匹配不到任何分组时 ReUtil.get 返回 null，
+            // 回退到原始 message，避免后续 message.contains(name) NPE（产线/测试都适用）
+            if (message == null) {
+               message = form.getMessage();
+            }
 
             for (String name : sortDefectTypeByName.keySet()) {
                if (message.contains(name)) {

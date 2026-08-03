@@ -167,7 +167,11 @@ public class DefectRecordServiceImpl
          LambdaQueryWrapper<LineDayRecord> lineQw = (LambdaQueryWrapper<LineDayRecord>)((LambdaQueryWrapper<LineDayRecord>)((LambdaQueryWrapper<LineDayRecord>)Wrappers
                   .lambdaQuery(LineDayRecord.class).eq(LineDayRecord::getTime, lineDayTime))
                .eq(LineDayRecord::getLineNo, form.getLineNo()))
-            .eq(LineDayRecord::getFaceNo, form.getFaceNo());
+            .eq(LineDayRecord::getFaceNo, form.getFaceNo())
+            // 防抖：历史存在同 (time,line_no,face_no) 重复行，selectOne 会抛 TooManyResults → 10500。
+            // 改为按 id 倒序取最新一条，重复时也用最新值，不再炸。
+            .orderByDesc(LineDayRecord::getId)
+            .last("LIMIT 1");
          LineDayRecord lineDayRecord = this.lineDayRecordMapper.selectOne(lineQw);
          if (lineDayRecord == null) {
             lineDayRecord = new LineDayRecord()
@@ -188,7 +192,9 @@ public class DefectRecordServiceImpl
                   .lambdaQuery(LineDayRecord.class).eq(LineDayRecord::getTime,
                      HikDateUtil.formatLocalDate(lastHoursTime, "yyyy-MM-dd HH") + ":00:00"))
                .eq(LineDayRecord::getLineNo, line.getLineNo()))
-            .eq(LineDayRecord::getFaceNo, line.getFaceNo());
+            .eq(LineDayRecord::getFaceNo, line.getFaceNo())
+            .orderByDesc(LineDayRecord::getId)
+            .last("LIMIT 1");
          LineDayRecord lastHoursData = this.lineDayRecordMapper.selectOne(lastQw);
 
          Integer removeTotal;
