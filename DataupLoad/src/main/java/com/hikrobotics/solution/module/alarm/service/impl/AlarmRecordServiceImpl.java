@@ -650,7 +650,11 @@ public class AlarmRecordServiceImpl extends ServiceImpl<AlarmRecordMapper, Alarm
          WsMessage wsData = WsMessage.build()
             .type(WsTypeEnum.ALARM_SOUND.getValue())
             .data(soundMsg);
-         this.webSocketHandler.broadcastByUid(wsData.toJsonString(), "web");
+         // W-ALARM-PUSH：改按 type 广播（broadcastByType "alarm"）而非 uid="web"。
+         // 原因：前端登录后 WS 用 uid=用户id&type=alarm 连接（stores/alarm.ts + Alarm.vue），
+         // 后端若 broadcastByUid(…,"web") 只命中 uid="web" 客户端，登录态前端永远收不到推送。
+         // 改 type 广播后，所有 type=alarm 连接（无论 uid）都能收到。
+         this.webSocketHandler.broadcastByType(wsData.toJsonString(), "alarm");
       } catch (Exception ex) {
          // 推送失败不应阻塞报警链路；log 后吞掉（与 sendAlarmTextMessage 处理一致）。
          log.warn("broadcast sound ws msg failed. cause: {}", ex.toString());
@@ -662,7 +666,8 @@ public class AlarmRecordServiceImpl extends ServiceImpl<AlarmRecordMapper, Alarm
       List<AlarmRecord> alarms = this.listNotResolveDefectAlarmRecord();
       try {
          WsMessage wsData = WsMessage.build().type(WsTypeEnum.ALARM.getValue()).data(alarms);
-         this.webSocketHandler.broadcastByUid(wsData.toJsonString(), "web");
+         // W-ALARM-PUSH：同上，改为按 type 广播 "alarm"，保证登录态前端（uid=用户id）能收到。
+         this.webSocketHandler.broadcastByType(wsData.toJsonString(), "alarm");
       } catch (Exception ex) {
          log.warn("broadcastByUid failed (likely no ws clients). cause: {}", ex.toString());
       }

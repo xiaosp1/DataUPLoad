@@ -1,7 +1,21 @@
 # HEARTBEAT.md
 
 <!-- 项目心跳任务；留空/注释则跳过 -->
-<!-- 最近快照: 2026-08-03 15:44（W-FLASH-02 全站界面闪烁根治，现场确认通过） -->
+<!-- 最近快照: 2026-08-03 18:20（W-ALARM-PUSH 报警推送根治：末端 uid 广播错位修复） -->
+
+## 当前状态（2026-08-03 18:20）— W-ALARM-PUSH 报警推送根治 ✅ 老板验收中
+
+- [x] **老板发现**："报警推送功能并未实现"（登录后前端收不到实时报警）
+- [x] **根因（WS uid 广播错位）**：
+  - 前端报警 WS 一律 `uid = userStore.id ? String(userStore.id) : 'web'`，**登录后 uid=用户id(1)**，type=alarm
+  - 后端 `sendAlarmTextMessage()` / `sendAlarmSoundWsMessage()` 用 `broadcastByUid(json, "web")` → 只推给 **uid="web"** 的 session
+  - **登录态前端 uid=1 ≠ web → 永远收不到推送**；只有未登录/登出（uid 回到 web）才能收到
+- [x] **WS 实测实证**：连 uid=1 vs uid=web 两个 alarm WS —— uid=web 收到 alarm+sound 2 条，uid=1 0 条
+- [x] **修复**：`AlarmRecordServiceImpl` 两处 `broadcastByUid(…,"web")` → `broadcastByType(…,"alarm")`（按 type 广播，登录态用户也能收到；与 `AlarmWebSocketHandler.push()` 现用法一致）
+- [x] **修复后 WS 实测**：uid=1 收到 alarm+sound 3 条，POST /client/data/alarm → success ✅
+- [x] **未影响产线**：重启后 2 分钟 detect 412 ok / 0 10500
+- [x] **后端**：PID 27736, port 8080
+- [x] **待老板浏览器验收**：登录平台 → 触发一条报警 → 实时弹窗/徽章出现
 
 ## 当前状态（2026-08-03 15:44）— W-FLASH-02 全站界面闪烁根治 ✅ commit+push
 
