@@ -16,7 +16,7 @@ server:
 spring.messages.basename: i18n/framework/messages
 
 # yk（鹰科）模块 - PSM 同款配置
-# 2026-08-03 P3 部署：MES 用测试地址（之前成功过 192.168.32.86:1025），车间号 QZP3
+# 2026-08-03 P3 部署：MES 用生产网关 192.168.80.33:10031，车间号 QZP3
 yk:
   loginEnabled: true   # 预热 ticket
   uploadEnabled: true  # P3 正式上线：报警推 MES（老板拍板）
@@ -24,10 +24,10 @@ yk:
   username: HKSJSB
   password: HKSJSB123
   login-interval: 50
-  # P3 MES 测试网关（文档实证：英科测试环境）
-  url: http://192.168.32.86:1025/api/dataportal/invoke
-  # 生产网关备选（当前 QZN2 在用）：
-  # url: http://192.168.80.33:10031/api/dataportal/invoke
+  # P3 MES 生产网关（当前 QZN2 在用）
+  url: http://192.168.80.33:10031/api/dataportal/invoke
+  # 测试网关备选（文档实证：英科测试环境，之前成功过）：
+  # url: http://192.168.32.86:1025/api/dataportal/invoke
 
 # MES HTTP 接口配置（沿用 PSM yk 推送链路的 MES 端点）
 http:

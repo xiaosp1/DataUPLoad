@@ -36,7 +36,7 @@ P3-deploy/
 |----|-----|
 | 车间号 workshop | QZP3 |
 | 后端端口 | 8080 |
-| MES 地址 | http://192.168.32.86:1025/api/dataportal/invoke |
+| MES 地址 | http://192.168.80.33:10031/api/dataportal/invoke（生产网关） |
 | 报警推 MES | uploadEnabled: true |
 | 数据库 | 127.0.0.1:5432/intco（嵌入式 PG，密码 Abc12345） |
 | 连接池 | 200/40/30s（100 产线规模） |
@@ -73,4 +73,4 @@ Line7A=.62  Line7B=.63  Line8A=.64  Line8B=.65
 - install.bat 需**管理员权限**（装 PG 服务 + 写启动文件夹）
 - 若 8080 被占用：改 `server\config\application-prod.yml` 的 `server.port`，或桌面端"参数配置"改
 - 若 P3 产线 IP 有变化：桌面端"参数配置"→ 白名单 IP 更新 → 保存 → 重启后端
-- MES 地址若换生产环境：改 `yk.url` 为 `http://192.168.80.33:10031/api/dataportal/invoke`
+- MES 地址若换测试环境：改 `yk.url` 为 `http://192.168.32.86:1025/api/dataportal/invoke`
