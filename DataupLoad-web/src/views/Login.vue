@@ -91,6 +91,8 @@ import { useRouter } from 'vue-router'
 import { GlassCard, GlassButton } from '../components'
 import { login } from '../api/auth'
 import { useUserStore } from '../stores/user'
+// W-ALARM-PUSH-FRONT：登录成功后重拉报警基线（App.vue onMounted 时的 baseline 可能因未登录 10401 失败）
+import { loadAlarmBaseline } from '../stores/alarm'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -126,6 +128,9 @@ async function onSubmit(): Promise<void> {
         // 拉取失败不阻塞登录跳转（最坏情况路由守卫跳 /403，用户可重新登录）
         console.warn('[login] fetchCurrent failed', e)
       }
+      // W-ALARM-PUSH-FRONT：登录成功后再拉一次报警基线（此时 satoken cookie 已带）
+      // 修复：未登录访问时 connectAlarmSingleton 里 baseline 10401 失败 → 悬窗永远空
+      void loadAlarmBaseline()
       // 直接跳到默认主页
       await router.push({ name: 'RealTime' })
     } else {

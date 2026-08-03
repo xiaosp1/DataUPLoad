@@ -730,22 +730,28 @@ function connectWs() {
     type: 'alarm',
     onMessage(msg) {
       // 兼容多种后端消息形态：
-      //   { type: 'alarm', payload: <AlarmRecord | { data: AlarmRecord }> }
+      //   { type: 'alarm', data: <AlarmRecord | AlarmRecord[] | { data: AlarmRecord }> }
+      //   { type: 'alarm', payload: <...> }
       //   { type: 'data', payload: any }
       const tp = String(msg?.type || '')
-      const payload = msg?.payload
-      if (!payload || typeof payload !== 'object') return
-      let alarm: AlarmRecord | null = null
-      if (tp === 'alarm') {
-        // payload 可能是 record 直接，也可能是 { data: record }
-        const cand: any = (payload as any).data ?? payload
-        if (cand && (cand.id || cand.uuid || cand.message || cand.time)) {
-          alarm = cand as AlarmRecord
+      // 后端 WsMessage.build().data(alarms) 序列化后是 data 字段（不是 payload）
+      const raw = (msg as any)?.data ?? (msg as any)?.payload
+      if (!raw || typeof raw !== 'object') return
+      // 后端 sendAlarmTextMessage() 推的是未处理报警**数组**（data: [...]），必须逐条处理
+      const list = Array.isArray(raw) ? raw : ((raw as any)?.data ?? raw)
+      const arr = Array.isArray(list) ? list : [list]
+      for (const item of arr) {
+        if (!item || typeof item !== 'object') continue
+        let alarm: AlarmRecord | null = null
+        if (tp === 'alarm') {
+          if (item && (item.id || item.uuid || item.message || item.time)) {
+            alarm = item as AlarmRecord
+          }
+        } else if (tp === 'push-alarm' || tp === 'new-alarm') {
+          alarm = item as AlarmRecord
         }
-      } else if (tp === 'push-alarm' || tp === 'new-alarm') {
-        alarm = (payload as any).data ?? payload
+        if (alarm) pushIncomingAlarm(alarm)
       }
-      if (alarm) pushIncomingAlarm(alarm)
     },
     onState(s) {
       wsState.value = s

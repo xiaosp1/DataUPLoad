@@ -1,7 +1,20 @@
 # HEARTBEAT.md
 
 <!-- 项目心跳任务；留空/注释则跳过 -->
-<!-- 最近快照: 2026-08-03 18:20（W-ALARM-PUSH 报警推送根治：末端 uid 广播错位修复） -->
+<!-- 最近快照: 2026-08-03 19:05（W-ALARM-PUSH-FRONT 报警悬窗数据修复：前端 WS 解析 bug 根治） -->
+
+## 当前状态（2026-08-03 19:05）— W-ALARM-PUSH-FRONT 报警悬窗数据修复 ✅ 老板验收中
+
+- [x] **老板 8/3 18:50 反馈**："大屏上的这个报警悬窗还是没有数据"（悬窗一直显示"无未处理报警"空状态）
+- [x] **排查排除项**：后端 /web/alarm/list 有数据（125 万条）、后端 WS 推送正常（uid=1 能收到 alarm+sound）、大屏 REST snapshot 全 200
+- [x] **根因（前端 2 bug + 1 时序）**：
+  1. **WS 字段错位**：后端推 `{"type":"alarm","data":[...]}`，前端 onMessage 读 `msg.payload`（不存在）→ 全部丢弃
+  2. **数组不解析**：后端推未处理报警数组，前端只认单条对象
+  3. **baseline 时序**：App.vue 未登录时拉基线 → 10401 失败；登录后没重拉 → 存量未处理报警进不来
+- [x] **修复（3 文件）**：stores/alarm.ts + views/Alarm.vue 改读 `msg.data ?? msg.payload` + 数组遍历；Login.vue 登录成功重拉 baseline
+- [x] **部署**：vite build 13s → bundle index-C8u2luyA.js 拷到 web/assets + index.html 更新引用
+- [x] **headless 验证**：悬窗 5 条真实报警 + 徽章 99+；报警页 76 行；大屏 alarmItems=10 + WS 已连接
+- [x] **待老板验收**：强刷页面（Ctrl+Shift+R）→ 登录 → 右上角铃铛 99+ / hover 5 条报警
 
 ## 当前状态（2026-08-03 18:20）— W-ALARM-PUSH 报警推送根治 ✅ 老板验收中
 

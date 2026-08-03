@@ -183,34 +183,37 @@ export function connectAlarmSingleton(): void {
     type: 'alarm',
     onMessage(msg: WsMessage) {
       // 兼容多种后端推送形态（与 Alarm.vue pushIncomingAlarm 一致）：
-      //   { type: 'alarm', payload: <AlarmRecord | { data: AlarmRecord }> }
+      //   { type: 'alarm', data: <AlarmRecord | AlarmRecord[] | { data: AlarmRecord }> }
+      //   { type: 'alarm', payload: <...> }
       //   { type: 'push-alarm' | 'new-alarm', payload: any }
       const tp = String(msg?.type || '')
-      const payload = msg?.payload
-      if (!payload || typeof payload !== 'object') return
+      // 后端 WsMessage.build().data(alarms) 序列化后是 data 字段（不是 payload）
+      const raw = (msg as any)?.data ?? (msg as any)?.payload
+      if (!raw || typeof raw !== 'object') return
 
-      let alarm: AlarmHintItem | null = null
-      if (tp === 'alarm') {
-        const cand: any = (payload as any).data ?? payload
-        // 仅关心未处理报警（solve=2）；后端可能不带 solve 字段，过滤交给展示层
-        if (cand && (cand.id || cand.uuid || cand.message || cand.time)) {
-          alarm = normalize(cand)
+      // 后端 sendAlarmTextMessage() 推的是未处理报警**数组**（data: [...]），
+      // 前端必须逐条 normalize 才能进 recent；只认单条会全部丢弃。
+      const list = Array.isArray(raw) ? raw : ((raw as any)?.data ?? raw)
+      const arr = Array.isArray(list) ? list : [list]
+      for (const item of arr) {
+        let alarm: AlarmHintItem | null = null
+        if (tp === 'alarm' || tp === 'push-alarm' || tp === 'new-alarm') {
+          if (item && typeof item === 'object' && (item.id || item.uuid || item.message || item.time)) {
+            alarm = normalize(item)
+          }
         }
-      } else if (tp === 'push-alarm' || tp === 'new-alarm') {
-        alarm = normalize((payload as any).data ?? payload)
-      }
-
-      if (!alarm) return
-      // 增量 → recent 头插 + pending++
-      pushRecent(alarm)
-      alarmState.pending += 1
-      // 通知所有订阅者（Badge 弹窗动画/声音用）
-      for (const sub of runtime.subscribers) {
-        try {
-          sub.cb(alarm)
-        } catch (err) {
-          // eslint-disable-next-line no-console
-          console.warn('[alarmStore] subscriber callback threw:', err)
+        if (!alarm) continue
+        // 增量 → recent 头插 + pending++
+        pushRecent(alarm)
+        alarmState.pending += 1
+        // 通知所有订阅者（Badge 弹窗动画/声音用）
+        for (const sub of runtime.subscribers) {
+          try {
+            sub.cb(alarm)
+          } catch (err) {
+            // eslint-disable-next-line no-console
+            console.warn('[alarmStore] subscriber callback threw:', err)
+          }
         }
       }
     },

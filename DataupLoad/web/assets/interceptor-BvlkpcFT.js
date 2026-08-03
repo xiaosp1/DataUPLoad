@@ -1,0 +1,1 @@
+import{a as o,r as t}from"./index-C8u2luyA.js";o.interceptors.request.use(e=>e,e=>Promise.reject(e));o.interceptors.response.use(e=>e,e=>{var s;return((s=e==null?void 0:e.response)==null?void 0:s.status)===401&&t.currentRoute.value.name!=="Login"&&(document.cookie="satoken=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/",t.push({name:"Login"})),Promise.reject(e)});
