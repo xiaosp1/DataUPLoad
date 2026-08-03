@@ -1,0 +1,27 @@
+{
+  "name": "dataupload-manager",
+  "version": "0.1.0",
+  "private": true,
+  "description": "DataupLoad P3 工控机部署管理桌面端",
+  "main": "electron/main.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "electron:dev": "electron .",
+    "electron:build": "vite build && electron-builder"
+  },
+  "dependencies": {
+    "@element-plus/icons-vue": "^2.3.0",
+    "element-plus": "^2.7.0",
+    "js-yaml": "^4.1.0",
+    "vue": "^3.4.0",
+    "vue-router": "^4.3.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.0",
+    "electron": "^30.0.0",
+    "electron-builder": "^24.13.0",
+    "sass-embedded": "^1.100.0",
+    "vite": "^5.2.0"
+  }
+}

@@ -1,0 +1,95 @@
+// 玻璃风设计 Token（与 DataupLoad-web/src/styles/tokens.scss 对齐）
+:root {
+  // 背景
+  --bg-deep: #0a1220;
+  --bg-base: #0d1628;
+  --bg-panel: rgba(20, 32, 58, 0.72);
+  --bg-panel-solid: #141f3a;
+
+  // 玻璃
+  --glass-blur: 16px;
+  --glass-saturate: 150%;
+  --glass-radius: 14px;
+  --glass-border: rgba(148, 190, 255, 0.16);
+  --glass-shadow: 0 8px 32px rgba(0, 8, 24, 0.45);
+
+  // 文字
+  --text-primary: #e8f0ff;
+  --text-secondary: #93a6c9;
+  --text-dim: #5c6f96;
+
+  // 主色
+  --brand: #3b82f6;
+  --brand-light: #60a5fa;
+  --brand-glow: rgba(59, 130, 246, 0.35);
+
+  // 状态色
+  --ok: #22c55e;
+  --warn: #f59e0b;
+  --err: #ef4444;
+  --ok-glow: rgba(34, 197, 94, 0.28);
+  --warn-glow: rgba(245, 158, 11, 0.28);
+  --err-glow: rgba(239, 68, 68, 0.28);
+
+  // Element Plus 覆盖
+  --el-color-primary: #3b82f6;
+  --el-color-success: #22c55e;
+  --el-color-warning: #f59e0b;
+  --el-color-danger: #ef4444;
+  --el-bg-color: #141f3a;
+  --el-bg-color-overlay: #182545;
+  --el-text-color-primary: #e8f0ff;
+  --el-text-color-regular: #aab8d8;
+  --el-border-color: rgba(148, 190, 255, 0.16);
+  --el-fill-color-blank: rgba(20, 31, 58, 0.6);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body, #app {
+  height: 100%;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: 'Inter', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  overflow: hidden;
+  user-select: none;
+}
+
+// 玻璃面板
+.glass {
+  background: var(--bg-panel);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--glass-radius);
+  box-shadow: var(--glass-shadow);
+}
+
+// 状态点
+.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+.dot--ok { background: var(--ok); box-shadow: 0 0 8px var(--ok-glow); }
+.dot--warn { background: var(--warn); box-shadow: 0 0 8px var(--warn-glow); }
+.dot--err { background: var(--err); box-shadow: 0 0 8px var(--err-glow); }
+.dot--off { background: var(--text-dim); }
+
+// 滚动条
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-thumb { background: rgba(148, 190, 255, 0.22); border-radius: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+
+// Element Plus 深色化
+.el-card { --el-card-bg-color: transparent; border: none; box-shadow: none; }
+.el-button { border-radius: 8px; }
+.el-input__wrapper, .el-select__wrapper {
+  background: rgba(10, 18, 32, 0.55);
+  box-shadow: 0 0 0 1px var(--glass-border) inset;
+}
+.el-table {
+  --el-table-bg-color: transparent;
+  --el-table-tr-bg-color: transparent;
+  --el-table-header-bg-color: rgba(10, 18, 32, 0.5);
+  --el-table-border-color: rgba(148, 190, 255, 0.1);
+  --el-table-text-color: var(--text-primary);
+  --el-table-header-text-color: var(--text-secondary);
+  --el-table-row-hover-bg-color: rgba(59, 130, 246, 0.08);
+}
