@@ -31,3 +31,14 @@ DataupLoad-manager/release/
 # 其他
 .tmp/
 DataupLoad-web/.npm-cache/
+
+# 本地运行时产物（不进 git）
+DataupLoad/lib/
+DataupLoad/jdk/
+DataupLoad/log/
+DataupLoad/com/
+DataupLoad/app.err
+DataupLoad/app.log
+DataupLoad/current-pid.txt
+DataupLoad/_pm-compile.cmd
+DataupLoad/_pm-launch.cmd
