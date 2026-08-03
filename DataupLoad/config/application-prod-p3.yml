@@ -1,0 +1,131 @@
+server:
+  port: 8080
+  tomcat:
+    threads:
+      max: 1000
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+# W-AUTH-01 P1 修复：framework-starter 的 message bundle 在 i18n/framework/messages.properties，
+# Spring Boot 默认 basename=messages 找不到，导致 LocaleUtil.getMsg() 抛 NoSuchMessageException
+# 触发 10101/20204 等错误码时 BaseResult 序列化失败 → HTTP 500。
+# 必须把 basename 指向 framework-starter 实际位置。
+spring.messages.basename: i18n/framework/messages
+
+# yk（鹰科）模块 - PSM 同款配置
+# 2026-08-03 P3 部署：MES 用测试地址（之前成功过 192.168.32.86:1025），车间号 QZP3
+yk:
+  loginEnabled: true   # 预热 ticket
+  uploadEnabled: true  # P3 正式上线：报警推 MES（老板拍板）
+  workshop: QZP3
+  username: HKSJSB
+  password: HKSJSB123
+  login-interval: 50
+  # P3 MES 测试网关（文档实证：英科测试环境）
+  url: http://192.168.32.86:1025/api/dataportal/invoke
+  # 生产网关备选（当前 QZN2 在用）：
+  # url: http://192.168.80.33:10031/api/dataportal/invoke
+
+# MES HTTP 接口配置（沿用 PSM yk 推送链路的 MES 端点）
+http:
+  port: 8080
+
+# 报警推送规则（沿用 PSM alarm.config）
+alarm:
+  global-enabled: true
+  config:
+    - type: defect
+      template: (?<=\[)[^]]+(?=\])
+    - type: system
+      template: ^([^。]*)
+    - type: device
+      template: ^([^。]*)
+
+# HikVision 上传文件存储（沿用 PSM）
+hik-upload:
+  store-path: /data
+  file-config:
+    - type: 1
+      ttl: -1
+      path: /sound
+      strategy: rename
+
+spring:
+  datasource:
+    dynamic:
+      hikari:
+        maximum-pool-size: 200
+        minimum-idle: 40
+        connection-timeout: 30000
+        idle-timeout: 300000
+        max-lifetime: 1200000
+        leak-detection-threshold: 60000
+      primary: master
+      lazy: true
+      strict: false
+      datasource:
+        master:
+          driver-class-name: org.postgresql.Driver
+          # P3 嵌入式 PG（端口 5432）
+          url: jdbc:postgresql://127.0.0.1:5432/intco?allowMultiQueries=true
+          username: postgres
+          password: postgres
+  flyway:
+    enabled: true
+    out-of-order: true
+    baseline-on-migrate: true
+    baseline-version: 1.20
+    baseline-description: 'PSM 19 versions + ignore_alarm 1.20 pre-existing in DB'
+    locations: classpath:sql/,classpath:db/migration/
+
+# Hik 安全认证白名单（沿用 PSM）
+hik-security:
+  auth:
+    uri-permit:
+      - /data/**
+      - /ws/**
+      - /img/**
+      - /client/**
+      - /web/upload/file
+      - /web/defect**
+      - /web/detect/**
+      # W-AUTH-01 反转：放开 account 体系后必须白名单
+      - /web/auth/**
+      - /web/account/**
+  oauth:
+    enable: false
+    token-timeout: 7200
+    scope-map: []
+    uri-permit: []
+
+# 静态资源映射（沿用 PSM）
+hik-res:
+  res-map:
+    - handlers: /data/**
+      locations: file:./data/
+
+# Hik 日志 trace
+hik-log:
+  trace:
+    print: false
+    uri-ignore:
+      - /ws/**
+      - /client/data/defect
+      - /client/data/status
+      - /client/data/alarm
+
+# MyBatis-Plus 配置（沿用 PSM）
+mybatis-plus:
+  configuration:
+    settings:
+      useCursorFetch: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations:
+    - file:./target/classes/mapper/*.xml
+
+# 加密狗：按 ADR-0004 不移植
+dongle:
+  enabled: false

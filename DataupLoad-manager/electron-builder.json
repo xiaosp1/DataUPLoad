@@ -1,0 +1,20 @@
+{
+  "appId": "com.hikrobotics.dataupload.manager",
+  "productName": "DataupLoadManager",
+  "directories": {
+    "output": "release"
+  },
+  "files": [
+    "dist/**",
+    "electron/**"
+  ],
+  "win": {
+    "target": [
+      { "target": "portable", "arch": ["x64"] }
+    ],
+    "artifactName": "DataupLoad-Manager-${version}.${ext}"
+  },
+  "portable": {
+    "artifactName": "DataupLoad-Manager-${version}-portable.exe"
+  }
+}
