@@ -75,7 +75,11 @@ const isScreen = computed(() => route.path === '/screen' || route.path.startsWit
 .main-layout__halo {
   position: absolute;
   border-radius: 50%;
-  filter: blur(80px);
+  // ===== W-FLASH-02: 整个画面闪 — 底层 halo 超大 blur(80px) 是 backdrop 采样负担 =====
+  // backdrop-filter 每帧要重采样底部内容，blur(80px) 大圆 + 半透明叠加成本极高。
+  // 降至 blur(40px) + 提为稳定合成层（will-change），视觉几乎不变但 GPU 负担大降。
+  filter: blur(40px);
+  will-change: transform;
   pointer-events: none;
   z-index: 0;
 }
@@ -103,6 +107,11 @@ const isScreen = computed(() => route.path === '/screen' || route.path.startsWit
   height: calc(100vh - var(--space-6) * 2);
   min-height: 600px;
   overflow: hidden;
+  // ===== W-FLASH-02: 整个画面闪 — 提升为独立 GPU 合成层 =====
+  // backdrop-filter 会把整个面板作为一个合成层；加 will-change + translateZ(0) 稳定合成层，
+  // 避免内容区数据更新(WS 5s 推送)时反复触发整屏 backdrop 重采样。
+  will-change: transform;
+  transform: translateZ(0);
   // 让"内顶高光"效果继承 global.scss 里的 .glass-panel::before（这里再补一道）
   &::before {
     content: '';
@@ -151,6 +160,11 @@ const isScreen = computed(() => route.path === '/screen' || route.path.startsWit
   overflow-y: auto;
   overflow-x: hidden;
   padding: var(--space-5);
+  // ===== W-FLASH-02: 整个画面闪 — 内容区独立合成层 + 隔离 =====
+  // contain: layout paint 让内容区自身的重绘不扩散到父玻璃面板（不触发整屏 backdrop 回溯）
+  contain: layout paint;
+  will-change: transform;
+  transform: translateZ(0);
   // 自定义滚动条
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.18) transparent;

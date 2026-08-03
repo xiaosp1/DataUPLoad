@@ -114,21 +114,18 @@ export const useLineStore = defineStore('line', {
      * 拉取线别列表（PSM 用相同端点）。
      * 已加载过的话默认不再重复拉；传 force=true 强制刷新。
      */
-    async load(force = false): Promise<void> {
+    async load(force = false, silent = false): Promise<void> {
       if (this.loading) return
       if (this.loaded && !force) return
-      this.loading = true
+      // W-FRONT-05-B6: silent 增量刷新不置 loading，避免 KPI 卡每 5s 闪（值→···→值）
+      if (!silent) this.loading = true
       this.errorMsg = ''
       try {
         const resp = await listLine()
         if (resp.success && Array.isArray(resp.data)) {
-          this.lines = resp.data.map((raw, idx) => {
+          const incoming = resp.data.map((raw, idx) => {
             const rt = parseRealtimeData(raw.realtimeData)
-            // PSM 老 SPA 的 hourDefectCount / hourRemoveCount 是后端聚合字段，
-            // 我们 LineDTO 没这俩字段；用实时值兜底，保证左栏一定有数字。
-            // 优先用 line.color（后端 LineDTO 字段），没有则用默认 accent。
             const lineColor = (raw as LineItem & { color?: string }).color || '#5ce1ff'
-            // 唯一键：优先用后端 key 字段，否则拼 lineNo:faceNo
             const lineKey = (raw as LineItem & { key?: string }).key || `${raw.lineNo}:${raw.faceNo}`
             return {
               lineKey,
@@ -137,9 +134,6 @@ export const useLineStore = defineStore('line', {
               lineNo: raw.lineNo,
               faceNo: raw.faceNo,
               color: lineColor,
-              // W-RT-7：初始 lineOrder 按列表 idx+1 占位
-              // （首次 load 后端 line_order 表可能为空或部分填充；
-              //  这里给一个本地连续序列，触发 reorder 时整体覆盖后端即可）
               lineOrder: idx + 1,
               hourDefectCount: rt?.ngCount ?? 0,
               hourRemoveCount: rt?.removeTotal ?? 0,
@@ -147,6 +141,29 @@ export const useLineStore = defineStore('line', {
               raw
             }
           })
+          // W-FRONT-05-B6: 增量刷新 in-place merge，保留已存在对象引用
+          // （避免 new array 替换触发 v-for 全量重渲染/KPI 重算导致闪烁）
+          if (!silent || this.lines.length === 0) {
+            this.lines = incoming
+          } else {
+            const byKey = new Map(incoming.map((l) => [l.lineKey, l]))
+            // 更新已存在项；按旧顺序保留，缺失的不删（避免选中态抖动）
+            for (const line of this.lines) {
+              const inc = byKey.get(line.lineKey)
+              if (inc) {
+                line.name = inc.name
+                line.color = inc.color
+                line.hourDefectCount = inc.hourDefectCount
+                line.hourRemoveCount = inc.hourRemoveCount
+                line.realtime = inc.realtime
+                line.raw = inc.raw
+                byKey.delete(line.lineKey)
+              }
+            }
+            // 新增的（首次没有的）追加
+            const extra = incoming.filter((l) => !this.lines.some((x) => x.lineKey === l.lineKey))
+            if (extra.length) this.lines.push(...extra)
+          }
           this.loaded = true
           // 默认选第一条
           if (!this.selectedLineKey && this.lines.length > 0) {
@@ -160,7 +177,7 @@ export const useLineStore = defineStore('line', {
         this.lines = []
         this.errorMsg = err?.message || String(err)
       } finally {
-        this.loading = false
+        if (!silent) this.loading = false
       }
     },
 

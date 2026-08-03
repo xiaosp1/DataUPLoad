@@ -22,3 +22,33 @@ DataupLoad/scripts/_pm-launch-v2.ps1
 DataupLoad/scripts/_pm-launch.ps1
 scripts/node_modules
 openclaw-workspace-state.json
+
+# ===== W-FLASH-01/02 归档：临时探测/调试脚本（不入库）=====
+# 前端一次性探测脚本
+DataupLoad-web/check-bom-response.cjs
+DataupLoad-web/check-title-browser.mjs
+DataupLoad-web/check-title.cjs
+DataupLoad-web/check-title2.cjs
+DataupLoad-web/fix-title-entity.cjs
+DataupLoad-web/flash-detect.mjs
+DataupLoad-web/flash-interact.mjs
+DataupLoad-web/flash-pixel.mjs
+DataupLoad-web/login-now.cjs
+DataupLoad-web/probe-screen3.cjs
+DataupLoad-web/probe-ws60.cjs
+DataupLoad-web/probe-ws8.cjs
+DataupLoad-web/probe4.cjs
+DataupLoad-web/probe5.cjs
+DataupLoad-web/probe6.cjs
+DataupLoad-web/verify-wflash-restart.cjs
+# 根目录一次性 py 探测脚本
+probe-dayrec.py
+probe-occ2.py
+probe-status.py
+# 运行时产物 / Cookie
+cookies2.txt
+DataupLoad/app.err
+DataupLoad/app.log
+DataupLoad/current-pid.txt
+# 临时调试目录
+.tmp/

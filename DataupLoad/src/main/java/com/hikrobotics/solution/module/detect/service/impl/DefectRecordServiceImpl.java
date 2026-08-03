@@ -109,7 +109,14 @@ public class DefectRecordServiceImpl
     */
    private final LocalTime TWENTY = LocalTime.of(20, 0, 0);
 
-   @Transactional(rollbackFor = Exception.class)
+   // W-FLASH-01 (2026-08-02 深夜)：根治连接池泄漏。
+   // 原 @Transactional(rollbackFor=Exception.class) 把 line_defect_type / defect_day_record /
+   // line_day_record / line 四张表的几十条 SQL 包进一个长事务。38 条产线每 5s 并发上传 detect，
+   // 事务互相锁等待 + idle in transaction 不提交 → 连接被占用超过 Hikari 60s × 50 连接全被占 →
+   // sendScreen/login 拿不到连接 → 页面无数据。
+   // 改为取消方法级长事务，各写操作单条 SQL 由 JDBC autocommit 自己提交，连接用完即还，
+   // 避免跨表持锁。统计按小时，单条失败重传即可，无需跨表事务原子性。
+   // 若个别写需原子性，用内部 REQUIRES_NEW 短事务承接（当前各写本身单条原子，accepted）。
    @Override
    public BaseResult handleDetectData(DetectDataUploadDTO form) {
       Line line = this.lineService.getByLineNoAndFaceNo(form.getLineNo(), form.getFaceNo());

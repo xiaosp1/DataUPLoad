@@ -69,6 +69,7 @@ const route = useRoute()
 
 const monitorItems: MenuItem[] = [
   { name: 'RealTime', label: 'menu.realtime', icon: '▣' },
+  { name: 'ProductionBoard', label: 'menu.productionBoard', icon: '◫' },
   { name: 'Alarm',    label: 'menu.alarm',    icon: '⚠' },
   { name: 'Defect',   label: 'menu.defect',   icon: '✕' }
 ]

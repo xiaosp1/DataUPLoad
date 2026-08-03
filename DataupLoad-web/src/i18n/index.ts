@@ -62,6 +62,7 @@ const zhCN = {
     realtime: '实时数据',
     alarm: '报警管理',
     defect: '缺陷处理',
+    productionBoard: '生产看板',
 
     account: '账号管理',
     systemConfig: '系统配置',
@@ -954,6 +955,32 @@ const zhCN = {
     log: '操作日志',
     userManage: '用户管理',
     screen: '大屏模式'
+  },
+
+  // W-FRONT-05 上座率全景条
+  occupancy: {
+    barTitle: '上座率全景',
+    barAvg: '平均',
+    barShowValue: '显示数值',
+    barCollapse: '收起',
+    barExpand: '展开',
+    barOpenBoard: '打开生产看板',
+    boardTitle: '生产看板',
+    boardSubtitle: '全部线体上座率实时总览',
+    line: '线体',
+    face: '面',
+    rate: '上座率',
+    updateTime: '更新时间',
+    red: '红',
+    yellow: '黄',
+    green: '绿',
+    gray: '无数据',
+    thresholdTitle: '上座率阈值配置',
+    thresholdPreview: '颜色预览（滑杆改变时实时变化）',
+    warnThreshold: '红色阈值（低于此值显红）',
+    goodThreshold: '绿色阈值（高于此值显绿）',
+    refreshInterval: '刷新间隔',
+    thresholdSaved: '阈值配置已保存'
   }
 }
 
@@ -999,6 +1026,7 @@ const enUS = {
     realtime: 'Realtime Data',
     alarm: 'Alarms',
     defect: 'Defects',
+    productionBoard: 'Production Board',
 
     account: 'Accounts',
     systemConfig: 'System Config',
@@ -1872,6 +1900,32 @@ const enUS = {
     log: 'Audit Logs',
     userManage: 'Users',
     screen: 'Big Screen'
+  },
+
+  // W-FRONT-05 Occupancy panorama bar
+  occupancy: {
+    barTitle: 'Occupancy Overview',
+    barAvg: 'Avg',
+    barShowValue: 'Show Value',
+    barCollapse: 'Collapse',
+    barExpand: 'Expand',
+    barOpenBoard: 'Open Production Board',
+    boardTitle: 'Production Board',
+    boardSubtitle: 'Realtime occupancy overview of all lines',
+    line: 'Line',
+    face: 'Face',
+    rate: 'Occupancy Rate',
+    updateTime: 'Updated At',
+    red: 'Red',
+    yellow: 'Yellow',
+    green: 'Green',
+    gray: 'No Data',
+    thresholdTitle: 'Occupancy Threshold Config',
+    thresholdPreview: 'Color preview (updates live with sliders)',
+    warnThreshold: 'Red threshold (below shows red)',
+    goodThreshold: 'Green threshold (above shows green)',
+    refreshInterval: 'Refresh interval',
+    thresholdSaved: 'Threshold config saved'
   }
 }
 
@@ -1917,6 +1971,7 @@ const idID = {
     realtime: 'Data Realtime',
     alarm: 'Manajemen Alarm',
     defect: 'Penanganan Cacat',
+    productionBoard: 'Papan Produksi',
 
     account: 'Manajemen Akun',
     systemConfig: 'Konfigurasi Sistem',
@@ -2790,6 +2845,32 @@ const idID = {
     log: 'Log',
     userManage: 'Pengguna',
     screen: 'Layar Besar'
+  },
+
+  // W-FRONT-05 Bar panorama okupansi
+  occupancy: {
+    barTitle: 'Ringkasan Okupansi',
+    barAvg: 'Rata-rata',
+    barShowValue: 'Tampilkan Nilai',
+    barCollapse: 'Tutup',
+    barExpand: 'Buka',
+    barOpenBoard: 'Buka Papan Produksi',
+    boardTitle: 'Papan Produksi',
+    boardSubtitle: 'Ringkasan okupansi realtime semua jalur',
+    line: 'Jalur',
+    face: 'Sisi',
+    rate: 'Tingkat Okupansi',
+    updateTime: 'Diperbarui',
+    red: 'Merah',
+    yellow: 'Kuning',
+    green: 'Hijau',
+    gray: 'Tidak Ada Data',
+    thresholdTitle: 'Konfigurasi Ambang Okupansi',
+    thresholdPreview: 'Pratinjau warna (perbarui live dengan slider)',
+    warnThreshold: 'Ambang merah (di bawah ini merah)',
+    goodThreshold: 'Ambang hijau (di atas ini hijau)',
+    refreshInterval: 'Interval refresh',
+    thresholdSaved: 'Konfigurasi ambang disimpan'
   }
 }
 

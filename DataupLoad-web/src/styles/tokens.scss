@@ -20,9 +20,13 @@
   --glass-bg-hover: rgba(255, 255, 255, 0.12);
   --glass-border: rgba(255, 255, 255, 0.18);
   --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  --glass-blur: blur(40px) saturate(180%);
-  --glass-blur-soft: blur(30px) saturate(160%);
-  --glass-blur-light: blur(20px) saturate(160%);
+  // ===== W-FLASH-02: 全站无差别画面闪烁 — 降 backdrop-filter GPU 重采样负担 =====
+  // 真因：全站玻璃层 backdrop-filter 太重（blur40px+saturate180%），主面板 1552x852 整屏
+  // 每当下方像素变化（WS 5s 推数据 / 切菜单 / hover）都会触发全屏 backdrop 重采样 → 整屏抖闪。
+  // 降模糊半径与 saturate 强度：磨砂玻璃视觉基本保留，GPU 每帧采样成本大幅下降。
+  --glass-blur: blur(16px) saturate(150%);
+  --glass-blur-soft: blur(12px) saturate(140%);
+  --glass-blur-light: blur(8px) saturate(140%);
 
   // 文字
   --text-primary: rgba(255, 255, 255, 0.92);

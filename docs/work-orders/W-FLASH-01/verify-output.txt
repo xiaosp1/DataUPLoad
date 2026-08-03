@@ -1,0 +1,14 @@
+登录表单 inputs: {"hasUser":true,"hasPwd":true}
+已触发登录(Enter)，等待跳转...
+登录后 URL: http://127.0.0.1:8080/#/realtime
+观察时长 13009ms
+上座率条: true
+KPI: true
+未跳403: true
+未跳login: true
+WS新鲜(无断开+有数据): true
+console errors(0): NONE
+page errors(0): NONE
+--- body 200字 ---
+▣ DataupLoad v2 实时监控 ▣ 实时数据 ◫ 生产看板 ⚠ 报警管理 ✕ 缺陷处理 系统管理 ☷ 账号管理 ⚙ 系统配置 ⌘ 操作日志 ◉ 用户管理 欢迎 首页 / 实时数据 简体中文 ⤢ S super_admin 超级管理员 ▾ 实时数据 实时查看采集点数据流、设备状态与生产节拍 📊 上座率全景 平均 10.5% 显示数值 ▾ ⚙ 100 100 0 0 2 17 打开生产看板 → 🛰️ 产线列表 ⠿ 共: 38 1 line1A - A1 Line 14,182 缺陷 13,708 剔除 2
+截图已存: E:\DEMO\数据采集\docs\work-orders\W-FLASH-01\w-flash-01-realtime.png

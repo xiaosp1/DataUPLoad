@@ -13,6 +13,7 @@ import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
 import Login from '../views/Login.vue'
 import MainLayout from '../layouts/MainLayout.vue'
 import RealTime from '../views/RealTime.vue'
+import ProductionBoard from '../views/ProductionBoard.vue'
 import Alarm from '../views/Alarm.vue'
 import Defect from '../views/Defect.vue'
 import Account from '../views/Account.vue'
@@ -65,6 +66,12 @@ const routes: RouteRecordRaw[] = [
         name: 'RealTime',
         component: RealTime,
         meta: { permission: 'realtime', title: 'menu.realtime' }
+      },
+      {
+        path: 'production-board',
+        name: 'ProductionBoard',
+        component: ProductionBoard,
+        meta: { permission: 'realtime', title: 'menu.productionBoard' }
       },
       {
         path: 'alarm',

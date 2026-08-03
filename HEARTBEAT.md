@@ -1,7 +1,52 @@
 # HEARTBEAT.md
 
 <!-- 项目心跳任务；留空/注释则跳过 -->
-<!-- 最近快照: 2026-07-24 22:43（W-X30 清理验证冲刺完成） -->
+<!-- 最近快照: 2026-08-03 15:44（W-FLASH-02 全站界面闪烁根治，现场确认通过） -->
+
+## 当前状态（2026-08-03 15:44）— W-FLASH-02 全站界面闪烁根治 ✅ commit+push
+
+- [x] **老板 8/3 反馈**："界面还是闪"，整个画面闪烁、不分页面/操作/全屏模式
+- [x] **诊断（headless 像素+元素级）**：全局亮度恒定（排除黑白闪），但 backdrop-filter `blur(40px) saturate(180%)` 全站玻璃层过重 + 底部 halo `blur(80px)` 光晕 → WS 每 5s 推送/切菜单时**整屏 GPU 重采样抖动**
+- [x] **W-FLASH-01 已修数据源不同步但没碰渲染层** → 所以修完仍在闪
+- [x] **W-FLASH-02 修复（3 文件）**：
+  - `tokens.scss` 3 变量降级：blur 40→16 / 30→12 / 20→8，saturate 180/160→150/140（全站 20 组件一键生效）
+  - `MainLayout.vue`：panel + content 加 `will-change/translateZ(0)` GPU 合成层隔离；halo blur 80→40
+  - `index.html` vite 模板中文化根治（lang=zh-CN + 英科手套中控平台，build 不再重置）
+- [x] **像素 A/B 量化**：首屏 14.91%→0.01%；周期性整屏抖峰 0.09~0.10%→无；左上角抖动 68~74%→0
+- [x] **现场确认**：老板 8/3 15:44 现场机器亲自确认**不再闪烁** ✅
+- [x] **部署**：bundle `index-BMj2uDIZ.js` + `index-8oO-niF5.css`，8080 全 200，后端未重启
+- [x] **归档**：`docs/work-orders/W-FLASH-02-report.md` + W-FLASH-01 全套 + .gitignore 挡临时探测脚本
+- [x] **git**：commit + push origin main（含 W-FLASH-01 整批 + W-FLASH-02 + W-FRONT-05 TODO 文档 + memory 日志）
+
+### 服务状态
+- 后端 PID 13724, port 8080, 38 线 ESTABLISHED 持续上报
+- 前端 Vue 3 SPA 已部署 DataupLoad/web/（W-FLASH-02 修复版）
+
+### 残留（生产前）
+- P2: mvn package 重打 jar（target 旧版）；W-FRONT-04-A/B 拖拽持久化+WS UID 待拍板
+- P3: W-FIX-03 sa-token HttpOnly；super_admin 改非默认密码；i18n 拆 locales；bundle 单文件 2.6MB code-split
+
+---
+
+## 历史里程碑（持续追加）
+
+## 当前状态（2026-08-01 15:45）— 上座率问题根因诊断完成（非 Web bug）
+
+- [x] **诊断结论**: "只有 10 线有数据 / 只有 line10A/10B 有色格" **不是前端/后端 bug**
+- [x] **后端链路实测正常**: 手动 POST /client/data/detect（occupancyRate=88.5）→ DB 立即写入 88.5
+- [x] **前端链路实测正常**: OccupancyPanoramaBar/ProductionBoard 读 `occupancyRate`，>0 才着色
+- [x] **真实客户端持续上报但 occupancyRate 分化**: 45s 实测所有线 total 都在涨（LIVE），但只有 line10A/10B 报 100/99.8，其余 34 线报 0
+- [x] **决定性实验**: 把停产 line3A occupancyRate 改成 90，30s 内被真实客户端覆盖回 0（total 在涨、update_time=今天 15:31）→ 客户端上报 occupancyRate 本身就是 0
+- [x] **根因**: 34 线客户端上报 occupancyRate=0（设备停产/待机），Web 看板如实展示为灰；line10A/10B 在产报 100/99.8 才着色
+- [x] **非本 Web 项目 bug**，无需改后端/前端。报障 report: `docs/work-orders/W-FRONT-05-diagnosis-report.md`
+- [x] **服务正常**: PID 28104, port 8080, 客户端 ESTABLISHED 持续上报中
+
+### 给老板的可选动作
+1. 确认 34 线是否停产 → 是则现状正确，开产自然着色
+2. 若 34 线也在产但报 0 → 问题在产线客户端（hik 上位机）occupancyRate 计算，不在 Web 范围
+3. Web 端可选增强：停产但在线线显示"停产/待机"样式（区分"无数据"），纯前端工单
+
+---
 
 ## 当前状态（2026-07-24 22:43）
 

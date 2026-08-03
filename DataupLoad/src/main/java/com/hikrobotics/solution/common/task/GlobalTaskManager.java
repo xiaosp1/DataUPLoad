@@ -136,8 +136,8 @@ public class GlobalTaskManager {
         try {
             this.screenService.sendScreenDataInfo();
         } catch (Exception ex) {
-            // 不让 @Scheduled 中止后续调度（沿用 PSM 反编译风格的吞错策略）
-            log.warn("sendScreen failed: {}", ex.toString());
+            // 不让 @Scheduled 中止后续调度；保留 ex 以在异常时输出完整堆栈定位（W-FLASH-01）
+            log.warn("sendScreen failed: {}", ex.toString(), ex);
         }
     }
 

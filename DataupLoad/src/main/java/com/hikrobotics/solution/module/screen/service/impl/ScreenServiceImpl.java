@@ -81,7 +81,7 @@ implements IScreenService {
             sortDayRecordByFace.put(data.getKey(), data);
             result.setRemoveSum(result.getRemoveSum() + data.getRemoveTotal());
         });
-        List<Line> lines = this.lineService.listLine().stream().sorted(Comparator.comparingInt(Line::getOrder).thenComparing(Line::getColor)).collect(Collectors.toList());
+        List<Line> lines = this.lineService.listLine().stream().sorted(Comparator.comparingInt((Line l) -> l.getOrder() == null ? Integer.MAX_VALUE : l.getOrder()).thenComparing(Line::getColor, Comparator.nullsLast(Comparator.naturalOrder()))).collect(Collectors.toList());
         for (Line line : lines) {
             ScreenDataDTO.DetectDataDTO detectDataOfLine = new ScreenDataDTO.DetectDataDTO().setLineNo(line.getLineNo()).setFaceNo(line.getFaceNo()).setOrder(line.getOrder()).setLineId(line.getId()).setColor(line.getColor());
             Map<String, LineDefectType> sortDefectByName = sortDefectByPosAndName.getOrDefault(line.getPos(), Maps.newHashMap());

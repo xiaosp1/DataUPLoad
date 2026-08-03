@@ -3,6 +3,11 @@ server:
   tomcat:
     threads:
       max: 1000
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
 
 # W-AUTH-01 P1 修复：framework-starter 的 message bundle 在 i18n/framework/messages.properties，
 # Spring Boot 默认 basename=messages 找不到，导致 LocaleUtil.getMsg() 抛 NoSuchMessageException

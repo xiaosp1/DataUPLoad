@@ -6,6 +6,11 @@
         中栏 1fr:    KPI 4 卡 + 折线图 + 线别状态表（数据随 leftCard selected 切换）
     -->
     <div class="realtime-layout">
+      <!-- W-FRONT-05-B2 顶部全宽条：上座率全景（跨左栏+中栏） -->
+      <div class="realtime-layout__bar">
+        <OccupancyPanoramaBar />
+      </div>
+
       <!-- ====== 左栏：线别列表 ====== -->
       <aside class="realtime-layout__left">
         <LineListCard @line-change="handleLineChange" />
@@ -94,7 +99,10 @@
         <GlassCard class="realtime-chart-card">
           <div class="realtime-chart__header">
             <div>
-              <h3 class="realtime-chart__title">{{ $t('realtime.chart.title') }}</h3>
+              <div class="realtime-chart__titlewrap">
+                <h3 class="realtime-chart__title">{{ $t('realtime.chart.title') }}</h3>
+                <span v-if="realtimeStale" class="realtime-stale-badge" :title="$t('realtime.ws.disconnected')">連接斷開</span>
+              </div>
               <p class="realtime-chart__sub">{{ chartSubtitle }}</p>
             </div>
             <div class="realtime-chart__controls">
@@ -222,6 +230,7 @@ import GlassButton from '../components/GlassButton.vue'
 import LineListCard from '../components/LineListCard.vue'
 import LineDetailPanel from '../components/LineDetailPanel.vue'
 import AlarmDetailDialog from '../components/AlarmDetailDialog.vue'
+import OccupancyPanoramaBar from '../components/OccupancyPanoramaBar.vue'
 import { useLineStore } from '../stores/line'
 import {
   listAlarm,
@@ -247,7 +256,7 @@ const todayAlarmCount = ref(0)
 const todayAlarmLoading = ref(false)
 
 const chartEl = ref<HTMLDivElement | null>(null)
-let chart: echarts.ECharts | null = null
+var chart: echarts.ECharts | null = null
 let unsubscribeScreen: (() => void) | null = null
 
 const chartColors = {
@@ -258,6 +267,17 @@ const chartColors = {
 
 // WS 连接状态镜像（顶栏 / 调试用）
 const wsState = computed(() => screenState.wsState)
+
+// ===== W-FLASH-01: stale 降级标记 =====
+// WS 断开或快照超过 10s 未更新 => realtimeStale=true（停留最后帧 + 显示「连接断开」角标，不闪空白）
+const STALE_MS = 10_000
+const realtimeStale = ref(false)
+let realtimeStaleTick: ReturnType<typeof setInterval> | null = null
+function refreshRealtimeStale(): void {
+  const live = screenState.wsState === 'open'
+  const fresh = live && !!screenState.lastUpdate && Date.now() - screenState.lastUpdate < STALE_MS
+  realtimeStale.value = !fresh
+}
 
 // 当前选中行的实时数据（每次 refreshRealtimePoint 写入）
 const selectedRealtime = ref<RealtimeDetectData | null>(null)
@@ -619,7 +639,10 @@ function applySnapshotToSelected(snap: ScreenSnapshot) {
   const hit = snap.lines.find((ws) => ws.lineNo === cur.lineNo && ws.faceNo === cur.faceNo)
   if (!hit || !hit.realTimeDetectData) return
   const rtd = hit.realTimeDetectData
-  selectedRealtime.value = {
+
+  // ===== W-FLASH-01: 增量 patch，不重建对象 =====
+  // 只更新字段值，不整体替换 selectedRealtime.value（避免值未变时引用变化触发 watch 重绘）。
+  const next = {
     total: Number(rtd.total ?? 0),
     ngCount: Number(rtd.ngCount ?? 0),
     removeTotal: Number(rtd.removeTotal ?? 0),
@@ -631,12 +654,32 @@ function applySnapshotToSelected(snap: ScreenSnapshot) {
     startTime: rtd.startTime,
     defects: Array.isArray(rtd.defects) ? rtd.defects : []
   }
+  const prev = selectedRealtime.value
+  let changed = !prev
+  if (prev && !changed) {
+    changed =
+      prev.total !== next.total ||
+      prev.ngCount !== next.ngCount ||
+      prev.removeTotal !== next.removeTotal ||
+      prev.removeFail !== next.removeFail ||
+      prev.efficiency !== next.efficiency ||
+      prev.totalNgRate !== next.totalNgRate ||
+      prev.occupancy !== next.occupancy ||
+      prev.occupancyRate !== next.occupancyRate ||
+      prev.startTime !== next.startTime
+  }
+  if (changed) {
+    selectedRealtime.value = next
+  }
 }
 
 /** 左栏选中变化：清旧实时数据；WS 推送会带新选中线的实时过来 */
 function handleLineChange(_lineKey: string) {
   selectedRealtime.value = null  // 切线后先清，避免显示上一条线数据
-  nextTick(renderChart)
+  // ===== W-FLASH-01: 切线是用户主动操作，强制立即刷新（绕过 5s 节流）=====
+  chartDirty = true
+  if (chart) flushChart()
+  else nextTick(renderChart)
   // 如果 store 里已有快照，立刻补一次（避免等 5s）
   if (screenState.snapshot) applySnapshotToSelected(screenState.snapshot)
 }
@@ -685,111 +728,108 @@ function buildSeries() {
   return { xLabels, planSeries, actual, defect }
 }
 
+// ===== W-FLASH-01: echarts 浣庡紑閿€鏇存柊 + 鑺傛祦锛堟牴娌?WS 5s 鍏ㄥ浘閲嶇粯闂儊锛?====
+//  - chartInitedFlag: 闈欐€侀厤缃彧 init 涓€娆★紙notMerge=true锛?//  - flushChart(): 澧為噺 setOption({xAxis.data, series[].data}, notMerge=false)锛屾暟鎹鍚嶆湭鍙樺垯涓嶉噸缁?//  - renderChart(): 鑺傛祦璋冨害锛屾瘡 5s 鏈€澶氶噸缁?1 娆★紙WS 鎺ㄩ€?5s/娆★紝鍗充娇绐佸彂涔熶笉鍙犲姞锛?// init-once flag: 鎸傚湪 window 閬垮厤 esbuild 璇垹 script setup 椤跺眰 var
+var chartInitedFlag = false // init-once (棣栨鏁村浘鍒濆鍖栨爣璁?
+var chartTimer: number | null = null
+var chartDirty = false
+var chartLastApplyTs = 0
+var chartSig = ''
+
+/** 鏁版嵁绛惧悕锛歺 杞存椂闂?+ 涓夌嚎鏈€鏂板€硷紱鍊兼湭鍙?=> 璺宠繃閲嶇粯 */
+function chartSignature(): string {
+  if (chartEmpty.value) return 'empty'
+  const sg = buildSeries()
+  const plan = sg.planSeries[sg.planSeries.length - 1]
+  const act = sg.actual[sg.actual.length - 1]
+  const def = sg.defect[sg.defect.length - 1]
+  return `${sg.xLabels.join(',')}#${plan}#${act}#${def}`
+}
+
+function flushChart(): void {
+  if (!chart || !chartEl.value) return
+  chartDirty = false
+  chartLastApplyTs = Date.now()
+  const sig = chartSignature()
+  if (sig === chartSig) return
+  chartSig = sig
+  const sg = buildSeries()
+  const empty = chartEmpty.value
+  chart.setOption(
+    {
+      xAxis: { data: sg.xLabels },
+      series: [
+        { data: empty ? [] : sg.planSeries },
+        { data: empty ? [] : sg.actual },
+        { data: empty ? [] : sg.defect }
+      ]
+    },
+    false
+  )
+}
 function renderChart() {
   if (!chartEl.value) return
   if (!chart) {
     chart = echarts.init(chartEl.value, undefined, { renderer: 'canvas' })
   }
-  const { xLabels, planSeries, actual, defect } = buildSeries()
-  const empty = chartEmpty.value
+  // 棣栨锛氭暣浣撳垵濮嬪寲涓€娆★紙notMerge=true锛岄潤鎬侀厤缃畾姝伙級
+  if (!chartInitedFlag) {
+    chartInitedFlag = true
+    const s0 = buildSeries()
+    const e0 = chartEmpty.value
+    chart.setOption(
+      {
+        backgroundColor: 'transparent',
+        grid: { left: 50, right: 24, top: 30, bottom: 36 },
+        tooltip: { trigger: 'axis', backgroundColor: 'rgba(15, 22, 36, 0.92)', borderColor: 'rgba(92, 225, 255, 0.3)', borderWidth: 1, textStyle: { color: '#fff', fontSize: 12 } },
+        xAxis: { type: 'category', data: s0.xLabels, boundaryGap: false, axisLine: { lineStyle: { color: 'rgba(255,255,255,0.18)' } }, axisLabel: { color: 'rgba(255,255,255,0.62)', fontSize: 11 }, axisTick: { show: false } },
+        yAxis: { type: 'value', axisLine: { show: false }, axisTick: { show: false }, splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)' } }, axisLabel: { color: 'rgba(255,255,255,0.5)', fontSize: 11 } },
+        series: [
+          { name: t('realtime.chart.plan'), type: 'line', data: e0 ? [] : s0.planSeries, smooth: true, symbol: 'none', lineStyle: { color: chartColors.plan, width: 2, type: 'dashed' }, areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(92, 225, 255, 0.30)' }, { offset: 1, color: 'rgba(92, 225, 255, 0.02)' }]) }, z: 1 },
+          { name: t('realtime.chart.actual'), type: 'line', data: e0 ? [] : s0.actual, smooth: true, symbol: 'circle', symbolSize: 6, showSymbol: (val: number, idx: number) => idx === s0.actual.length - 1, itemStyle: { color: chartColors.actual, borderColor: '#fff', borderWidth: 1 }, lineStyle: { color: chartColors.actual, width: 2.5 }, areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(95, 217, 127, 0.30)' }, { offset: 1, color: 'rgba(95, 217, 127, 0.02)' }]) }, z: 2 },
+          { name: t('realtime.chart.defect'), type: 'line', data: e0 ? [] : s0.defect, smooth: true, symbol: 'circle', symbolSize: 5, lineStyle: { color: chartColors.defect, width: 2 }, itemStyle: { color: chartColors.defect }, z: 3 }
+        ]
+      },
+      true
+    )
+    return
+  }
 
-  chart.setOption(
-    {
-      backgroundColor: 'transparent',
-      grid: { left: 50, right: 24, top: 30, bottom: 36 },
-      tooltip: {
-        trigger: 'axis',
-        backgroundColor: 'rgba(15, 22, 36, 0.92)',
-        borderColor: 'rgba(92, 225, 255, 0.3)',
-        borderWidth: 1,
-        textStyle: { color: '#fff', fontSize: 12 }
-      },
-      xAxis: {
-        type: 'category',
-        data: xLabels,
-        boundaryGap: false,
-        axisLine: { lineStyle: { color: 'rgba(255,255,255,0.18)' } },
-        axisLabel: { color: 'rgba(255,255,255,0.62)', fontSize: 11 },
-        axisTick: { show: false }
-      },
-      yAxis: {
-        type: 'value',
-        axisLine: { show: false },
-        axisTick: { show: false },
-        splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)' } },
-        axisLabel: { color: 'rgba(255,255,255,0.5)', fontSize: 11 }
-      },
-      series: [
-        {
-          name: t('realtime.chart.plan'),
-          type: 'line',
-          data: empty ? [] : planSeries,
-          smooth: true,
-          symbol: 'none',
-          lineStyle: { color: chartColors.plan, width: 2, type: 'dashed' },
-          areaStyle: {
-            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: 'rgba(92, 225, 255, 0.30)' },
-              { offset: 1, color: 'rgba(92, 225, 255, 0.02)' }
-            ])
-          },
-          z: 1
-        },
-        {
-          name: t('realtime.chart.actual'),
-          type: 'line',
-          data: empty ? [] : actual,
-          smooth: true,
-          symbol: 'circle',
-          symbolSize: 6,
-          showSymbol: (val: number, idx: number) => idx === actual.length - 1,
-          itemStyle: { color: chartColors.actual, borderColor: '#fff', borderWidth: 1 },
-          lineStyle: { color: chartColors.actual, width: 2.5 },
-          areaStyle: {
-            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: 'rgba(95, 217, 127, 0.30)' },
-              { offset: 1, color: 'rgba(95, 217, 127, 0.02)' }
-            ])
-          },
-          z: 2
-        },
-        {
-          name: t('realtime.chart.defect'),
-          type: 'line',
-          data: empty ? [] : defect,
-          smooth: true,
-          symbol: 'circle',
-          symbolSize: 5,
-          lineStyle: { color: chartColors.defect, width: 2 },
-          itemStyle: { color: chartColors.defect },
-          z: 3
-        }
-      ]
-    },
-    true
-  )
+  // 宸插垵濮嬪寲锛氳妭娴佸閲忔洿鏂帮紙notMerge=false 鍙洿鏁版嵁鐐癸紱姣?5s 鏈€澶?1 娆★紱绛惧悕鏈彉涓嶉噸缁橈級
+  chartDirty = true
+  const now = Date.now()
+  const since = now - chartLastApplyTs
+  if (chartTimer != null) return
+  if (since >= 4500) {
+    flushChart()
+    return
+  }
+  chartTimer = window.setTimeout(() => {
+    chartTimer = null
+    if (chartDirty && chart) flushChart()
+  }, 4500 - since)
 }
-
 function handleResize() {
   chart?.resize()
 }
 
+// ===== W-FLASH-01: watch 改非 deep，避免 silent store 更新触发无谓重绘 =====
 // 监听选中线 / 实时点变化 → 重绘图
+// （applySnapshotToSelected 已做增量 patch：值未变不换引用，故引用变化=真变化，非 deep 足够）
 watch(
   [() => lineStore.selectedLineKey, selectedRealtime],
   () => {
     nextTick(renderChart)
-  },
-  { deep: true }
+  }
 )
 
-// 监听线列表载入完成 → 首次绘制
+// 监听线列表长度变化（首次载入 / 增删线）→ 重绘图
+// （W-FLASH-01: 原 {deep:true} 会在 WS 驱动的 silent in-place 更新时每 5s 触发，已去掉）
 watch(
-  () => lineStore.lines,
+  () => lineStore.lines.length,
   () => {
     nextTick(renderChart)
-  },
-  { deep: true }
+  }
 )
 
 // ---------------------------------------------------------------------------
@@ -801,12 +841,22 @@ onMounted(async () => {
   await nextTick()
   renderChart()
   window.addEventListener('resize', handleResize)
+  refreshRealtimeStale()
+  realtimeStaleTick = setInterval(refreshRealtimeStale, 1000)
   // W-PERF-B: 订阅全局 WS 单例，5s/次 推送实时数据，替代原 60s polling
   unsubscribeScreen = subscribeScreen((snap) => applySnapshotToSelected(snap))
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', handleResize)
+  if (realtimeStaleTick != null) {
+    clearInterval(realtimeStaleTick)
+    realtimeStaleTick = null
+  }
+  if (chartTimer != null) {
+    clearTimeout(chartTimer)
+    chartTimer = null
+  }
   if (unsubscribeScreen) {
     try { unsubscribeScreen() } catch { /* ignore */ }
     unsubscribeScreen = null
@@ -826,6 +876,10 @@ onBeforeUnmount(() => {
   gap: var(--space-4);
   align-items: stretch;
   min-height: 0;
+}
+
+.realtime-layout__bar {
+  grid-column: 1 / -1;
 }
 
 .realtime-layout__left {
@@ -1100,6 +1154,21 @@ onBeforeUnmount(() => {
   font-weight: var(--font-weight-bold);
   color: var(--text-primary);
   margin: 0;
+}
+.realtime-chart__titlewrap {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+.realtime-stale-badge {
+  font-size: var(--font-size-xs);
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  border-radius: 4px;
+  padding: 0 5px;
+  line-height: 16px;
+  white-space: nowrap;
 }
 .realtime-chart__sub {
   font-size: var(--font-size-sm);

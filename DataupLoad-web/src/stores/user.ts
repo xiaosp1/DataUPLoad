@@ -74,6 +74,16 @@ export const useUserStore = defineStore('user', {
       } as Partial<UserState>)
       const perm = usePermissionStore()
       perm.reset()
+    },
+
+    /**
+     * W-FRONT-05-A: 拦截器 / 主动登出的统一入口。
+     * 语义比 reset() 更清晰：清空 user + permission 态。
+     * satoken cookie 在拦截器场景下已被后端 401 标记失效；
+     * 主动登出（Topbar.vue）仍走后端 logout 接口，这里只清前端态。
+     */
+    logout(): void {
+      this.reset()
     }
   }
 })
