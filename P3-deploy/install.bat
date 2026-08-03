@@ -71,6 +71,28 @@ if errorlevel 1 (
   echo [OK] database intco exists
 )
 
+REM ---------- 5b. import all schema SQL (fresh DB has no tables; flyway baseline 1.20 skips V0.x-V1.19) ----------
+echo [DB] import framework tables (V0.x from framework-starter jar) ...
+set TMP_SQL=%TEMP%\p3_fw_sql
+if exist "%TMP_SQL%" rmdir /s /q "%TMP_SQL%"
+mkdir "%TMP_SQL%"
+for %%j in ("%SERVER%\lib\framework-starter-*.jar") do (
+  "%SERVER%\jdk\bin\jar.exe" xf "%%j" db/migration
+  if exist "db\migration\V0.1__framework_db.sql" copy /y "db\migration\V0.1__framework_db.sql" "%TMP_SQL%\" >nul 2>&1
+  if exist "db\migration\V0.2__framework_db.sql" copy /y "db\migration\V0.2__framework_db.sql" "%TMP_SQL%\" >nul 2>&1
+  rmdir /s /q db 2>nul
+)
+for %%f in ("%TMP_SQL%\*.sql") do (
+  echo   applying %%~nxf ...
+  "%PSQL%" -h 127.0.0.1 -p 5432 -U postgres -d intco -v ON_ERROR_STOP=0 -f "%%f" >nul 2>&1
+)
+echo [DB] import business tables (V1.x from server\sql) ...
+for %%f in ("%SERVER%\sql\*.sql") do (
+  echo   applying %%~nxf ...
+  "%PSQL%" -h 127.0.0.1 -p 5432 -U postgres -d intco -v ON_ERROR_STOP=0 -f "%%f" >nul 2>&1
+)
+echo [OK] schema imported
+
 REM seed whitelist (vision line IPs + local + P3 host)
 "%PSQL%" -h 127.0.0.1 -p 5432 -U postgres -d intco -c "INSERT INTO white_ip (ip) VALUES ('127.0.0.1'),('192.168.137.180'),('192.168.135.50'),('192.168.135.51'),('192.168.135.52'),('192.168.135.53'),('192.168.135.54'),('192.168.135.55'),('192.168.135.56'),('192.168.135.57'),('192.168.135.58'),('192.168.135.59'),('192.168.135.60'),('192.168.135.61'),('192.168.135.62'),('192.168.135.63'),('192.168.135.64'),('192.168.135.65'),('*.*.*.*') ON CONFLICT DO NOTHING" >nul 2>&1
 echo [OK] whitelist seeded
